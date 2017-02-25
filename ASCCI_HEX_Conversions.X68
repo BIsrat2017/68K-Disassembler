@@ -12,12 +12,12 @@ A2H_W   *Converts and ASCII Byte string into HEX; Size WORD
         MOVE.W  #2,D1                   *Store length of string into D1 for looping
         MOVEA.L A0,A1                   *Copy starting point of string
 
-        BSR.W   number
+        BSR.W   numSub
         
         MOVEA.L A1,A0                   *Restore address position
         MOVE.W  #2,D1                   *Reset loop counter
         
-        BSR.W   upper
+        BSR.W   upSub
 
         MOVEA.L A1,A0
         
@@ -46,6 +46,7 @@ upEnd
 
 
         
+
 
 
 
