@@ -22,6 +22,14 @@ ADDI_B          EQU %0000011000
 ADDI_W          EQU %0000011001
 ADDI_L          EQU %0000011010
 
+ADD             EQU %1101
+ADD_TO_REG_B    EQU %000
+ADD_TO_REG_W    EQU %001
+ADD_TO_REG_L    EQU %010
+ADD_TO_EA_B     EQU %100
+ADD_TO_EA_W     EQU %101
+ADD_TO_EA_L     EQU %110
+
     ORG    $1000
 
 START:   LEA  stack, SP               ; first instruction of program
@@ -88,6 +96,10 @@ CHECK_MOVE_AND_MOVEA_AND_MOVEQ
     CMP.B       D3,D6
     BEQ         MATCH_MOVEQ
     
+    MOVE.B      #ADD,D6
+    CMP.B       D3,D6
+    BEQ         CHECK_ADD
+    
     RTS
 ***********************************    
 CHECK_MOVEM
@@ -111,7 +123,37 @@ CHECK_MOVEM
     BEQ         MATCH_MOVEM_TO_REG_L
     
     RTS
-****************************************   
+**************************************** 
+CHECK_ADD
+    
+    JSR         IOSLATE_OP_CODE
+    
+    MOVE.W      #ADD_TO_REG_B,D6
+    CMP.W       D3,D6
+    BEQ         MATCH_ADD_TO_REG_B
+    
+    MOVE.W      #ADD_TO_REG_W,D6
+    CMP.W       D3,D6
+    BEQ         MATCH_ADD_TO_REG_W
+    
+    MOVE.W      #ADD_TO_REG_L,D6
+    CMP.W       D3,D6
+    BEQ         MATCH_ADD_TO_REG_L
+    
+    MOVE.W      #ADD_TO_EA_B,D6
+    CMP.W       D3,D6
+    BEQ         MATCH_ADD_TO_EA_B
+    
+    MOVE.W      #ADD_TO_EA_W,D6
+    CMP.W       D3,D6
+    BEQ         MATCH_ADD_TO_EA_W
+    
+    MOVE.W      #ADD_TO_EA_L,D6
+    CMP.W       D3,D6
+    BEQ         MATCH_ADD_TO_EA_L
+    
+    RTS
+****************************************  
 CHECK_ADDI
 
     JSR         ReadFirstTenBits
@@ -133,7 +175,7 @@ CHECK_ADDI
     
 CHECK_MOVEA_W_AND_MOVE_W
     
-    JSR         ISOLATE_MOVEA_CODE
+    JSR         ISOLATE_OP_CODE
        
     MOVE.B      #MOVEA_WL,D6
     CMP.B       D3,D6
@@ -141,7 +183,7 @@ CHECK_MOVEA_W_AND_MOVE_W
     
     JMP         MATCH_MOVE_W 
 ************************************************
-ISOLATE_MOVEA_CODE 
+ISOLATE_OP_CODE 
     MOVEM.W     D2, -(SP)       
     MOVE.B      #7,D7          
     LSL.W       D7,D2
@@ -153,7 +195,7 @@ ISOLATE_MOVEA_CODE
 **********************************************
 CHECK_MOVEA_L_AND_MOVE_L
     
-    JSR         ISOLATE_MOVEA_CODE
+    JSR         ISOLATE_OP_CODE
        
     MOVE.B      #MOVEA_WL,D6
     CMP.B       D3,D6
@@ -188,6 +230,18 @@ MATCH_ADDI_B
 MATCH_ADDI_W
     MOVE.W      D2,D5       *REMOVE
 MATCH_ADDI_L
+    MOVE.W      D2,D5       *REMOVE
+MATCH_ADD_TO_REG_B
+    MOVE.W      D2,D5       *REMOVE
+MATCH_ADD_TO_REG_W
+    MOVE.W      D2,D5       *REMOVE
+MATCH_ADD_TO_REG_L
+    MOVE.W      D2,D5       *REMOVE
+MATCH_ADD_TO_EA_B
+    MOVE.W      D2,D5       *REMOVE
+MATCH_ADD_TO_EA_W
+    MOVE.W      D2,D5       *REMOVE
+MATCH_ADD_TO_EA_L 
     MOVE.W      D2,D5       *REMOVE
     
     END    START        ; last line of source
