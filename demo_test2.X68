@@ -22,18 +22,18 @@ start		EQU	$00007000	* ORG and END address
 
 * This is a group of ADD instructions
 add_start	
-               * MOVE.B  D1,D2
-                *MOVE.W  D1,D2
+                *MOVE.B  D1,D2
+                MOVE.W  D1,D2
                 *MOVE.L  D1,D2
                 *MOVEA.W D1,A5
                 *MOVEA.L D1,A5
                 
-                MOVEM.W     D2, -(SP)
-                MOVEM.L     D2, -(SP)
-                MOVEM.W     (SP)+,D2
-                MOVEM.L     (SP)+,D2
+               * MOVEM.W     D2, -(SP)
+                *MOVEM.L     D2, -(SP)
+                *MOVEM.W     (SP)+,D2
+                *MOVEM.L     (SP)+,D2
 
-                ADD.W   D1,D2
+                *ADD.W   D1,D2
                 ADDI.W	#$4E71,D1
 		ADDQ.L	#07,D7		
 		ADDA.W	(A6)+,A3
@@ -98,6 +98,12 @@ multiply	MULS	D0,D3		*Optional instruction
 	
 
 		END	start
+
+
+
+
+
+
 
 
 

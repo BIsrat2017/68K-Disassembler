@@ -28,9 +28,8 @@ START:   LEA  stack, SP               ; first instruction of program
 * Put program code here
    
     MOVEA.L #MEM,A2
-    MOVE.B  (A2)+,D2    * D2 will store current byte
+    MOVE.W  (A2)+,D2    * D2 will store current byte
     JSR     CHECK_MOVE_AND_MOVEA_AND_MOVEQ
-    JSR     ReadSecondByte
     JSR     Check_MOVEM
     JSR     Check_ADDI
     
@@ -40,129 +39,119 @@ START:   LEA  stack, SP               ; first instruction of program
 *****************************
 ReadFirstFourBits
 
-    MOVE.B      #4,D7    
-    ROR.W       D7,D2 
+    MOVEM.W     D2, -(SP)
+
+    MOVE.B      #12,D7 
+    LSR.W       D7,D2 
+    MOVE.B      D2,D3
+    
+    MOVEM.W     (SP)+,D2
     RTS
     
 *************************
-ResetFirstFourBits
+ReadFirstTenBits
     
-    MOVE.B      #4,D7
-    ROL.W       D7,D2
-    RTS
-
-*************************
-ReadSecondByte
-
-    MOVE.B      #8,D7
-    LSL.W       D7,D2               * 00000012 -> 00001200
-    MOVE.B      (A2)+,D2            * 00001200 -> 00001234
-    RTS
+    MOVEM.W     D2, -(SP)
+ 
+    LSR.W       #6,D2 
+    MOVE.W      D2,D3
     
+    MOVEM.W     (SP)+,D2
+    RTS
 *************************
-
 CHECK_MOVE_AND_MOVEA_AND_MOVEQ
 
     JSR     ReadFirstFourBits
     
     MOVE.B      #MOVE_B,D6
-    CMP.B       D2,D6
+    CMP.B       D3,D6
     BEQ         MATCH_MOVE_B
     
     MOVE.B      #MOVE_W,D6
-    CMP.B       D2,D6
-    BEQ         CHECK_MOVEA_W
+    CMP.B       D3,D6
+    BEQ         CHECK_MOVEA_W_AND_MOVE_W
     
     MOVE.B      #MOVE_L,D6
-    CMP.B       D2,D6
-    BEQ         CHECK_MOVEA_L
+    CMP.B       D3,D6
+    BEQ         CHECK_MOVEA_L_AND_MOVE_L
  
     MOVE.B      #MOVEQ_,D6
-    CMP.B       D2,D6
+    CMP.B       D3,D6
     BEQ         MATCH_MOVEQ
     
-    JSR         ResetFirstFourBits
     RTS
-    
+***********************************    
 CHECK_MOVEM
     
-    MOVEM.W     D2, -(SP)
-    LSR.W       #6,D2                       * ISOLATE OPCODE
+    JSR         ReadFirstTenBits
     
     MOVE.W      #MOVEM_TO_MEM_W,D6
-    CMP.W       D2,D6
+    CMP.W       D3,D6
     BEQ         MATCH_MOVEM_TO_MEM_W
     
     MOVE.W      #MOVEM_TO_MEM_L,D6
-    CMP.W       D2,D6
+    CMP.W       D3,D6
     BEQ         MATCH_MOVEM_TO_MEM_L
     
     MOVE.W      #MOVEM_TO_REG_W,D6
-    CMP.W       D2,D6
+    CMP.W       D3,D6
     BEQ         MATCH_MOVEM_TO_REG_W
     
     MOVE.W      #MOVEM_TO_REG_L,D6
-    CMP.W       D2,D6
+    CMP.W       D3,D6
     BEQ         MATCH_MOVEM_TO_REG_L
     
-    MOVEM.W     (SP)+,D2 
     RTS
-    
+****************************************   
 CHECK_ADDI
 
-    MOVEM.W     D2, -(SP)
-    LSR.W       #6,D2                       * ISOLATE OPCODE
+    JSR         ReadFirstTenBits
     
     MOVE.W      #ADDI_B,D6
-    CMP.W       D2,D6
+    CMP.W       D3,D6
     BEQ         MATCH_ADDI_B
     
     MOVE.W      #ADDI_W,D6
-    CMP.W       D2,D6
+    CMP.W       D3,D6
     BEQ         MATCH_ADDI_W
     
     MOVE.W      #ADDI_L,D6
-    CMP.W       D2,D6
+    CMP.W       D3,D6
     BEQ         MATCH_ADDI_L
     
-    MOVEM.W     (SP)+,D2 
     RTS
-
+*****************************************
     
-CHECK_MOVEA_W
-
-    JSR         ResetFirstFourBits
-    JSR         ReadSecondByte
+CHECK_MOVEA_W_AND_MOVE_W
     
     JSR         ISOLATE_MOVEA_CODE
        
     MOVE.B      #MOVEA_WL,D6
     CMP.B       D3,D6
-    BEQ         MATCH_MOVEA_W 
+    BEQ         MATCH_MOVEA_W
+    
     JMP         MATCH_MOVE_W 
-
+************************************************
 ISOLATE_MOVEA_CODE 
-    MOVEM.W     D2, -(SP)       * save d2 in current state   
-    MOVE.B      #7,D7
+    MOVEM.W     D2, -(SP)       
+    MOVE.B      #7,D7          
     LSL.W       D7,D2
     MOVE.B      #13,D7
     LSR.W       D7,D2
-    MOVE.B      D2,D3           * isolated movea code saved in d3
+    MOVE.B      D2,D3           
     MOVEM.W     (SP)+,D2 
     RTS
-
-CHECK_MOVEA_L
-
-    JSR          ResetFirstFourBits
-    JSR          ReadSecondByte
+**********************************************
+CHECK_MOVEA_L_AND_MOVE_L
     
     JSR         ISOLATE_MOVEA_CODE
        
     MOVE.B      #MOVEA_WL,D6
     CMP.B       D3,D6
-    BEQ         MATCH_MOVEA_L
-    JMP         MATCH_MOVE_L   
+    BEQ         MATCH_MOVEA_L 
     
+    JMP         MATCH_MOVE_L   
+**********************************************  
 MATCH_MOVE_B
     MOVE.B      D2,D5       *REMOVE
 MATCH_MOVE_W
@@ -191,6 +180,9 @@ MATCH_ADDI_L
     MOVE.W      D2,D5       *REMOVE
     
     END    START        ; last line of source
+
+
+
 
 
 
