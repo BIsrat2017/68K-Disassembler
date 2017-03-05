@@ -1,6 +1,6 @@
 00001000 Starting Address
 Assembler used: EASy68K Editor/Assembler v5.15.04
-Created On: 3/4/2017 8:04:44 PM
+Created On: 3/4/2017 10:22:03 PM
 
 00000000                             1  *-----------------------------------------------------------
 00000000                             2  * Title      :
@@ -32,169 +32,158 @@ Created On: 3/4/2017 8:04:44 PM
 00001006                            28  * Put program code here
 00001006                            29     
 00001006  247C 00007000             30      MOVEA.L #MEM,A2
-0000100C  141A                      31      MOVE.B  (A2)+,D2    * D2 will store current byte
+0000100C  341A                      31      MOVE.W  (A2)+,D2    * D2 will store current byte
 0000100E  4EB9 00001044             32      JSR     CHECK_MOVE_AND_MOVEA_AND_MOVEQ
-00001014  4EB9 0000103A             33      JSR     ReadSecondByte
-0000101A  4EB9 00001076             34      JSR     Check_MOVEM
-00001020  4EB9 000010AA             35      JSR     Check_ADDI
-00001026                            36      
-00001026  FFFF FFFF                 37      SIMHALT             ; halt simulator
-0000102A                            38  
-0000102A                            39  * Put variables and constants here
-0000102A                            40  *****************************
-0000102A                            41  ReadFirstFourBits
-0000102A                            42  
-0000102A  1E3C 0004                 43      MOVE.B      #4,D7    
-0000102E  EE7A                      44      ROR.W       D7,D2 
-00001030  4E75                      45      RTS
-00001032                            46      
-00001032                            47  *************************
-00001032                            48  ResetFirstFourBits
-00001032                            49      
-00001032  1E3C 0004                 50      MOVE.B      #4,D7
-00001036  EF7A                      51      ROL.W       D7,D2
-00001038  4E75                      52      RTS
-0000103A                            53  
-0000103A                            54  *************************
-0000103A                            55  ReadSecondByte
-0000103A                            56  
-0000103A  1E3C 0008                 57      MOVE.B      #8,D7
-0000103E  EF6A                      58      LSL.W       D7,D2               * 00000012 -> 00001200
-00001040  141A                      59      MOVE.B      (A2)+,D2            * 00001200 -> 00001234
+00001014  4EB9 00001072             33      JSR     Check_MOVEM
+0000101A  4EB9 000010A0             34      JSR     Check_ADDI
+00001020                            35      
+00001020  FFFF FFFF                 36      SIMHALT             ; halt simulator
+00001024                            37  
+00001024                            38  * Put variables and constants here
+00001024                            39  *****************************
+00001024                            40  ReadFirstFourBits
+00001024                            41  
+00001024  48A7 2000                 42      MOVEM.W     D2, -(SP)
+00001028                            43  
+00001028  1E3C 000C                 44      MOVE.B      #12,D7 
+0000102C  EE6A                      45      LSR.W       D7,D2 
+0000102E  1602                      46      MOVE.B      D2,D3
+00001030                            47      
+00001030  4C9F 0004                 48      MOVEM.W     (SP)+,D2
+00001034  4E75                      49      RTS
+00001036                            50      
+00001036                            51  *************************
+00001036                            52  ReadFirstTenBits
+00001036                            53      
+00001036  48A7 2000                 54      MOVEM.W     D2, -(SP)
+0000103A                            55   
+0000103A  EC4A                      56      LSR.W       #6,D2 
+0000103C  3602                      57      MOVE.W      D2,D3
+0000103E                            58      
+0000103E  4C9F 0004                 59      MOVEM.W     (SP)+,D2
 00001042  4E75                      60      RTS
-00001044                            61      
-00001044                            62  *************************
+00001044                            61  *************************
+00001044                            62  CHECK_MOVE_AND_MOVEA_AND_MOVEQ
 00001044                            63  
-00001044                            64  CHECK_MOVE_AND_MOVEA_AND_MOVEQ
-00001044                            65  
-00001044  4EB8 102A                 66      JSR     ReadFirstFourBits
-00001048                            67      
-00001048  1C3C 0001                 68      MOVE.B      #MOVE_B,D6
-0000104C  BC02                      69      CMP.B       D2,D6
-0000104E  6700 00D6                 70      BEQ         MATCH_MOVE_B
-00001052                            71      
-00001052  1C3C 0003                 72      MOVE.B      #MOVE_W,D6
-00001056  BC02                      73      CMP.B       D2,D6
-00001058  6700 007A                 74      BEQ         CHECK_MOVEA_W
-0000105C                            75      
-0000105C  1C3C 0002                 76      MOVE.B      #MOVE_L,D6
-00001060  BC02                      77      CMP.B       D2,D6
-00001062  6700 00A6                 78      BEQ         CHECK_MOVEA_L
-00001066                            79   
-00001066  1C3C 0007                 80      MOVE.B      #MOVEQ_,D6
-0000106A  BC02                      81      CMP.B       D2,D6
-0000106C  6700 00C2                 82      BEQ         MATCH_MOVEQ
-00001070                            83      
-00001070  4EB8 1032                 84      JSR         ResetFirstFourBits
-00001074  4E75                      85      RTS
-00001076                            86  ***********************************    
-00001076                            87  CHECK_MOVEM
-00001076                            88      
-00001076  48A7 2000                 89      MOVEM.W     D2, -(SP)
-0000107A  EC4A                      90      LSR.W       #6,D2                       * ISOLATE OPCODE
-0000107C                            91      
-0000107C  3C3C 0122                 92      MOVE.W      #MOVEM_TO_MEM_W,D6
-00001080  BC42                      93      CMP.W       D2,D6
-00001082  6700 00AE                 94      BEQ         MATCH_MOVEM_TO_MEM_W
-00001086                            95      
-00001086  3C3C 0123                 96      MOVE.W      #MOVEM_TO_MEM_L,D6
-0000108A  BC42                      97      CMP.W       D2,D6
-0000108C  6700 00A6                 98      BEQ         MATCH_MOVEM_TO_MEM_L
-00001090                            99      
-00001090  3C3C 0132                100      MOVE.W      #MOVEM_TO_REG_W,D6
-00001094  BC42                     101      CMP.W       D2,D6
-00001096  6700 009E                102      BEQ         MATCH_MOVEM_TO_REG_W
-0000109A                           103      
-0000109A  3C3C 0133                104      MOVE.W      #MOVEM_TO_REG_L,D6
-0000109E  BC42                     105      CMP.W       D2,D6
-000010A0  6700 0096                106      BEQ         MATCH_MOVEM_TO_REG_L
-000010A4                           107      
-000010A4  4C9F 0004                108      MOVEM.W     (SP)+,D2 
-000010A8  4E75                     109      RTS
-000010AA                           110  ****************************************   
-000010AA                           111  CHECK_ADDI
-000010AA                           112  
-000010AA  48A7 2000                113      MOVEM.W     D2, -(SP)
-000010AE  EC4A                     114      LSR.W       #6,D2                       * ISOLATE OPCODE
-000010B0                           115      
-000010B0  3C3C 0018                116      MOVE.W      #ADDI_B,D6
-000010B4  BC42                     117      CMP.W       D2,D6
-000010B6  6700 0082                118      BEQ         MATCH_ADDI_B
-000010BA                           119      
-000010BA  3C3C 0019                120      MOVE.W      #ADDI_W,D6
-000010BE  BC42                     121      CMP.W       D2,D6
-000010C0  6700 007A                122      BEQ         MATCH_ADDI_W
-000010C4                           123      
-000010C4  3C3C 001A                124      MOVE.W      #ADDI_L,D6
-000010C8  BC42                     125      CMP.W       D2,D6
-000010CA  6700 0072                126      BEQ         MATCH_ADDI_L
-000010CE                           127      
-000010CE  4C9F 0004                128      MOVEM.W     (SP)+,D2 
-000010D2  4E75                     129      RTS
-000010D4                           130  *****************************************
-000010D4                           131      
-000010D4                           132  CHECK_MOVEA_W
-000010D4                           133  
-000010D4  4EB8 1032                134      JSR         ResetFirstFourBits
-000010D8  4EB8 103A                135      JSR         ReadSecondByte
-000010DC                           136      
-000010DC  4EB9 000010F2            137      JSR         ISOLATE_MOVEA_CODE
-000010E2                           138         
-000010E2  1C3C 0001                139      MOVE.B      #MOVEA_WL,D6
-000010E6  BC03                     140      CMP.B       D3,D6
-000010E8  6700 0042                141      BEQ         MATCH_MOVEA_W 
-000010EC  4EF9 00001128            142      JMP         MATCH_MOVE_W 
-000010F2                           143  ************************************************
-000010F2                           144  ISOLATE_MOVEA_CODE 
-000010F2  48A7 2000                145      MOVEM.W     D2, -(SP)       * save d2 in current state   
-000010F6  1E3C 0007                146      MOVE.B      #7,D7
-000010FA  EF6A                     147      LSL.W       D7,D2
-000010FC  1E3C 000D                148      MOVE.B      #13,D7
-00001100  EE6A                     149      LSR.W       D7,D2
-00001102  1602                     150      MOVE.B      D2,D3           * isolated movea code saved in d3
-00001104  4C9F 0004                151      MOVEM.W     (SP)+,D2 
-00001108  4E75                     152      RTS
-0000110A                           153  **********************************************
-0000110A                           154  CHECK_MOVEA_L
-0000110A                           155  
-0000110A  4EB8 1032                156      JSR          ResetFirstFourBits
-0000110E  4EB8 103A                157      JSR          ReadSecondByte
-00001112                           158      
-00001112  4EB8 10F2                159      JSR         ISOLATE_MOVEA_CODE
-00001116                           160         
-00001116  1C3C 0001                161      MOVE.B      #MOVEA_WL,D6
-0000111A  BC03                     162      CMP.B       D3,D6
-0000111C  6700 0010                163      BEQ         MATCH_MOVEA_L
-00001120  4EF9 0000112A            164      JMP         MATCH_MOVE_L   
-00001126                           165  **********************************************   
-00001126                           166  MATCH_MOVE_B
-00001126  1A02                     167      MOVE.B      D2,D5       *REMOVE
-00001128                           168  MATCH_MOVE_W
-00001128  3A02                     169      MOVE.W      D2,D5       *REMOVE
-0000112A                           170  MATCH_MOVE_L
-0000112A  3A02                     171      MOVE.W      D2,D5       *REMOVE
-0000112C                           172  MATCH_MOVEA_W
-0000112C  3A02                     173      MOVE.W      D2,D5       *REMOVE
-0000112E                           174  MATCH_MOVEA_L
-0000112E  3A02                     175      MOVE.W      D2,D5       *REMOVE
-00001130                           176  MATCH_MOVEQ
-00001130  3A02                     177      MOVE.W      D2,D5       *REMOVE
-00001132                           178  MATCH_MOVEM_TO_MEM_W
-00001132  3A02                     179      MOVE.W      D2,D5       *REMOVE
-00001134                           180  MATCH_MOVEM_TO_MEM_L
-00001134  3A02                     181      MOVE.W      D2,D5       *REMOVE
-00001136                           182  MATCH_MOVEM_TO_REG_W
-00001136  3A02                     183      MOVE.W      D2,D5       *REMOVE
-00001138                           184  MATCH_MOVEM_TO_REG_L
-00001138  3A02                     185      MOVE.W      D2,D5       *REMOVE
-0000113A                           186  MATCH_ADDI_B
-0000113A  3A02                     187      MOVE.W      D2,D5       *REMOVE
-0000113C                           188  MATCH_ADDI_W
-0000113C  3A02                     189      MOVE.W      D2,D5       *REMOVE
-0000113E                           190  MATCH_ADDI_L
-0000113E  3A02                     191      MOVE.W      D2,D5       *REMOVE
-00001140                           192      
-00001140                           193      END    START        ; last line of source
+00001044  4EB8 1024                 64      JSR     ReadFirstFourBits
+00001048                            65      
+00001048  1C3C 0001                 66      MOVE.B      #MOVE_B,D6
+0000104C  BC03                      67      CMP.B       D3,D6
+0000104E  6700 00B6                 68      BEQ         MATCH_MOVE_B
+00001052                            69      
+00001052  1C3C 0003                 70      MOVE.B      #MOVE_W,D6
+00001056  BC03                      71      CMP.B       D3,D6
+00001058  6700 006A                 72      BEQ         CHECK_MOVEA_W_AND_MOVE_W
+0000105C                            73      
+0000105C  1C3C 0002                 74      MOVE.B      #MOVE_L,D6
+00001060  BC03                      75      CMP.B       D3,D6
+00001062  6700 008E                 76      BEQ         CHECK_MOVEA_L_AND_MOVE_L
+00001066                            77   
+00001066  1C3C 0007                 78      MOVE.B      #MOVEQ_,D6
+0000106A  BC03                      79      CMP.B       D3,D6
+0000106C  6700 00A2                 80      BEQ         MATCH_MOVEQ
+00001070                            81      
+00001070  4E75                      82      RTS
+00001072                            83  ***********************************    
+00001072                            84  CHECK_MOVEM
+00001072                            85      
+00001072  4EB8 1036                 86      JSR         ReadFirstTenBits
+00001076                            87      
+00001076  3C3C 0122                 88      MOVE.W      #MOVEM_TO_MEM_W,D6
+0000107A  BC43                      89      CMP.W       D3,D6
+0000107C  6700 0094                 90      BEQ         MATCH_MOVEM_TO_MEM_W
+00001080                            91      
+00001080  3C3C 0123                 92      MOVE.W      #MOVEM_TO_MEM_L,D6
+00001084  BC43                      93      CMP.W       D3,D6
+00001086  6700 008C                 94      BEQ         MATCH_MOVEM_TO_MEM_L
+0000108A                            95      
+0000108A  3C3C 0132                 96      MOVE.W      #MOVEM_TO_REG_W,D6
+0000108E  BC43                      97      CMP.W       D3,D6
+00001090  6700 0084                 98      BEQ         MATCH_MOVEM_TO_REG_W
+00001094                            99      
+00001094  3C3C 0133                100      MOVE.W      #MOVEM_TO_REG_L,D6
+00001098  BC43                     101      CMP.W       D3,D6
+0000109A  6700 007C                102      BEQ         MATCH_MOVEM_TO_REG_L
+0000109E                           103      
+0000109E  4E75                     104      RTS
+000010A0                           105  ****************************************   
+000010A0                           106  CHECK_ADDI
+000010A0                           107  
+000010A0  4EB8 1036                108      JSR         ReadFirstTenBits
+000010A4                           109      
+000010A4  3C3C 0018                110      MOVE.W      #ADDI_B,D6
+000010A8  BC43                     111      CMP.W       D3,D6
+000010AA  6700 006E                112      BEQ         MATCH_ADDI_B
+000010AE                           113      
+000010AE  3C3C 0019                114      MOVE.W      #ADDI_W,D6
+000010B2  BC43                     115      CMP.W       D3,D6
+000010B4  6700 0066                116      BEQ         MATCH_ADDI_W
+000010B8                           117      
+000010B8  3C3C 001A                118      MOVE.W      #ADDI_L,D6
+000010BC  BC43                     119      CMP.W       D3,D6
+000010BE  6700 005E                120      BEQ         MATCH_ADDI_L
+000010C2                           121      
+000010C2  4E75                     122      RTS
+000010C4                           123  *****************************************
+000010C4                           124      
+000010C4                           125  CHECK_MOVEA_W_AND_MOVE_W
+000010C4                           126      
+000010C4  4EB9 000010DA            127      JSR         ISOLATE_MOVEA_CODE
+000010CA                           128         
+000010CA  1C3C 0001                129      MOVE.B      #MOVEA_WL,D6
+000010CE  BC03                     130      CMP.B       D3,D6
+000010D0  6700 003A                131      BEQ         MATCH_MOVEA_W
+000010D4                           132      
+000010D4  4EF9 00001108            133      JMP         MATCH_MOVE_W 
+000010DA                           134  ************************************************
+000010DA                           135  ISOLATE_MOVEA_CODE 
+000010DA  48A7 2000                136      MOVEM.W     D2, -(SP)       
+000010DE  1E3C 0007                137      MOVE.B      #7,D7          
+000010E2  EF6A                     138      LSL.W       D7,D2
+000010E4  1E3C 000D                139      MOVE.B      #13,D7
+000010E8  EE6A                     140      LSR.W       D7,D2
+000010EA  1602                     141      MOVE.B      D2,D3           
+000010EC  4C9F 0004                142      MOVEM.W     (SP)+,D2 
+000010F0  4E75                     143      RTS
+000010F2                           144  **********************************************
+000010F2                           145  CHECK_MOVEA_L_AND_MOVE_L
+000010F2                           146      
+000010F2  4EB8 10DA                147      JSR         ISOLATE_MOVEA_CODE
+000010F6                           148         
+000010F6  1C3C 0001                149      MOVE.B      #MOVEA_WL,D6
+000010FA  BC03                     150      CMP.B       D3,D6
+000010FC  6700 0010                151      BEQ         MATCH_MOVEA_L 
+00001100                           152      
+00001100  4EF9 0000110A            153      JMP         MATCH_MOVE_L   
+00001106                           154  **********************************************  
+00001106                           155  MATCH_MOVE_B
+00001106  1A02                     156      MOVE.B      D2,D5       *REMOVE
+00001108                           157  MATCH_MOVE_W
+00001108  3A02                     158      MOVE.W      D2,D5       *REMOVE
+0000110A                           159  MATCH_MOVE_L
+0000110A  3A02                     160      MOVE.W      D2,D5       *REMOVE
+0000110C                           161  MATCH_MOVEA_W
+0000110C  3A02                     162      MOVE.W      D2,D5       *REMOVE
+0000110E                           163  MATCH_MOVEA_L
+0000110E  3A02                     164      MOVE.W      D2,D5       *REMOVE
+00001110                           165  MATCH_MOVEQ
+00001110  3A02                     166      MOVE.W      D2,D5       *REMOVE
+00001112                           167  MATCH_MOVEM_TO_MEM_W
+00001112  3A02                     168      MOVE.W      D2,D5       *REMOVE
+00001114                           169  MATCH_MOVEM_TO_MEM_L
+00001114  3A02                     170      MOVE.W      D2,D5       *REMOVE
+00001116                           171  MATCH_MOVEM_TO_REG_W
+00001116  3A02                     172      MOVE.W      D2,D5       *REMOVE
+00001118                           173  MATCH_MOVEM_TO_REG_L
+00001118  3A02                     174      MOVE.W      D2,D5       *REMOVE
+0000111A                           175  MATCH_ADDI_B
+0000111A  3A02                     176      MOVE.W      D2,D5       *REMOVE
+0000111C                           177  MATCH_ADDI_W
+0000111C  3A02                     178      MOVE.W      D2,D5       *REMOVE
+0000111E                           179  MATCH_ADDI_L
+0000111E  3A02                     180      MOVE.W      D2,D5       *REMOVE
+00001120                           181      
+00001120                           182      END    START        ; last line of source
 
 No errors detected
 No warnings generated
@@ -206,25 +195,25 @@ Symbol-name         Value
 ADDI_B              18
 ADDI_L              1A
 ADDI_W              19
-CHECK_ADDI          10AA
-CHECK_MOVEA_L       110A
-CHECK_MOVEA_W       10D4
-CHECK_MOVEM         1076
+CHECK_ADDI          10A0
+CHECK_MOVEA_L_AND_MOVE_L  10F2
+CHECK_MOVEA_W_AND_MOVE_W  10C4
+CHECK_MOVEM         1072
 CHECK_MOVE_AND_MOVEA_AND_MOVEQ  1044
-ISOLATE_MOVEA_CODE  10F2
-MATCH_ADDI_B        113A
-MATCH_ADDI_L        113E
-MATCH_ADDI_W        113C
-MATCH_MOVEA_L       112E
-MATCH_MOVEA_W       112C
-MATCH_MOVEM_TO_MEM_L  1134
-MATCH_MOVEM_TO_MEM_W  1132
-MATCH_MOVEM_TO_REG_L  1138
-MATCH_MOVEM_TO_REG_W  1136
-MATCH_MOVEQ         1130
-MATCH_MOVE_B        1126
-MATCH_MOVE_L        112A
-MATCH_MOVE_W        1128
+ISOLATE_MOVEA_CODE  10DA
+MATCH_ADDI_B        111A
+MATCH_ADDI_L        111E
+MATCH_ADDI_W        111C
+MATCH_MOVEA_L       110E
+MATCH_MOVEA_W       110C
+MATCH_MOVEM_TO_MEM_L  1114
+MATCH_MOVEM_TO_MEM_W  1112
+MATCH_MOVEM_TO_REG_L  1118
+MATCH_MOVEM_TO_REG_W  1116
+MATCH_MOVEQ         1110
+MATCH_MOVE_B        1106
+MATCH_MOVE_L        110A
+MATCH_MOVE_W        1108
 MEM                 7000
 MOVEA_WL            1
 MOVEM_TO_MEM_L      123
@@ -235,8 +224,7 @@ MOVEQ_              7
 MOVE_B              1
 MOVE_L              2
 MOVE_W              3
-READFIRSTFOURBITS   102A
-READSECONDBYTE      103A
-RESETFIRSTFOURBITS  1032
+READFIRSTFOURBITS   1024
+READFIRSTTENBITS    1036
 STACK               E000
 START               1000
