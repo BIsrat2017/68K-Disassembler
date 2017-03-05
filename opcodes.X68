@@ -83,7 +83,7 @@ CHECK_MOVE_AND_MOVEA_AND_MOVEQ
     
     JSR         ResetFirstFourBits
     RTS
-    
+***********************************    
 CHECK_MOVEM
     
     MOVEM.W     D2, -(SP)
@@ -107,7 +107,7 @@ CHECK_MOVEM
     
     MOVEM.W     (SP)+,D2 
     RTS
-    
+****************************************   
 CHECK_ADDI
 
     MOVEM.W     D2, -(SP)
@@ -127,7 +127,7 @@ CHECK_ADDI
     
     MOVEM.W     (SP)+,D2 
     RTS
-
+*****************************************
     
 CHECK_MOVEA_W
 
@@ -140,7 +140,7 @@ CHECK_MOVEA_W
     CMP.B       D3,D6
     BEQ         MATCH_MOVEA_W 
     JMP         MATCH_MOVE_W 
-
+************************************************
 ISOLATE_MOVEA_CODE 
     MOVEM.W     D2, -(SP)       * save d2 in current state   
     MOVE.B      #7,D7
@@ -150,7 +150,7 @@ ISOLATE_MOVEA_CODE
     MOVE.B      D2,D3           * isolated movea code saved in d3
     MOVEM.W     (SP)+,D2 
     RTS
-
+**********************************************
 CHECK_MOVEA_L
 
     JSR          ResetFirstFourBits
@@ -162,7 +162,7 @@ CHECK_MOVEA_L
     CMP.B       D3,D6
     BEQ         MATCH_MOVEA_L
     JMP         MATCH_MOVE_L   
-    
+**********************************************   
 MATCH_MOVE_B
     MOVE.B      D2,D5       *REMOVE
 MATCH_MOVE_W
@@ -191,6 +191,7 @@ MATCH_ADDI_L
     MOVE.W      D2,D5       *REMOVE
     
     END    START        ; last line of source
+
 
 
 
