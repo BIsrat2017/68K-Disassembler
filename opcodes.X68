@@ -7,6 +7,7 @@
 MEM             EQU	$00007000  
 stack           EQU  $0000E000 
 
+NOP             EQU $4E71
 MOVE_B          EQU %0001
 MOVE_W          EQU %0011
 MOVE_L          EQU %0010
@@ -29,6 +30,7 @@ START:   LEA  stack, SP               ; first instruction of program
    
     MOVEA.L #MEM,A2
     MOVE.W  (A2)+,D2    * D2 will store current byte
+    JSR     CHECK_NOP
     JSR     CHECK_MOVE_AND_MOVEA_AND_MOVEQ
     JSR     Check_MOVEM
     JSR     Check_ADDI
@@ -57,6 +59,13 @@ ReadFirstTenBits
     MOVE.W      D2,D3
     
     MOVEM.W     (SP)+,D2
+    RTS
+*************************
+CHECK_NOP
+    
+    MOVE.W      #NOP,D6
+    CMP.W       D2,D6
+    BEQ         MATCH_NOP
     RTS
 *************************
 CHECK_MOVE_AND_MOVEA_AND_MOVEQ
@@ -152,6 +161,8 @@ CHECK_MOVEA_L_AND_MOVE_L
     
     JMP         MATCH_MOVE_L   
 **********************************************  
+MATCH_NOP
+    MOVE.B      D2,D5       *REMOVE
 MATCH_MOVE_B
     MOVE.B      D2,D5       *REMOVE
 MATCH_MOVE_W
