@@ -199,27 +199,27 @@ CHECK_ADD_ADDA
     
     JSR         ISOLATE_OP_CODE
     
-    MOVE.W      #ADD_TO_REG_B,D6
+    MOVE.W      #DN_B,D6
     CMP.W       D3,D6
     BEQ         MATCH_ADD_TO_REG_B
     
-    MOVE.W      #ADD_TO_REG_W,D6
+    MOVE.W      #DN_W,D6
     CMP.W       D3,D6
     BEQ         MATCH_ADD_TO_REG_W
     
-    MOVE.W      #ADD_TO_REG_L,D6
+    MOVE.W      #DN_L,D6
     CMP.W       D3,D6
     BEQ         MATCH_ADD_TO_REG_L
     
-    MOVE.W      #ADD_TO_EA_B,D6
+    MOVE.W      #EA_B,D6
     CMP.W       D3,D6
     BEQ         MATCH_ADD_TO_EA_B
     
-    MOVE.W      #ADD_TO_EA_W,D6
+    MOVE.W      #EA_W,D6
     CMP.W       D3,D6
     BEQ         MATCH_ADD_TO_EA_W
     
-    MOVE.W      #ADD_TO_EA_L,D6
+    MOVE.W      #EA_L,D6
     CMP.W       D3,D6
     BEQ         MATCH_ADD_TO_EA_L
     
@@ -272,27 +272,27 @@ CHECK_SUB
     
     JSR         ISOLATE_OP_CODE
     
-    MOVE.W      #SUB_TO_DN_B,D6
+    MOVE.W      #DN_B,D6
     CMP.W       D3,D6
     BEQ         MATCH_SUB_TO_DN_B
     
-    MOVE.W      #SUB_TO_DN_W,D6
+    MOVE.W      #DN_W,D6
     CMP.W       D3,D6
     BEQ         MATCH_SUB_TO_DN_W
     
-    MOVE.W      #SUB_TO_DN_L,D6
+    MOVE.W      #DN_L,D6
     CMP.W       D3,D6
     BEQ         MATCH_SUB_TO_DN_L
     
-    MOVE.W      #SUB_TO_EA_B,D6
+    MOVE.W      #EA_B,D6
     CMP.W       D3,D6
     BEQ         MATCH_SUB_TO_EA_B
     
-    MOVE.W      #SUB_TO_EA_W,D6
+    MOVE.W      #EA_W,D6
     CMP.W       D3,D6
     BEQ         MATCH_SUB_TO_EA_W
     
-    MOVE.W      #SUB_TO_EA_B,D6
+    MOVE.W      #EA_L,D6
     CMP.W       D3,D6
     BEQ         MATCH_SUB_TO_EA_L
 *****************************************
