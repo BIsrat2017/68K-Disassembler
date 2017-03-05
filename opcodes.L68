@@ -1,6 +1,6 @@
 00001000 Starting Address
 Assembler used: EASy68K Editor/Assembler v5.15.04
-Created On: 3/5/2017 1:31:52 AM
+Created On: 3/5/2017 1:47:09 AM
 
 00000000                             1  *-----------------------------------------------------------
 00000000                             2  * Title      :
@@ -203,27 +203,27 @@ Created On: 3/5/2017 1:31:52 AM
 00001126                           199      
 00001126  4EB9 0000121E            200      JSR         ISOLATE_OP_CODE
 0000112C                           201      
-0000112C  3C3C 0000                202      MOVE.W      #ADD_TO_REG_B,D6
+0000112C  3C3C 0000                202      MOVE.W      #DN_B,D6
 00001130  BC43                     203      CMP.W       D3,D6
 00001132  6700 0132                204      BEQ         MATCH_ADD_TO_REG_B
 00001136                           205      
-00001136  3C3C 0001                206      MOVE.W      #ADD_TO_REG_W,D6
+00001136  3C3C 0001                206      MOVE.W      #DN_W,D6
 0000113A  BC43                     207      CMP.W       D3,D6
 0000113C  6700 012A                208      BEQ         MATCH_ADD_TO_REG_W
 00001140                           209      
-00001140  3C3C 0002                210      MOVE.W      #ADD_TO_REG_L,D6
+00001140  3C3C 0002                210      MOVE.W      #DN_L,D6
 00001144  BC43                     211      CMP.W       D3,D6
 00001146  6700 0122                212      BEQ         MATCH_ADD_TO_REG_L
 0000114A                           213      
-0000114A  3C3C 0004                214      MOVE.W      #ADD_TO_EA_B,D6
+0000114A  3C3C 0004                214      MOVE.W      #EA_B,D6
 0000114E  BC43                     215      CMP.W       D3,D6
 00001150  6700 011A                216      BEQ         MATCH_ADD_TO_EA_B
 00001154                           217      
-00001154  3C3C 0005                218      MOVE.W      #ADD_TO_EA_W,D6
+00001154  3C3C 0005                218      MOVE.W      #EA_W,D6
 00001158  BC43                     219      CMP.W       D3,D6
 0000115A  6700 0112                220      BEQ         MATCH_ADD_TO_EA_W
 0000115E                           221      
-0000115E  3C3C 0006                222      MOVE.W      #ADD_TO_EA_L,D6
+0000115E  3C3C 0006                222      MOVE.W      #EA_L,D6
 00001162  BC43                     223      CMP.W       D3,D6
 00001164  6700 010A                224      BEQ         MATCH_ADD_TO_EA_L
 00001168                           225      
@@ -276,27 +276,27 @@ Created On: 3/5/2017 1:31:52 AM
 000011C6                           272      
 000011C6  4EB9 0000121E            273      JSR         ISOLATE_OP_CODE
 000011CC                           274      
-000011CC  3C3C 0000                275      MOVE.W      #SUB_TO_DN_B,D6
+000011CC  3C3C 0000                275      MOVE.W      #DN_B,D6
 000011D0  BC43                     276      CMP.W       D3,D6
 000011D2  6700 00A8                277      BEQ         MATCH_SUB_TO_DN_B
 000011D6                           278      
-000011D6  3C3C 0001                279      MOVE.W      #SUB_TO_DN_W,D6
+000011D6  3C3C 0001                279      MOVE.W      #DN_W,D6
 000011DA  BC43                     280      CMP.W       D3,D6
 000011DC  6700 00A0                281      BEQ         MATCH_SUB_TO_DN_W
 000011E0                           282      
-000011E0  3C3C 0002                283      MOVE.W      #SUB_TO_DN_L,D6
+000011E0  3C3C 0002                283      MOVE.W      #DN_L,D6
 000011E4  BC43                     284      CMP.W       D3,D6
 000011E6  6700 0098                285      BEQ         MATCH_SUB_TO_DN_L
 000011EA                           286      
-000011EA  3C3C 0004                287      MOVE.W      #SUB_TO_EA_B,D6
+000011EA  3C3C 0004                287      MOVE.W      #EA_B,D6
 000011EE  BC43                     288      CMP.W       D3,D6
 000011F0  6700 0090                289      BEQ         MATCH_SUB_TO_EA_B
 000011F4                           290      
-000011F4  3C3C 0005                291      MOVE.W      #SUB_TO_EA_W,D6
+000011F4  3C3C 0005                291      MOVE.W      #EA_W,D6
 000011F8  BC43                     292      CMP.W       D3,D6
 000011FA  6700 0088                293      BEQ         MATCH_SUB_TO_EA_W
 000011FE                           294      
-000011FE  3C3C 0004                295      MOVE.W      #SUB_TO_EA_B,D6
+000011FE  3C3C 0006                295      MOVE.W      #EA_L,D6
 00001202  BC43                     296      CMP.W       D3,D6
 00001204  6700 0080                297      BEQ         MATCH_SUB_TO_EA_L
 00001208                           298  *****************************************

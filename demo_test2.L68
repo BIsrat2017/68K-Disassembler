@@ -1,6 +1,6 @@
 00007000 Starting Address
 Assembler used: EASy68K Editor/Assembler v5.15.04
-Created On: 3/5/2017 1:31:44 AM
+Created On: 3/5/2017 1:46:03 AM
 
 00000000                             1  *****************************
 00000000                             2  *
@@ -26,19 +26,19 @@ Created On: 3/5/2017 1:31:44 AM
 00007000                            22  
 00007000                            23  * This is a group of ADD instructions
 00007000                            24  add_start       
-00007000  8ADB                      25                  DIVU    (A3)+,D5
-00007002                            26                  *MOVE.B  D1,D2
-00007002                            27                  *MOVE.W  D1,D2
-00007002                            28                  *MOVE.L  D1,D2
-00007002                            29                  *MOVEA.W D1,A5
-00007002                            30                  *MOVEA.L D1,A5
-00007002                            31                  
-00007002                            32                 * MOVEM.W     D2, -(SP)
-00007002                            33                  *MOVEM.L     D2, -(SP)
-00007002                            34                  *MOVEM.W     (SP)+,D2
-00007002                            35                  *MOVEM.L     (SP)+,D2
-00007002                            36  
-00007002                            37                  *ADD.W   D1,D2
+00007000                            25                  *DIVU   (A3)+,D5
+00007000                            26                  *MOVE.B  D1,D2
+00007000                            27                  *MOVE.W  D1,D2
+00007000                            28                  *MOVE.L  D1,D2
+00007000                            29                  *MOVEA.W D1,A5
+00007000                            30                  *MOVEA.L D1,A5
+00007000                            31                  
+00007000                            32                 * MOVEM.W     D2, -(SP)
+00007000                            33                  *MOVEM.L     D2, -(SP)
+00007000                            34                  *MOVEM.W     (SP)+,D2
+00007000                            35                  *MOVEM.L     (SP)+,D2
+00007000                            36  
+00007000  D441                      37                  ADD.W   D1,D2
 00007002                            38                  *ADD.B   D1,D2
 00007002                            39                  *ADD.L   D1,D2
 00007002                            40                  *ADDI.W #$4E71,D1
