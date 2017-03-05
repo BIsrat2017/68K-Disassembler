@@ -16,14 +16,14 @@ start		EQU	$00007000	* ORG and END address
 
 * NOP and similar instructions. Should clearly differentiate NOP and RTS from others.
                 
-		*NOP			*Required
+		NOP			*Required
 		*RTS			*Required
 
 
 * This is a group of ADD instructions
 add_start	
                 *MOVE.B  D1,D2
-                MOVE.W  D1,D2
+                *MOVE.W  D1,D2
                 *MOVE.L  D1,D2
                 *MOVEA.W D1,A5
                 *MOVEA.L D1,A5
