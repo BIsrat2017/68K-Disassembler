@@ -22,7 +22,7 @@ ADDI_B          EQU %0000011000
 ADDI_W          EQU %0000011001
 ADDI_L          EQU %0000011010
 
-ADD_ADDA     EQU %1101
+ADD_ADDA        EQU %1101
 ADD_TO_REG_B    EQU %000
 ADD_TO_REG_W    EQU %001
 ADD_TO_REG_L    EQU %010
@@ -31,6 +31,29 @@ ADD_TO_EA_W     EQU %101
 ADD_TO_EA_L     EQU %110
 ADDA_W          EQU %011
 ADDA_L          EQU %111
+
+ADDQ            EQU %0101
+ADDQ_B          EQU %000
+ADDQ_W          EQU %001
+ADDQ_L          EQU %010
+
+SUB             EQU %1001
+SUB_TO_DN_B     EQU %000
+SUB_TO_DN_W     EQU %001
+SUB_TO_DN_L     EQU %010
+SUB_TO_EA_B     EQU %100
+SUB_TO_EA_W     EQU %101
+SUB_TO_EA_L     EQU %110
+
+DIVU_OR         EQU %1000
+DIVU            EQU %011
+
+DN_B            EQU %000
+DN_W            EQU %001
+DN_L            EQU %010
+EA_B            EQU %100
+EA_W            EQU %101
+EA_L            EQU %110
 
     ORG    $1000
 
@@ -100,10 +123,56 @@ CHECK_MOVE_AND_MOVEA_AND_MOVEQ
     
     MOVE.B      #ADD_ADDA,D6
     CMP.B       D3,D6
-    BEQ         CHECK_ADD
+    BEQ         CHECK_ADD_ADDA
+    
+    MOVE.B      #ADDQ,D6
+    CMP.B       D3,D6
+    BEQ         CHECK_ADDQ
+    
+    MOVE.B      #SUB,D6
+    CMP.B       D3,D6
+    BEQ         CHECK_SUB
+    
+    MOVE.B      #DIVU_OR,D6
+    CMP.B       D3,D6
+    BEQ         CHECK_DIVU_OR
+
     
     RTS
 ***********************************    
+CHECK_DIVU_OR
+    
+    JSR         ISOLATE_OP_CODE
+    
+    MOVE.B      #DIVU,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_DIVU
+    
+    MOVE.B      #DN_B,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_OR_DN_B
+    
+    MOVE.B      #DN_W,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_OR_DN_W
+    
+    MOVE.B      #DN_L,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_OR_DN_L
+    
+    MOVE.B      #EA_B,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_OR_EA_B
+    
+    MOVE.B      #EA_W,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_OR_EA_W
+    
+    MOVE.B      #EA_L,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_OR_EA_L
+    
+***********************************
 CHECK_MOVEM
     
     JSR         ReadFirstTenBits
@@ -126,7 +195,7 @@ CHECK_MOVEM
     
     RTS
 **************************************** 
-CHECK_ADD
+CHECK_ADD_ADDA
     
     JSR         ISOLATE_OP_CODE
     
@@ -164,6 +233,23 @@ CHECK_ADD
     
     RTS
 ****************************************  
+CHECK_ADDQ
+    
+    JSR         ISOLATE_OP_CODE
+    
+    MOVE.W      #ADDQ_B,D6
+    CMP.W       D3,D6
+    BEQ         MATCH_ADDQ_B
+    
+    MOVE.W      #ADDQ_W,D6
+    CMP.W       D3,D6
+    BEQ         MATCH_ADDQ_W
+    
+    MOVE.W      #ADDQ_L,D6
+    CMP.W       D3,D6
+    BEQ         MATCH_ADDQ_L
+    
+****************************************
 CHECK_ADDI
 
     JSR         ReadFirstTenBits
@@ -182,7 +268,34 @@ CHECK_ADDI
     
     RTS
 *****************************************
+CHECK_SUB
     
+    JSR         ISOLATE_OP_CODE
+    
+    MOVE.W      #SUB_TO_DN_B,D6
+    CMP.W       D3,D6
+    BEQ         MATCH_SUB_TO_DN_B
+    
+    MOVE.W      #SUB_TO_DN_W,D6
+    CMP.W       D3,D6
+    BEQ         MATCH_SUB_TO_DN_W
+    
+    MOVE.W      #SUB_TO_DN_L,D6
+    CMP.W       D3,D6
+    BEQ         MATCH_SUB_TO_DN_L
+    
+    MOVE.W      #SUB_TO_EA_B,D6
+    CMP.W       D3,D6
+    BEQ         MATCH_SUB_TO_EA_B
+    
+    MOVE.W      #SUB_TO_EA_W,D6
+    CMP.W       D3,D6
+    BEQ         MATCH_SUB_TO_EA_W
+    
+    MOVE.W      #SUB_TO_EA_B,D6
+    CMP.W       D3,D6
+    BEQ         MATCH_SUB_TO_EA_L
+*****************************************
 CHECK_MOVEA_W_AND_MOVE_W
     
     JSR         ISOLATE_OP_CODE
@@ -256,6 +369,41 @@ MATCH_ADD_TO_EA_L
 MATCH_ADDA_W
     MOVE.W      D2,D5       *REMOVE
 MATCH_ADDA_L
+    MOVE.W      D2,D5       *REMOVE
+MATCH_ADDQ_B
+    MOVE.W      D2,D5       *REMOVE
+MATCH_ADDQ_W
+    MOVE.W      D2,D5       *REMOVE
+MATCH_ADDQ_L
+    MOVE.W      D2,D5       *REMOVE
+MATCH_SUB_TO_DN_B
+    MOVE.W      D2,D5       *REMOVE
+MATCH_SUB_TO_DN_W
+    MOVE.W      D2,D5       *REMOVE
+MATCH_SUB_TO_DN_L
+    MOVE.W      D2,D5       *REMOVE
+MATCH_SUB_TO_EA_B
+    MOVE.W      D2,D5       *REMOVE
+MATCH_SUB_TO_EA_W
+    MOVE.W      D2,D5       *REMOVE
+MATCH_SUB_TO_EA_L
+    MOVE.W      D2,D5       *REMOVE
+MATCH_DIVU
+    MOVE.W      D2,D5       *REMOVE
+MATCH_OR_DN_B
+    MOVE.W      D2,D5       *REMOVE
+MATCH_OR_DN_W
+    MOVE.W      D2,D5       *REMOVE
+MATCH_OR_DN_L
+    MOVE.W      D2,D5       *REMOVE
+MATCH_OR_EA_B
+    MOVE.W      D2,D5       *REMOVE
+MATCH_OR_EA_W
+    MOVE.W      D2,D5       *REMOVE
+MATCH_OR_EA_L
+    MOVE.W      D2,D5       *REMOVE
+    
+ERROR
     MOVE.W      D2,D5       *REMOVE
     
     END    START        ; last line of source
