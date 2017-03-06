@@ -5,7 +5,7 @@
 * Description:
 *-----------------------------------------------------------
 MEM             EQU	$00007000  
-stack           EQU  $0000E000 
+stack           EQU $0000E000 
 
 NOP             EQU $4E71
 MOVE_B          EQU %0001
@@ -37,6 +37,9 @@ ADDQ_B          EQU %000
 ADDQ_W          EQU %001
 ADDQ_L          EQU %010
 
+MULS_W_AND      EQU %1100
+MULS_OP_W       EQU %111 
+
 SUB             EQU %1001
 SUB_TO_DN_B     EQU %000
 SUB_TO_DN_W     EQU %001
@@ -55,18 +58,62 @@ EA_B            EQU %100
 EA_W            EQU %101
 EA_L            EQU %110
 
+MULS_LEA_CLR_JSR_RTS    EQU %0100
+RTS             EQU $4E75
+LEA             EQU %111
+JSR             EQU %0100111010
+CLR_B           EQU %0100001000
+CLR_W           EQU %0100001001
+CLR_L           EQU %0100001010
+MULS_L          EQU %0100110000
+
+LSL             EQU %1110001111
+LSR             EQU %1110001011
+ASR             EQU %1110000111
+ASL             EQU %1110000011
+ROL             EQU %1110011111
+ROR             EQU %1110011011
+
+CMP             EQU %1011
+CMP_B           EQU %000
+CMP_W           EQU %001
+CMP_L           EQU %010
+
+BCC             EQU %0110
+BCC_16          EQU %00000000
+BCC_32          EQU $FF
+CC_T	        EQU %0000
+CC_F	        EQU %0001
+CC_HI	        EQU %0010
+CC_LS	        EQU %0011
+CC_CC	        EQU %0100
+CC_CS	        EQU %0101
+CC_NE	        EQU %0110
+CC_EQ	        EQU %0111
+CC_VC	        EQU %1000
+CC_VS	        EQU %1001
+CC_PL	        EQU %1010
+CC_MI	        EQU %1011
+CC_GE	        EQU %1100
+CC_LT	        EQU %1101
+CC_GT	        EQU %1110
+CC_LE	        EQU %1111
+
+
+
     ORG    $1000
 
 START:   LEA  stack, SP               ; first instruction of program
 
 * Put program code here
    
-    MOVEA.L #MEM,A2
-    MOVE.W  (A2)+,D2    * D2 will store current byte
-    JSR     CHECK_NOP
-    JSR     CHECK_MOVE_AND_MOVEA_AND_MOVEQ
-    JSR     Check_MOVEM
-    JSR     Check_ADDI
+    MOVEA.L     #MEM,A2
+    MOVE.W      (A2)+,D2    * D2 will store current byte
+    JSR         CHECK_NOP
+    JSR         CHECK_MOVE_AND_MOVEA_AND_MOVEQ
+    JSR         Check_MOVEM
+    JSR         Check_ADDI
+    JSR         CHECK_SHIFT_AND_ROTATE
     
     SIMHALT             ; halt simulator
 
@@ -93,6 +140,35 @@ ReadFirstTenBits
     
     MOVEM.W     (SP)+,D2
     RTS
+*************************
+CHECK_SHIFT_AND_ROTATE
+
+    JSR         ReadFirstTenBits
+    
+    MOVE.W      #LSL,D6
+    CMP.W       D3,D6
+    BEQ         MATCH_LSL
+    
+    MOVE.W      #LSR,D6
+    CMP.W       D3,D6
+    BEQ         MATCH_LSR
+    
+    MOVE.W      #ASR,D6
+    CMP.W       D3,D6
+    BEQ         MATCH_ASR
+    
+    MOVE.W      #ASL,D6
+    CMP.W       D3,D6
+    BEQ         MATCH_ASL
+    
+    MOVE.W      #ROL,D6
+    CMP.W       D3,D6
+    BEQ         MATCH_ROL
+    
+    MOVE.W      #ROR,D6
+    CMP.W       D3,D6
+    BEQ         MATCH_ROR
+    
 *************************
 CHECK_NOP
     
@@ -136,9 +212,352 @@ CHECK_MOVE_AND_MOVEA_AND_MOVEQ
     MOVE.B      #DIVU_OR,D6
     CMP.B       D3,D6
     BEQ         CHECK_DIVU_OR
-
+    
+    MOVE.B      #MULS_W_AND,D6
+    CMP.B       D3,D6
+    BEQ         CHECK_MULS_W_AND
+    
+    MOVE.B      #MULS_LEA_CLR_JSR_RTS,D6
+    CMP.B       D3,D6
+    BEQ         CHECK_MULS_LEA_CLR_JSR_RTS
+    
+    MOVE.B      #CMP,D6
+    CMP.B       D3,D6
+    BEQ         CHECK_CMP
+    
+    MOVE.B      #BCC,D6
+    CMP.B       D3,D6
+    BEQ         CHECK_BCC
     
     RTS
+***********************************
+CHECK_BCC
+    
+    MOVE.B      #BCC_16,D6
+    CMP.B       D2,D6
+    BEQ         CHECK_BCC_16
+    
+    MOVE.B      #BCC_32,D6
+    CMP.B       D2,D6
+    BEQ         CHECK_BCC_32
+    
+    JMP         CHECK_BCC_8
+    
+***********************************
+CHECK_BCC_8
+    
+    JSR         ISOLATE_CC_CODE_FOR_BCC
+    
+    MOVE.B      #CC_T,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_T_8
+    
+    MOVE.B      #CC_F,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_F_8
+    
+    MOVE.B      #CC_HI,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_HI_8
+    
+    MOVE.B      #CC_LS,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_LS_8
+    
+    MOVE.B      #CC_CC,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_CC_8
+    
+    MOVE.B      #CC_CS,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_CS_8
+    
+    MOVE.B      #CC_NE,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_NE_8
+    
+    MOVE.B      #CC_EQ,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_EQ_8
+    
+    MOVE.B      #CC_VC,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_VC_8
+    
+    MOVE.B      #CC_VS,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_VS_8
+    
+    MOVE.B      #CC_PL,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_PL_8
+    
+    MOVE.B      #CC_MI,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_MI_8
+    
+    MOVE.B      #CC_GE,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_GE_8
+    
+    MOVE.B      #CC_LT,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_LT_8
+    
+    MOVE.B      #CC_GT,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_GT_8
+    
+    MOVE.B      #CC_LE,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_LE_8
+
+    JMP         ERROR
+    
+***********************************
+CHECK_BCC_16
+
+    JSR         ISOLATE_CC_CODE_FOR_BCC
+    
+    MOVE.B      #CC_T,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_T_16
+    
+    MOVE.B      #CC_F,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_F_16
+    
+    MOVE.B      #CC_HI,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_HI_16
+    
+    MOVE.B      #CC_LS,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_LS_16
+    
+    MOVE.B      #CC_CC,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_CC_16
+    
+    MOVE.B      #CC_CS,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_CS_16
+    
+    MOVE.B      #CC_NE,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_NE_16
+    
+    MOVE.B      #CC_EQ,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_EQ_16
+    
+    MOVE.B      #CC_VC,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_VC_16
+    
+    MOVE.B      #CC_VS,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_VS_16
+    
+    MOVE.B      #CC_PL,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_PL_16
+    
+    MOVE.B      #CC_MI,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_MI_16
+    
+    MOVE.B      #CC_GE,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_GE_16
+    
+    MOVE.B      #CC_LT,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_LT_16
+    
+    MOVE.B      #CC_GT,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_GT_16
+    
+    MOVE.B      #CC_LE,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_LE_16
+
+    JMP         ERROR
+
+***********************************
+CHECK_BCC_32  
+
+    JSR         ISOLATE_CC_CODE_FOR_BCC 
+    
+    MOVE.B      #CC_T,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_T_32
+    
+    MOVE.B      #CC_F,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_F_32
+    
+    MOVE.B      #CC_HI,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_HI_32
+    
+    MOVE.B      #CC_LS,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_LS_32
+    
+    MOVE.B      #CC_CC,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_CC_32
+    
+    MOVE.B      #CC_CS,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_CS_32
+    
+    MOVE.B      #CC_NE,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_NE_32
+    
+    MOVE.B      #CC_EQ,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_EQ_32
+    
+    MOVE.B      #CC_VC,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_VC_32
+    
+    MOVE.B      #CC_VS,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_VS_32
+    
+    MOVE.B      #CC_PL,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_PL_32
+    
+    MOVE.B      #CC_MI,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_MI_32
+    
+    MOVE.B      #CC_GE,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_GE_32
+    
+    MOVE.B      #CC_LT,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_LT_32
+    
+    MOVE.B      #CC_GT,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_GT_32
+    
+    MOVE.B      #CC_LE,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CC_LE_32
+
+    JMP         ERROR
+ 
+***********************************
+ISOLATE_CC_CODE_FOR_BCC
+
+    MOVEM.W     D2, -(SP) 
+    
+    LSL.W       #4,D2
+    MOVE.B      #12,D7
+    LSR.W       D7,D2
+    
+    MOVE.B      D2,D3      
+
+    MOVEM.W     (SP)+,D2 
+    RTS
+***********************************
+CHECK_CMP
+    
+    JSR         ISOLATE_OP_CODE
+    
+    MOVE.B      #CMP_B,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CMP_B
+    
+    MOVE.B      #CMP_W,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CMP_W
+    
+    MOVE.B      #CMP_L,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_CMP_L
+    
+    JMP         ERROR
+***********************************
+CHECK_MULS_LEA_CLR_JSR_RTS
+
+    MOVE.W      #RTS,D6
+    CMP.W       D2,D6
+    BEQ         MATCH_RTS
+    
+    JSR         ISOLATE_OP_CODE
+    
+    MOVE.B      #LEA,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_LEA
+    
+    JSR         ReadFirstTenBits
+    
+    MOVE.W      #JSR,D6
+    CMP.W       D3,D6
+    BEQ         MATCH_JSR
+    
+    MOVE.W      #CLR_B,D6
+    CMP.W       D3,D6
+    BEQ         MATCH_CLR_B
+    
+    MOVE.W      #CLR_W,D6
+    CMP.W       D3,D6
+    BEQ         MATCH_CLR_W
+    
+    MOVE.W      #CLR_L,D6
+    CMP.W       D3,D6
+    BEQ         MATCH_CLR_L
+    
+    MOVE.W      #MULS_L,D6  * Shouldn't need to check for the rest of the opcode..?
+    CMP.W       D3,D6
+    BEQ         MATCH_MULS_L
+    
+    JMP         ERROR
+    
+***********************************
+CHECK_MULS_W_AND
+
+    JSR         ISOLATE_OP_CODE
+    
+    MOVE.B      #MULS_OP_W,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_MULS_W
+    
+    MOVE.B      #DN_B,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_AND_DN_B
+    
+    MOVE.B      #DN_W,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_AND_DN_W
+    
+    MOVE.B      #DN_L,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_AND_DN_L
+    
+    MOVE.B      #EA_B,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_AND_EA_B
+    
+    MOVE.B      #EA_W,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_AND_EA_W
+    
+    MOVE.B      #EA_L,D6
+    CMP.B       D3,D6
+    BEQ         MATCH_AND_EA_L
+    
+    JMP         ERROR
 ***********************************    
 CHECK_DIVU_OR
     
@@ -172,6 +591,7 @@ CHECK_DIVU_OR
     CMP.B       D3,D6
     BEQ         MATCH_OR_EA_L
     
+    JMP         ERROR
 ***********************************
 CHECK_MOVEM
     
@@ -307,12 +727,15 @@ CHECK_MOVEA_W_AND_MOVE_W
     JMP         MATCH_MOVE_W 
 ************************************************
 ISOLATE_OP_CODE 
-    MOVEM.W     D2, -(SP)       
+
+    MOVEM.W     D2, -(SP)    
+   
     MOVE.B      #7,D7          
     LSL.W       D7,D2
     MOVE.B      #13,D7
     LSR.W       D7,D2
-    MOVE.B      D2,D3           
+    MOVE.B      D2,D3    
+       
     MOVEM.W     (SP)+,D2 
     RTS
 **********************************************
@@ -402,11 +825,171 @@ MATCH_OR_EA_W
     MOVE.W      D2,D5       *REMOVE
 MATCH_OR_EA_L
     MOVE.W      D2,D5       *REMOVE
+MATCH_MULS_W
+    MOVE.W      D2,D5       *REMOVE
+MATCH_AND_DN_B
+    MOVE.W      D2,D5       *REMOVE
+MATCH_AND_DN_W
+    MOVE.W      D2,D5       *REMOVE
+MATCH_AND_DN_L
+    MOVE.W      D2,D5       *REMOVE
+MATCH_AND_EA_B
+    MOVE.W      D2,D5       *REMOVE
+MATCH_AND_EA_W
+    MOVE.W      D2,D5       *REMOVE
+MATCH_AND_EA_L
+    MOVE.W      D2,D5       *REMOVE
+MATCH_RTS
+    MOVE.W      D2,D5       *REMOVE
+MATCH_LEA
+    MOVE.W      D2,D5       *REMOVE
+MATCH_JSR
+    MOVE.W      D2,D5       *REMOVE
+MATCH_CLR_B
+    MOVE.W      D2,D5       *REMOVE
+MATCH_CLR_W
+    MOVE.W      D2,D5       *REMOVE
+MATCH_CLR_L
+    MOVE.W      D2,D5       *REMOVE
+MATCH_MULS_L
+    MOVE.W      D2,D5       *REMOVE
+MATCH_LSL
+    MOVE.W      D2,D5       *REMOVE
+MATCH_LSR
+    MOVE.W      D2,D5       *REMOVE
+MATCH_ASR
+    MOVE.W      D2,D5       *REMOVE
+MATCH_ASL
+    MOVE.W      D2,D5       *REMOVE
+MATCH_ROL
+    MOVE.W      D2,D5       *REMOVE
+MATCH_ROR
+    MOVE.W      D2,D5       *REMOVE
+MATCH_CMP_B
+    MOVE.W      D2,D5       *REMOVE
+MATCH_CMP_W
+    MOVE.W      D2,D5       *REMOVE
+MATCH_CMP_L
+    MOVE.W      D2,D5       *REMOVE
     
+**********BCC OPCODE MATCHES*******
+MATCH_CC_T_8
+    MOVE.W      D2,D5       *REMOVE
+MATCH_CC_T_16
+    MOVE.W      D2,D5       *REMOVE
+MATCH_CC_T_32
+    MOVE.W      D2,D5       *REMOVE
+*****
+MATCH_CC_F_8
+    MOVE.W      D2,D5       *REMOVE
+MATCH_CC_F_16
+    MOVE.W      D2,D5       *REMOVE
+MATCH_CC_F_32
+    MOVE.W      D2,D5       *REMOVE
+*****
+MATCH_CC_HI_8
+    MOVE.W      D2,D5       *REMOVE
+MATCH_CC_HI_16
+    MOVE.W      D2,D5       *REMOVE
+MATCH_CC_HI_32
+    MOVE.W      D2,D5       *REMOVE
+*****
+MATCH_CC_LS_8
+    MOVE.W      D2,D5       *REMOVE
+MATCH_CC_LS_16
+    MOVE.W      D2,D5       *REMOVE
+MATCH_CC_LS_32  
+    MOVE.W      D2,D5       *REMOVE
+*****
+MATCH_CC_CC_8
+    MOVE.W      D2,D5       *REMOVE
+MATCH_CC_CC_16
+    MOVE.W      D2,D5       *REMOVE
+MATCH_CC_CC_32
+    MOVE.W      D2,D5       *REMOVE
+*****
+MATCH_CC_CS_8
+    MOVE.W      D2,D5       *REMOVE
+MATCH_CC_CS_16
+    MOVE.W      D2,D5       *REMOVE
+MATCH_CC_CS_32
+    MOVE.W      D2,D5       *REMOVE
+*****
+MATCH_CC_NE_8
+    MOVE.W      D2,D5       *REMOVE
+MATCH_CC_NE_16
+    MOVE.W      D2,D5       *REMOVE
+MATCH_CC_NE_32
+    MOVE.W      D2,D5       *REMOVE
+*****
+MATCH_CC_EQ_8
+    MOVE.W      D2,D5       *REMOVE
+MATCH_CC_EQ_16
+    MOVE.W      D2,D5       *REMOVE
+MATCH_CC_EQ_32
+    MOVE.W      D2,D5       *REMOVE
+*****
+MATCH_CC_VC_8
+    MOVE.W      D2,D5       *REMOVE
+MATCH_CC_VC_16
+    MOVE.W      D2,D5       *REMOVE
+MATCH_CC_VC_32
+    MOVE.W      D2,D5       *REMOVE
+*****
+MATCH_CC_VS_8
+    MOVE.W      D2,D5       *REMOVE
+MATCH_CC_VS_16
+    MOVE.W      D2,D5       *REMOVE
+MATCH_CC_VS_32
+    MOVE.W      D2,D5       *REMOVE
+*****
+MATCH_CC_PL_8
+    MOVE.W      D2,D5       *REMOVE
+MATCH_CC_PL_16
+    MOVE.W      D2,D5       *REMOVE
+MATCH_CC_PL_32
+    MOVE.W      D2,D5       *REMOVE
+*****
+MATCH_CC_MI_8
+    MOVE.W      D2,D5       *REMOVE
+MATCH_CC_MI_16
+    MOVE.W      D2,D5       *REMOVE
+MATCH_CC_MI_32
+    MOVE.W      D2,D5       *REMOVE
+*****
+MATCH_CC_GE_8
+    MOVE.W      D2,D5       *REMOVE
+MATCH_CC_GE_16
+    MOVE.W      D2,D5       *REMOVE
+MATCH_CC_GE_32
+    MOVE.W      D2,D5       *REMOVE
+*****
+MATCH_CC_LT_8
+    MOVE.W      D2,D5       *REMOVE
+MATCH_CC_LT_16
+    MOVE.W      D2,D5       *REMOVE
+MATCH_CC_LT_32
+    MOVE.W      D2,D5       *REMOVE
+*****
+MATCH_CC_GT_8
+    MOVE.W      D2,D5       *REMOVE
+MATCH_CC_GT_16
+    MOVE.W      D2,D5       *REMOVE
+MATCH_CC_GT_32
+    MOVE.W      D2,D5       *REMOVE
+*****
+MATCH_CC_LE_8
+    MOVE.W      D2,D5       *REMOVE
+MATCH_CC_LE_16
+    MOVE.W      D2,D5       *REMOVE
+MATCH_CC_LE_32
+    MOVE.W      D2,D5       *REMOVE
+**********************************   
 ERROR
     MOVE.W      D2,D5       *REMOVE
     
     END    START        ; last line of source
+
 
 
 

@@ -22,7 +22,13 @@ start		EQU	$00007000	* ORG and END address
 
 * This is a group of ADD instructions
 add_start	
-                DIVU	(A3)+,D5
+                *JSR	(A3)		* Address register indirect
+		*BCC	clear		
+		*BGT	compares		
+		*BLE	multiply
+                CMP.B	(A3),D5
+		CMP.L	$ABC0FF00,D2
+                *DIVU	(A3)+,D5
                 *MOVE.B  D1,D2
                 *MOVE.W  D1,D2
                 *MOVE.L  D1,D2
@@ -45,6 +51,8 @@ add_start
 		*ADDI.W	#$5555,D6
 		*ADDI.B	#$FE,D0
                 *SUB.W   D1,D2
+                *AND.L	$8000A000,D3
+                *MULS	D0,D3
 
 * Move instructions
 moves		MOVE.B	D0,D1
@@ -101,6 +109,7 @@ multiply	MULS	D0,D3		*Optional instruction
 	
 
 		END	start
+
 
 
 
