@@ -26,10 +26,10 @@ add_start
 		*BCC	clear		
 		*BGT	compares		
 		*BLE	multiply
-                CMP.B	(A3),D5
-		CMP.L	$ABC0FF00,D2
+                *CMP.B	(A3),D5
+		*CMP.L	$ABC0FF00,D2
                 *DIVU	(A3)+,D5
-                *MOVE.B  D1,D2
+                MOVE.B  D1,D2
                 *MOVE.W  D1,D2
                 *MOVE.L  D1,D2
                 *MOVEA.W D1,A5
@@ -109,6 +109,7 @@ multiply	MULS	D0,D3		*Optional instruction
 	
 
 		END	start
+
 
 
 

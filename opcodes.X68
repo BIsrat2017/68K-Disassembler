@@ -4,6 +4,8 @@
 * Date       :
 * Description:
 *-----------------------------------------------------------
+                INCLUDE 'EADecoder.x68'
+
 MEM             EQU	$00007000  
 stack           EQU $0000E000 
 
@@ -99,7 +101,19 @@ CC_LT	        EQU %1101
 CC_GT	        EQU %1110
 CC_LE	        EQU %1111
 
+** Common strings for printing
+pr_space    DC.B    ' ',0
+pr_comma    DC.B    ',',0
+pr_BYTE     DC.B    '.B',0
+pr_WORD     DC.B    '.W',0
+pr_LONG     DC.B    '.L',0
 
+** Command strings
+pr_NOP      DC.B    'NOP',0
+pr_MOVE     DC.B    'MOVE',0
+pr_MOVEA    DC.B    'MOVEA',0
+pr_MOVEQ    DC.B    'MOVEQ',0
+pr_MOVEM    DC.B    'MOVEM',0
 
     ORG    $1000
 
@@ -750,9 +764,38 @@ CHECK_MOVEA_L_AND_MOVE_L
     JMP         MATCH_MOVE_L   
 **********************************************  
 MATCH_NOP
-    MOVE.B      D2,D5       *REMOVE
+    LEA         pr_NOP,A1
+    MOVE.B      #14,D0
+    TRAP        #15
+    RTS
+    
 MATCH_MOVE_B
-    MOVE.B      D2,D5       *REMOVE
+    ** Print command
+    MOVE.B      #14,D0
+    LEA         pr_MOVE,A1
+    TRAP        #15
+    ** Print size
+    LEA         pr_BYTE,A1
+    TRAP        #15
+    ** Print space
+    LEA         pr_space,A1
+    TRAP        #15
+    ** Decode right side ea
+    MOVE.B      D2,D0
+    ANDI.B      #%00111111,D0
+    JSR         EADecoder
+    ** Add comma
+    MOVE.B      #14,D0
+    LEA         pr_comma,A1
+    TRAP        #15
+    ** Decode left side ea
+    MOVE.W      D2,D0
+    ANDI.W      #%0000111111000000,D0
+    LSR.W       #6,D0
+    JSR         EADecoder_left
+    
+    RTS
+    
 MATCH_MOVE_W
     MOVE.W      D2,D5       *REMOVE
 MATCH_MOVE_L
@@ -989,6 +1032,7 @@ ERROR
     MOVE.W      D2,D5       *REMOVE
     
     END    START        ; last line of source
+
 
 
 

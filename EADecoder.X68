@@ -34,9 +34,22 @@ PRE_DEC     EQU %00100000
 * D2 =          Temp storage
 * D3 =          Should output immediate data?
 
+EADecoder_left
+        MOVEM.L     D0-D7/A1-A6, -(SP)
+        
+        ** Swap the mode and register bits
+        MOVE.B  D0,D4
+        ANDI.B  #%00000111,D0       * Mask mode
+        ANDI.B  #%00111000,D4       * Mask register
+        LSL.B   #3,D0               * Move mode bits over
+        LSR.B   #3,D4               * Move register bits over
+        OR.B    D4,D0               * Recombine
+        
+        BRA     left_skip
+
 EADecoder
         MOVEM.L     D0-D7/A1-A6, -(SP) *Store registers on stack, except D0
-        
+left_skip        
         MOVE.B  D1,D2 ** Store opcode size in bytes into D2
         
         LEA     output,A1
@@ -176,6 +189,7 @@ dec_pre_dec    *DECODE INDIRECT PRE DECREMENT*
         MOVE.B  #')',(A2)+
         MOVE.B  #$0,(A2)+
         BRA     dec_return
+
 
 
 

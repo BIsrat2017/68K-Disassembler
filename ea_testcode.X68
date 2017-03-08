@@ -22,6 +22,14 @@ start
         LEA     blank,A1
         TRAP    #15
         
+        *Test direct register left
+        MOVE.B  #%00101000,D0
+        JSR     EADecoder_left
+        
+        MOVE.B  #13,D0
+        LEA     blank,A1
+        TRAP    #15
+        
         *Test address register
         MOVE.B  #%00001000,D0
         JSR     EADecoder
@@ -102,6 +110,7 @@ start
         JSR     EADecoder
         
         END     $3000
+
 *~Font name~Courier New~
 *~Font size~10~
 *~Tab type~1~
