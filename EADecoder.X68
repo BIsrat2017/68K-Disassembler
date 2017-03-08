@@ -50,12 +50,13 @@ EADecoder_left
 EADecoder
         MOVEM.L     D0-D7/A1-A6, -(SP) *Store registers on stack, except D0
 left_skip        
-        MOVE.B  D1,D2 ** Store opcode size in bytes into D2
+        MOVE.L  D1,D2 ** Store opcode size in bytes into D2
         
         LEA     output,A1
         LEA     output,A2
         
         *First, decoder will check for the 3 types with hard coded register values
+        MOVE.B  #1,D3
         CMP     #IMMEDIATE,D0
         BEQ     dec_immediate
         
@@ -65,9 +66,8 @@ left_skip
         CMP     #ABS_LONG,D0
         BEQ     dec_abs_long
         
-        MOVE.B  #1,D3
-        
         *If it was none of the above, store the register and mode seperately
+        CLR     D3
         MOVE.B  D0,D1
         ANDI.B  #%00111000,D1           *Get mode value
         ANDI.B  #%00000111,D0           *Get register value
@@ -87,9 +87,7 @@ left_skip
                 
         CMP     #PRE_DEC,D1
         BEQ     dec_pre_dec
-        
-        CLR     D3
-        
+
 dec_return ** Common return for all types
         
         ** Print display string
@@ -98,7 +96,7 @@ dec_return ** Common return for all types
         
         ** If there is immediate data to print, print it
         CMP     #1,D3
-        BEQ     imm_skip
+        BNE     imm_skip
         
         MOVE.B  #15,D0
         MOVE.B  #16,D2
@@ -189,6 +187,7 @@ dec_pre_dec    *DECODE INDIRECT PRE DECREMENT*
         MOVE.B  #')',(A2)+
         MOVE.B  #$0,(A2)+
         BRA     dec_return
+
 
 
 

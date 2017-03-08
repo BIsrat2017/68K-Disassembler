@@ -1,13 +1,10 @@
 *-----------------------------------------------------------
-* Title      :
-* Written by :
-* Date       :
-* Description:
+* Title      : OpDecoder
+* Written by : Spencer Milner, Connor McGwire
+* Date       : 
+* Description: 
 *-----------------------------------------------------------
                 INCLUDE 'EADecoder.x68'
-
-MEM             EQU	$00007000  
-stack           EQU $0000E000 
 
 NOP             EQU $4E71
 MOVE_B          EQU %0001
@@ -101,7 +98,7 @@ CC_LT	        EQU %1101
 CC_GT	        EQU %1110
 CC_LE	        EQU %1111
 
-** Common strings for printing
+*** Common strings for printing
 pr_space    DC.B    ' ',0
 pr_comma    DC.B    ',',0
 pr_BYTE     DC.B    '.B',0
@@ -115,23 +112,25 @@ pr_MOVEA    DC.B    'MOVEA',0
 pr_MOVEQ    DC.B    'MOVEQ',0
 pr_MOVEM    DC.B    'MOVEM',0
 
-    ORG    $1000
-
-START:   LEA  stack, SP               ; first instruction of program
-
-* Put program code here
-   
-    MOVEA.L     #MEM,A2
-    MOVE.W      (A2)+,D2    * D2 will store current byte
-    JSR         CHECK_NOP
-    JSR         CHECK_MOVE_AND_MOVEA_AND_MOVEQ
-    JSR         Check_MOVEM
-    JSR         Check_ADDI
-    JSR         CHECK_SHIFT_AND_ROTATE
+********************************
+** BEGIN OpDecoder SUBROUTINE **
+********************************
+OpDecoder
+    MOVEM.L     D0-D7/A1-A6, -(SP)
     
-    SIMHALT             ; halt simulator
+    MOVE.W      (A0)+,D2    * D2 will store current byte
+    BRA         CHECK_NOP
+    BRA         CHECK_MOVE_AND_MOVEA_AND_MOVEQ
+    BRA         Check_MOVEM
+    BRA         Check_ADDI
+    BRA         CHECK_SHIFT_AND_ROTATE
+    
+opdec_return
+    MOVEM.L     (SP)+, D0-D7/A1-A6
+    RTS
 
-* Put variables and constants here
+*****************************
+*   HELPER FUNCTIONS        *
 *****************************
 ReadFirstFourBits
 
@@ -157,7 +156,7 @@ ReadFirstTenBits
 *************************
 CHECK_SHIFT_AND_ROTATE
 
-    JSR         ReadFirstTenBits
+    BSR         ReadFirstTenBits
     
     MOVE.W      #LSL,D6
     CMP.W       D3,D6
@@ -183,17 +182,19 @@ CHECK_SHIFT_AND_ROTATE
     CMP.W       D3,D6
     BEQ         MATCH_ROR
     
+    BRA         opdec_return
+    
 *************************
 CHECK_NOP
     
     MOVE.W      #NOP,D6
     CMP.W       D2,D6
     BEQ         MATCH_NOP
-    RTS
+
 *************************
 CHECK_MOVE_AND_MOVEA_AND_MOVEQ
 
-    JSR     ReadFirstFourBits
+    BSR     ReadFirstFourBits
     
     MOVE.B      #MOVE_B,D6
     CMP.B       D3,D6
@@ -243,7 +244,7 @@ CHECK_MOVE_AND_MOVEA_AND_MOVEQ
     CMP.B       D3,D6
     BEQ         CHECK_BCC
     
-    RTS
+    BRA         opdec_return
 ***********************************
 CHECK_BCC
     
@@ -255,12 +256,12 @@ CHECK_BCC
     CMP.B       D2,D6
     BEQ         CHECK_BCC_32
     
-    JMP         CHECK_BCC_8
+    BRA         CHECK_BCC_8
     
 ***********************************
 CHECK_BCC_8
     
-    JSR         ISOLATE_CC_CODE_FOR_BCC
+    BSR         ISOLATE_CC_CODE_FOR_BCC
     
     MOVE.B      #CC_T,D6
     CMP.B       D3,D6
@@ -326,12 +327,12 @@ CHECK_BCC_8
     CMP.B       D3,D6
     BEQ         MATCH_CC_LE_8
 
-    JMP         ERROR
+    BRA         ERROR
     
 ***********************************
 CHECK_BCC_16
 
-    JSR         ISOLATE_CC_CODE_FOR_BCC
+    BSR         ISOLATE_CC_CODE_FOR_BCC
     
     MOVE.B      #CC_T,D6
     CMP.B       D3,D6
@@ -397,12 +398,12 @@ CHECK_BCC_16
     CMP.B       D3,D6
     BEQ         MATCH_CC_LE_16
 
-    JMP         ERROR
+    BRA         ERROR
 
 ***********************************
 CHECK_BCC_32  
 
-    JSR         ISOLATE_CC_CODE_FOR_BCC 
+    BSR         ISOLATE_CC_CODE_FOR_BCC 
     
     MOVE.B      #CC_T,D6
     CMP.B       D3,D6
@@ -468,7 +469,7 @@ CHECK_BCC_32
     CMP.B       D3,D6
     BEQ         MATCH_CC_LE_32
 
-    JMP         ERROR
+    BRA         ERROR
  
 ***********************************
 ISOLATE_CC_CODE_FOR_BCC
@@ -486,7 +487,7 @@ ISOLATE_CC_CODE_FOR_BCC
 ***********************************
 CHECK_CMP
     
-    JSR         ISOLATE_OP_CODE
+    BSR         ISOLATE_OP_CODE
     
     MOVE.B      #CMP_B,D6
     CMP.B       D3,D6
@@ -500,7 +501,7 @@ CHECK_CMP
     CMP.B       D3,D6
     BEQ         MATCH_CMP_L
     
-    JMP         ERROR
+    BRA         ERROR
 ***********************************
 CHECK_MULS_LEA_CLR_JSR_RTS
 
@@ -508,13 +509,13 @@ CHECK_MULS_LEA_CLR_JSR_RTS
     CMP.W       D2,D6
     BEQ         MATCH_RTS
     
-    JSR         ISOLATE_OP_CODE
+    BSR         ISOLATE_OP_CODE
     
     MOVE.B      #LEA,D6
     CMP.B       D3,D6
     BEQ         MATCH_LEA
     
-    JSR         ReadFirstTenBits
+    BSR         ReadFirstTenBits
     
     MOVE.W      #JSR,D6
     CMP.W       D3,D6
@@ -536,12 +537,12 @@ CHECK_MULS_LEA_CLR_JSR_RTS
     CMP.W       D3,D6
     BEQ         MATCH_MULS_L
     
-    JMP         ERROR
+    BRA         ERROR
     
 ***********************************
 CHECK_MULS_W_AND
 
-    JSR         ISOLATE_OP_CODE
+    BSR         ISOLATE_OP_CODE
     
     MOVE.B      #MULS_OP_W,D6
     CMP.B       D3,D6
@@ -571,11 +572,11 @@ CHECK_MULS_W_AND
     CMP.B       D3,D6
     BEQ         MATCH_AND_EA_L
     
-    JMP         ERROR
+    BRA         ERROR
 ***********************************    
 CHECK_DIVU_OR
     
-    JSR         ISOLATE_OP_CODE
+    BSR         ISOLATE_OP_CODE
     
     MOVE.B      #DIVU,D6
     CMP.B       D3,D6
@@ -605,11 +606,11 @@ CHECK_DIVU_OR
     CMP.B       D3,D6
     BEQ         MATCH_OR_EA_L
     
-    JMP         ERROR
+    BRA         ERROR
 ***********************************
 CHECK_MOVEM
     
-    JSR         ReadFirstTenBits
+    BSR         ReadFirstTenBits
     
     MOVE.W      #MOVEM_TO_MEM_W,D6
     CMP.W       D3,D6
@@ -627,11 +628,11 @@ CHECK_MOVEM
     CMP.W       D3,D6
     BEQ         MATCH_MOVEM_TO_REG_L
     
-    RTS
+    BRA         opdec_return
 **************************************** 
 CHECK_ADD_ADDA
     
-    JSR         ISOLATE_OP_CODE
+    BSR         ISOLATE_OP_CODE
     
     MOVE.W      #DN_B,D6
     CMP.W       D3,D6
@@ -665,11 +666,11 @@ CHECK_ADD_ADDA
     CMP.W       D3,D6
     BEQ         MATCH_ADDA_L
     
-    RTS
+    RTS ** Change later?
 ****************************************  
 CHECK_ADDQ
     
-    JSR         ISOLATE_OP_CODE
+    BSR         ISOLATE_OP_CODE
     
     MOVE.W      #ADDQ_B,D6
     CMP.W       D3,D6
@@ -686,7 +687,7 @@ CHECK_ADDQ
 ****************************************
 CHECK_ADDI
 
-    JSR         ReadFirstTenBits
+    BSR         ReadFirstTenBits
     
     MOVE.W      #ADDI_B,D6
     CMP.W       D3,D6
@@ -700,11 +701,11 @@ CHECK_ADDI
     CMP.W       D3,D6
     BEQ         MATCH_ADDI_L
     
-    RTS
+    BRA         opdec_return
 *****************************************
 CHECK_SUB
     
-    JSR         ISOLATE_OP_CODE
+    BSR         ISOLATE_OP_CODE
     
     MOVE.W      #DN_B,D6
     CMP.W       D3,D6
@@ -732,13 +733,13 @@ CHECK_SUB
 *****************************************
 CHECK_MOVEA_W_AND_MOVE_W
     
-    JSR         ISOLATE_OP_CODE
+    BSR         ISOLATE_OP_CODE
        
     MOVE.B      #MOVEA_WL,D6
     CMP.B       D3,D6
     BEQ         MATCH_MOVEA_W
     
-    JMP         MATCH_MOVE_W 
+    BRA         MATCH_MOVE_W 
 ************************************************
 ISOLATE_OP_CODE 
 
@@ -755,21 +756,23 @@ ISOLATE_OP_CODE
 **********************************************
 CHECK_MOVEA_L_AND_MOVE_L
     
-    JSR         ISOLATE_OP_CODE
+    BSR         ISOLATE_OP_CODE
        
     MOVE.B      #MOVEA_WL,D6
     CMP.B       D3,D6
     BEQ         MATCH_MOVEA_L 
     
-    JMP         MATCH_MOVE_L   
+    BRA         MATCH_MOVE_L   
 **********************************************  
 MATCH_NOP
     LEA         pr_NOP,A1
     MOVE.B      #14,D0
     TRAP        #15
-    RTS
+    BRA         opdec_return
     
 MATCH_MOVE_B
+    ** Move command size into D1
+    MOVE.B      #2,D1
     ** Print command
     MOVE.B      #14,D0
     LEA         pr_MOVE,A1
@@ -794,7 +797,7 @@ MATCH_MOVE_B
     LSR.W       #6,D0
     JSR         EADecoder_left
     
-    RTS
+    BRA         opdec_return
     
 MATCH_MOVE_W
     MOVE.W      D2,D5       *REMOVE
@@ -1030,20 +1033,6 @@ MATCH_CC_LE_32
 **********************************   
 ERROR
     MOVE.W      D2,D5       *REMOVE
-    
-    END    START        ; last line of source
-
-
-
-
-
-
-
-
-
-
-
-
 
 *~Font name~Courier New~
 *~Font size~10~

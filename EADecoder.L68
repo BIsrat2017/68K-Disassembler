@@ -1,6 +1,6 @@
-00001000 Starting Address
+00002000 Starting Address
 Assembler used: EASy68K Editor/Assembler v5.15.04
-Created On: 3/8/2017 12:48:43 PM
+Created On: 3/8/2017 2:14:38 PM
 
 00000000                             1  *-----------------------------------------------------------
 00000000                             2  * Title      :  EA Decoders
@@ -43,11 +43,11 @@ Created On: 3/8/2017 12:48:43 PM
 00000004                            39          
 00000004                            40          ** Swap the mode and register bits
 00000004  1800                      41          MOVE.B  D0,D4
-00000006  0200 0007                 42          ANDI.B  #%00000111,D0   *Mask mode
-0000000A  0204 0038                 43          ANDI.B  #%00111000,D4   *Mask register
-0000000E  E708                      44          LSL.B   #3,D0           *Move bits over
-00000010  E60C                      45          LSR.B   #3,D4           *Move bits over
-00000012  8004                      46          OR.B    D4,D0           *Recombine
+00000006  0200 0007                 42          ANDI.B  #%00000111,D0       * Mask mode
+0000000A  0204 0038                 43          ANDI.B  #%00111000,D4       * Mask register
+0000000E  E708                      44          LSL.B   #3,D0               * Move mode bits over
+00000010  E60C                      45          LSR.B   #3,D4               * Move register bits over
+00000012  8004                      46          OR.B    D4,D0               * Recombine
 00000014                            47          
 00000014  6000 0006                 48          BRA     left_skip
 00000018                            49  
@@ -197,7 +197,8 @@ Created On: 3/8/2017 12:48:43 PM
 00000130                           193  
 00000130                           194  
 00000130                           195  
-Line 196 WARNING: END directive missing, starting address not set
+00000130                           196  
+Line 197 WARNING: END directive missing, starting address not set
 
 No errors detected
 1 warning generated
