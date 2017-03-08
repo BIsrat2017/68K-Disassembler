@@ -9,8 +9,12 @@
 START   ORG     $2000
         
         MOVEA.W #$7000,A0
-        JSR     OpDecoder
-
+        
+            MOVE.W  (A0)+,D2
+            ** Is not equal to $FFFF
+            JSR     OpDecoder
+        
+        ** Has happened 25 times?
         END     $2000
 
 *~Font name~Courier New~

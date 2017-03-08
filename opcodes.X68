@@ -115,10 +115,13 @@ pr_MOVEM    DC.B    'MOVEM',0
 ********************************
 ** BEGIN OpDecoder SUBROUTINE **
 ********************************
+
+* A0 = INPUT    Decoder pointer; Persistant
+* D2 = INPUT    Read opcode word
+
 OpDecoder
     MOVEM.L     D0-D7/A1-A6, -(SP)
     
-    MOVE.W      (A0)+,D2    * D2 will store current byte
     BRA         CHECK_NOP
     BRA         CHECK_MOVE_AND_MOVEA_AND_MOVEQ
     BRA         Check_MOVEM
