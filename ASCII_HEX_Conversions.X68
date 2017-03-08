@@ -31,6 +31,7 @@ upSubRTN
         CLR     D0                      *Clear D0
 addBytes
         ADD.B   (A0)+,D0
+        ASL.L   #4,D0
         DBEQ    D1,addBytes
 
         MOVEM.L     (SP)+, D1-D7/A0-A6
@@ -52,6 +53,7 @@ upSEnd
         SUB.W   #1,D1                   *Decrement loop counter
         BNE     upSub                   
         BRA     upSubRTN
+
 *~Font name~Courier New~
 *~Font size~10~
 *~Tab type~1~
