@@ -6,8 +6,8 @@
 *-----------------------------------------------------------
                 INCLUDE 'EADecoder.x68'
                 INCLUDE 'connor_opcodes.x68'
-                INCLUDE 'spencer_opcodes.x68'
-                INCLUDE 'arsany_opcodes.x68'
+                *INCLUDE 'spencer_opcodes.x68'
+                *INCLUDE 'arsany_opcodes.x68'
 
 NOP             EQU $4E71
 MOVE_B          EQU %0001
@@ -84,8 +84,8 @@ CMP_L           EQU %010
 BCC             EQU %0110
 BCC_16          EQU %00000000
 BCC_32          EQU $FF
-CC_T	        EQU %0000
-CC_F	        EQU %0001
+CC_T	            EQU %0000
+CC_F	            EQU %0001
 CC_HI	        EQU %0010
 CC_LS	        EQU %0011
 CC_CC	        EQU %0100
@@ -127,9 +127,13 @@ OpDecoder
     MOVEM.L     D0-D7/A1-A6, -(SP)
     CLR         D1
     BRA         CHECK_NOP
-    BRA         CHECK_MOVE_AND_MOVEA_AND_MOVEQ
-    BRA         Check_MOVEM
-    BRA         Check_ADDI
+NOP_RETURN
+    BRA         CHECK_FOUR_BIT_SIG
+FOUR_BIT_RETURN
+    BRA         CHECK_MOVEM
+MOVEM_RETURN
+    BRA         CHECK_ADDI
+ADDI_RETURN
     BRA         CHECK_SHIFT_AND_ROTATE
     
 opdec_return
@@ -197,16 +201,18 @@ CHECK_NOP
     MOVE.W      #NOP,D6
     CMP.W       D2,D6
     BEQ         MATCH_NOP
+    
+    BRA         NOP_RETURN
 
 *************************
-CHECK_MOVE_AND_MOVEA_AND_MOVEQ
+CHECK_FOUR_BIT_SIG
 
-    BSR     ReadFirstFourBits
+    BSR         ReadFirstFourBits
     
     MOVE.B      #MOVE_B,D6
     CMP.B       D3,D6
     BEQ         MATCH_MOVE_B
-    
+
     MOVE.B      #MOVE_W,D6
     CMP.B       D3,D6
     BEQ         CHECK_MOVEA_W_AND_MOVE_W
@@ -251,7 +257,7 @@ CHECK_MOVE_AND_MOVEA_AND_MOVEQ
     CMP.B       D3,D6
     BEQ         CHECK_BCC
     
-    BRA         opdec_return
+    BRA         FOUR_BIT_RETURN
 ***********************************
 CHECK_BCC
     
@@ -406,6 +412,7 @@ CHECK_BCC_16
     BEQ         MATCH_CC_LE_16
 
     BRA         ERROR
+
 
 ***********************************
 CHECK_BCC_32  
@@ -580,6 +587,7 @@ CHECK_MULS_W_AND
     BEQ         MATCH_AND_EA_L
     
     BRA         ERROR
+
 ***********************************    
 CHECK_DIVU_OR
     
@@ -614,6 +622,7 @@ CHECK_DIVU_OR
     BEQ         MATCH_OR_EA_L
     
     BRA         ERROR
+
 ***********************************
 CHECK_MOVEM
     
@@ -635,7 +644,7 @@ CHECK_MOVEM
     CMP.W       D3,D6
     BEQ         MATCH_MOVEM_TO_REG_L
     
-    BRA         opdec_return
+    BRA         MOVEM_RETURN
 **************************************** 
 CHECK_ADD_ADDA
     
@@ -708,7 +717,7 @@ CHECK_ADDI
     CMP.W       D3,D6
     BEQ         MATCH_ADDI_L
     
-    BRA         opdec_return
+    BRA         ADDI_RETURN
 *****************************************
 CHECK_SUB
     

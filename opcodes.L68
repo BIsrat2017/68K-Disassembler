@@ -1,6 +1,6 @@
 00001000 Starting Address
 Assembler used: EASy68K Editor/Assembler v5.15.04
-Created On: 3/8/2017 5:48:13 PM
+Created On: 3/9/2017 12:38:53 AM
 
 00000000                             1  *-----------------------------------------------------------
 00000000                             2  * Title      : OpDecoder
@@ -14,8 +14,8 @@ Created On: 3/8/2017 5:48:13 PM
 00000000  =00010000                 10  output      EQU $00010000
 00000000                            11  
 00000000  =0000003C                 12  IMMEDIATE   EQU %00111100
-00000000  =00000039                 13  ABS_WORD    EQU %00111001
-00000000  =00000038                 14  ABS_LONG    EQU %00111000
+00000000  =00000038                 13  ABS_WORD    EQU %00111000
+00000000  =00000039                 14  ABS_LONG    EQU %00111001
 00000000  =00000000                 15  Dn          EQU %00000000
 00000000  =00000008                 16  An          EQU %00001000
 00000000  =00000010                 17  INDIRECT    EQU %00010000
@@ -39,1205 +39,1564 @@ Created On: 3/8/2017 5:48:13 PM
 00000018                            35  
 00000018                            36  EADecoder
 00000018  48E7 FF7E                 37          MOVEM.L     D0-D7/A1-A6, -(SP) *Store registers on stack, except D0
-0000001C                            38  left_skip        
-0000001C  1401                      39          MOVE.B  D1,D2 ** Store opcode size in bytes into D2
-0000001E                            40          
-0000001E  43F9 00010000             41          LEA     output,A1
-00000024  45F9 00010000             42          LEA     output,A2
-0000002A                            43          
-0000002A                            44          *First, decoder will check for the 3 types with hard coded register values
-0000002A  163C 0001                 45          MOVE.B  #1,D3
-0000002E  B07C 003C                 46          CMP     #IMMEDIATE,D0
-00000032  6700 0068                 47          BEQ     dec_immediate
-00000036                            48          
-00000036  B07C 0039                 49          CMP     #ABS_WORD,D0
-0000003A  6700 007C                 50          BEQ     dec_abs_word
-0000003E                            51          
-0000003E  B07C 0038                 52          CMP     #ABS_LONG,D0
-00000042  6700 0080                 53          BEQ     dec_abs_long
-00000046                            54          
-00000046                            55          *If it was none of the above, store the register and mode seperately
-00000046  4243                      56          CLR     D3
-00000048  1200                      57          MOVE.B  D0,D1
-0000004A  0201 0038                 58          ANDI.B  #%00111000,D1           *Get mode value
-0000004E  0200 0007                 59          ANDI.B  #%00000111,D0           *Get register value
-00000052  0600 0030                 60          ADDI.B  #$30,D0
-00000056                            61                
-00000056  B27C 0000                 62          CMP     #Dn,D1
-0000005A  6700 0074                 63          BEQ     dec_Dn 
-0000005E                            64          
-0000005E  B27C 0008                 65          CMP     #An,D1
-00000062  6700 0078                 66          BEQ     dec_An
-00000066                            67                  
-00000066  B27C 0010                 68          CMP     #INDIRECT,D1
-0000006A  6700 007C                 69          BEQ     dec_indirect
-0000006E                            70                  
-0000006E  B27C 0018                 71          CMP     #POST_INC,D1
-00000072  6700 0088                 72          BEQ     dec_post_inc
-00000076                            73                  
-00000076  B27C 0020                 74          CMP     #PRE_DEC,D1
-0000007A  6700 009A                 75          BEQ     dec_pre_dec
-0000007E                            76  
-0000007E                            77  dec_return ** Common return for all types
-0000007E                            78          
-0000007E                            79          ** Print display string
-0000007E  103C 000E                 80          MOVE.B  #14,D0
-00000082  4E4F                      81          TRAP    #15
-00000084                            82          
-00000084                            83          ** If there is immediate data to print, print it
-00000084  B67C 0001                 84          CMP     #1,D3
-00000088  6600 000C                 85          BNE     imm_skip
-0000008C                            86          
-0000008C  103C 000F                 87          MOVE.B  #15,D0
-00000090  143C 0010                 88          MOVE.B  #16,D2
-00000094  4E4F                      89          TRAP    #15
-00000096                            90  
-00000096                            91  imm_skip
-00000096  4CDF 7EFF                 92          MOVEM.L     (SP)+, D0-D7/A1-A6 *Return register data from stack, except D0
-0000009A  4E75                      93          RTS
-0000009C                            94          
-0000009C                            95          * Individual EA decoders *
-0000009C                            96  
-0000009C                            97  dec_immediate   *DECODE IMMEDIATE VALUE*
-0000009C  14FC 0023                 98          MOVE.B  #'#',(A2)+  * Move '#' char into string
-000000A0  14FC 0024                 99          MOVE.B  #'$',(A2)+  * Move '$' char into string
-000000A4  14FC 0000                100          MOVE.B  #$0,(A2)+   * Null terminate string
-000000A8  B47C 0002                101          CMP     #2,D2       * Check if data is word length
-000000AC  6700 0006                102          BEQ     imm_word    
-000000B0                           103          
-000000B0  2218                     104          MOVE.L  (A0)+,D1    * Length was long
-000000B2  60CA                     105          BRA     dec_return
-000000B4                           106          
-000000B4                           107  imm_word
-000000B4  3218                     108          MOVE.W  (A0)+,D1    * Length was word
-000000B6  60C6                     109          BRA     dec_return
-000000B8                           110  
-000000B8                           111  
-000000B8                           112  dec_abs_word    *DECODE ABSOLUTE WORD*
-000000B8  14FC 0024                113          MOVE.B  #'$',(A2)+  * Move '$' char into string
-000000BC  14FC 0000                114          MOVE.B  #$0,(A2)+   * Null terminate string
-000000C0  3218                     115          MOVE.W  (A0)+,D1
-000000C2  60BA                     116          BRA     dec_return
-000000C4                           117          
-000000C4                           118  
-000000C4                           119  dec_abs_long    *DECODE ABSOLUTE LONG*
-000000C4  14FC 0024                120          MOVE.B  #'$',(A2)+  * Move '$' char into string
-000000C8  14FC 0000                121          MOVE.B  #$0,(A2)+   * Null terminate string
-000000CC  2218                     122          MOVE.L  (A0)+,D1
-000000CE  60AE                     123          BRA     dec_return
-000000D0                           124          
-000000D0                           125  
-000000D0                           126  dec_Dn          *DECODE DIRECT DATA*
-000000D0  14FC 0044                127          MOVE.B  #'D',(A2)+
-000000D4  14C0                     128          MOVE.B  D0,(A2)+
-000000D6  14FC 0000                129          MOVE.B  #$0,(A2)+
-000000DA  60A2                     130          BRA     dec_return
-000000DC                           131  
-000000DC                           132          
-000000DC                           133  dec_An          *DECODE DIRECT ADDRESS*
-000000DC  14FC 0041                134          MOVE.B  #'A',(A2)+
-000000E0  14C0                     135          MOVE.B  D0,(A2)+
-000000E2  14FC 0000                136          MOVE.B  #$0,(A2)+
-000000E6  6096                     137          BRA     dec_return
-000000E8                           138  
-000000E8                           139  
-000000E8                           140  dec_indirect    *DECODE INDIRECT ACCESS*
-000000E8  14FC 0028                141          MOVE.B  #'(',(A2)+
-000000EC  14FC 0041                142          MOVE.B  #'A',(A2)+
-000000F0  14C0                     143          MOVE.B  D0,(A2)+
-000000F2  14FC 0029                144          MOVE.B  #')',(A2)+
-000000F6  14FC 0000                145          MOVE.B  #$0,(A2)+
-000000FA  6082                     146          BRA     dec_return
-000000FC                           147          
-000000FC                           148  
-000000FC                           149  dec_post_inc    *DECODE INDIRECT POST INCREMENT*
-000000FC  14FC 0028                150          MOVE.B  #'(',(A2)+
-00000100  14FC 0041                151          MOVE.B  #'A',(A2)+
-00000104  14C0                     152          MOVE.B  D0,(A2)+
-00000106  14FC 0029                153          MOVE.B  #')',(A2)+
-0000010A  14FC 002B                154          MOVE.B  #'+',(A2)+
-0000010E  14FC 0000                155          MOVE.B  #$0,(A2)+
-00000112  6000 FF6A                156          BRA     dec_return
-00000116                           157          
-00000116                           158          
-00000116                           159  dec_pre_dec    *DECODE INDIRECT PRE DECREMENT*
-00000116  14FC 002D                160          MOVE.B  #'-',(A2)+
-0000011A  14FC 0028                161          MOVE.B  #'(',(A2)+
-0000011E  14FC 0041                162          MOVE.B  #'A',(A2)+
-00000122  14C0                     163          MOVE.B  D0,(A2)+
-00000124  14FC 0029                164          MOVE.B  #')',(A2)+
-00000128  14FC 0000                165          MOVE.B  #$0,(A2)+
-0000012C  6000 FF50                166          BRA     dec_return
-00000130                           167  
-00000130                           168  
-00000130                           169  
-00000130                           170  
-00000130                           171  
-00000130                           172  
-00000130                           173  
-00000130                           174  -------------------- end include --------------------
-00000130                           175  
-00000130  =00004E71                176  NOP             EQU $4E71
-00000130  =00000001                177  MOVE_B          EQU %0001
-00000130  =00000003                178  MOVE_W          EQU %0011
-00000130  =00000002                179  MOVE_L          EQU %0010
-00000130  =00000001                180  MOVEA_WL        EQU %001 
-00000130  =00000007                181  MOVEQ_          EQU %0111
-00000130  =00000122                182  MOVEM_TO_MEM_W  EQU %0100100010
-00000130  =00000123                183  MOVEM_TO_MEM_L  EQU %0100100011
-00000130  =00000132                184  MOVEM_TO_REG_W  EQU %0100110010
-00000130  =00000133                185  MOVEM_TO_REG_L  EQU %0100110011
-00000130                           186  
-00000130  =00000018                187  ADDI_B          EQU %0000011000
-00000130  =00000019                188  ADDI_W          EQU %0000011001
-00000130  =0000001A                189  ADDI_L          EQU %0000011010
-00000130                           190  
-00000130  =0000000D                191  ADD_ADDA        EQU %1101
-00000130  =00000000                192  ADD_TO_REG_B    EQU %000
-00000130  =00000001                193  ADD_TO_REG_W    EQU %001
-00000130  =00000002                194  ADD_TO_REG_L    EQU %010
-00000130  =00000004                195  ADD_TO_EA_B     EQU %100
-00000130  =00000005                196  ADD_TO_EA_W     EQU %101
-00000130  =00000006                197  ADD_TO_EA_L     EQU %110
-00000130  =00000003                198  ADDA_W          EQU %011
-00000130  =00000007                199  ADDA_L          EQU %111
-00000130                           200  
-00000130  =00000005                201  ADDQ            EQU %0101
-00000130  =00000000                202  ADDQ_B          EQU %000
-00000130  =00000001                203  ADDQ_W          EQU %001
-00000130  =00000002                204  ADDQ_L          EQU %010
-00000130                           205  
-00000130  =0000000C                206  MULS_W_AND      EQU %1100
-00000130  =00000007                207  MULS_OP_W       EQU %111 
-00000130                           208  
-00000130  =00000009                209  SUB             EQU %1001
-00000130  =00000000                210  SUB_TO_DN_B     EQU %000
-00000130  =00000001                211  SUB_TO_DN_W     EQU %001
-00000130  =00000002                212  SUB_TO_DN_L     EQU %010
-00000130  =00000004                213  SUB_TO_EA_B     EQU %100
-00000130  =00000005                214  SUB_TO_EA_W     EQU %101
-00000130  =00000006                215  SUB_TO_EA_L     EQU %110
-00000130                           216  
-00000130  =00000008                217  DIVU_OR         EQU %1000
-00000130  =00000003                218  DIVU            EQU %011
-00000130                           219  
-00000130  =00000000                220  DN_B            EQU %000
-00000130  =00000001                221  DN_W            EQU %001
-00000130  =00000002                222  DN_L            EQU %010
-00000130  =00000004                223  EA_B            EQU %100
-00000130  =00000005                224  EA_W            EQU %101
-00000130  =00000006                225  EA_L            EQU %110
-00000130                           226  
-00000130  =00000004                227  MULS_LEA_CLR_JSR_RTS    EQU %0100
-00000130  =00004E75                228  RTS             EQU $4E75
-00000130  =00000007                229  LEA             EQU %111
-00000130  =0000013A                230  JSR             EQU %0100111010
-00000130  =00000108                231  CLR_B           EQU %0100001000
-00000130  =00000109                232  CLR_W           EQU %0100001001
-00000130  =0000010A                233  CLR_L           EQU %0100001010
-00000130  =00000130                234  MULS_L          EQU %0100110000
-00000130                           235  
-00000130  =0000038F                236  LSL             EQU %1110001111
-00000130  =0000038B                237  LSR             EQU %1110001011
-00000130  =00000387                238  ASR             EQU %1110000111
-00000130  =00000383                239  ASL             EQU %1110000011
-00000130  =0000039F                240  ROL             EQU %1110011111
-00000130  =0000039B                241  ROR             EQU %1110011011
-00000130                           242  
-00000130  =0000000B                243  CMP             EQU %1011
-00000130  =00000000                244  CMP_B           EQU %000
-00000130  =00000001                245  CMP_W           EQU %001
-00000130  =00000002                246  CMP_L           EQU %010
-00000130                           247  
-00000130  =00000006                248  BCC             EQU %0110
-00000130  =00000000                249  BCC_16          EQU %00000000
-00000130  =000000FF                250  BCC_32          EQU $FF
-00000130  =00000000                251  CC_T            EQU %0000
-00000130  =00000001                252  CC_F            EQU %0001
-00000130  =00000002                253  CC_HI           EQU %0010
-00000130  =00000003                254  CC_LS           EQU %0011
-00000130  =00000004                255  CC_CC           EQU %0100
-00000130  =00000005                256  CC_CS           EQU %0101
-00000130  =00000006                257  CC_NE           EQU %0110
-00000130  =00000007                258  CC_EQ           EQU %0111
-00000130  =00000008                259  CC_VC           EQU %1000
-00000130  =00000009                260  CC_VS           EQU %1001
-00000130  =0000000A                261  CC_PL           EQU %1010
-00000130  =0000000B                262  CC_MI           EQU %1011
-00000130  =0000000C                263  CC_GE           EQU %1100
-00000130  =0000000D                264  CC_LT           EQU %1101
-00000130  =0000000E                265  CC_GT           EQU %1110
-00000130  =0000000F                266  CC_LE           EQU %1111
-00000130                           267  
-00000130                           268  *** Common strings for printing
-00000130= 20 00                    269  pr_space    DC.B    ' ',0
-00000132= 2C 00                    270  pr_comma    DC.B    ',',0
-00000134= 2E 42 00                 271  pr_BYTE     DC.B    '.B',0
-00000137= 2E 57 00                 272  pr_WORD     DC.B    '.W',0
-0000013A= 2E 4C 00                 273  pr_LONG     DC.B    '.L',0
-0000013D                           274  
-0000013D                           275  ** Command strings constants
-0000013D= 4E 4F 50 00              276  pr_NOP      DC.B    'NOP',0
-00000141= 4D 4F 56 45 00           277  pr_MOVE     DC.B    'MOVE',0
-00000146= 4D 4F 56 45 41 00        278  pr_MOVEA    DC.B    'MOVEA',0
-0000014C= 4D 4F 56 45 51 00        279  pr_MOVEQ    DC.B    'MOVEQ',0
-00000152= 4D 4F 56 45 4D 00        280  pr_MOVEM    DC.B    'MOVEM',0
-00000158                           281  
-00000158                           282  
-00000158                           283  ********************************
-00000158                           284  ** BEGIN OpDecoder SUBROUTINE **
-00000158                           285  ********************************
-00000158                           286  
-00000158                           287  * A0 = INPUT    Decoder pointer; Persistant
-00000158                           288  * D2 = INPUT    Read opcode word
-00000158                           289  
-00000158                           290  OpDecoder
-00000158  48E7 FF7E                291      MOVEM.L     D0-D7/A1-A6, -(SP)
-0000015C                           292      
-0000015C  6000 0078                293      BRA         CHECK_NOP
-00000160  6000 007E                294      BRA         CHECK_MOVE_AND_MOVEA_AND_MOVEQ
-00000164  6000 0430                295      BRA         Check_MOVEM
-00000168  6000 04D4                296      BRA         Check_ADDI
-0000016C  6000 0028                297      BRA         CHECK_SHIFT_AND_ROTATE
-00000170                           298      
-00000170                           299  opdec_return
-00000170  4CDF 7EFF                300      MOVEM.L     (SP)+, D0-D7/A1-A6
-00000174  4E75                     301      RTS
-00000176                           302  
-00000176                           303  *****************************
-00000176                           304  *   HELPER FUNCTIONS        *
-00000176                           305  *****************************
-00000176                           306  ReadFirstFourBits
-00000176                           307  
-00000176  48A7 2000                308      MOVEM.W     D2, -(SP)
-0000017A                           309  
-0000017A  1E3C 000C                310      MOVE.B      #12,D7 
-0000017E  EE6A                     311      LSR.W       D7,D2 
-00000180  1602                     312      MOVE.B      D2,D3
-00000182                           313      
-00000182  4C9F 0004                314      MOVEM.W     (SP)+,D2
-00000186  4E75                     315      RTS
-00000188                           316      
-00000188                           317  *************************
-00000188                           318  ReadFirstTenBits
-00000188                           319      
-00000188  48A7 2000                320      MOVEM.W     D2, -(SP)
-0000018C                           321   
-0000018C  EC4A                     322      LSR.W       #6,D2 
-0000018E  3602                     323      MOVE.W      D2,D3
-00000190                           324      
-00000190  4C9F 0004                325      MOVEM.W     (SP)+,D2
-00000194  4E75                     326      RTS
-00000196                           327  *************************
-00000196                           328  CHECK_SHIFT_AND_ROTATE
-00000196                           329  
-00000196  61F0                     330      BSR         ReadFirstTenBits
-00000198                           331      
-00000198  3C3C 038F                332      MOVE.W      #LSL,D6
-0000019C  BC43                     333      CMP.W       D3,D6
-0000019E  6700 0626                334      BEQ         MATCH_LSL
-000001A2                           335      
-000001A2  3C3C 038B                336      MOVE.W      #LSR,D6
-000001A6  BC43                     337      CMP.W       D3,D6
-000001A8  6700 061E                338      BEQ         MATCH_LSR
-000001AC                           339      
-000001AC  3C3C 0387                340      MOVE.W      #ASR,D6
-000001B0  BC43                     341      CMP.W       D3,D6
-000001B2  6700 0616                342      BEQ         MATCH_ASR
-000001B6                           343      
-000001B6  3C3C 0383                344      MOVE.W      #ASL,D6
-000001BA  BC43                     345      CMP.W       D3,D6
-000001BC  6700 060E                346      BEQ         MATCH_ASL
-000001C0                           347      
-000001C0  3C3C 039F                348      MOVE.W      #ROL,D6
-000001C4  BC43                     349      CMP.W       D3,D6
-000001C6  6700 0606                350      BEQ         MATCH_ROL
-000001CA                           351      
-000001CA  3C3C 039B                352      MOVE.W      #ROR,D6
-000001CE  BC43                     353      CMP.W       D3,D6
-000001D0  6700 05FE                354      BEQ         MATCH_ROR
-000001D4                           355      
-000001D4  609A                     356      BRA         opdec_return
-000001D6                           357      
-000001D6                           358  *************************
-000001D6                           359  CHECK_NOP
-000001D6                           360      
-000001D6  3C3C 4E71                361      MOVE.W      #NOP,D6
-000001DA  BC42                     362      CMP.W       D2,D6
-000001DC  6700 0500                363      BEQ         MATCH_NOP
-000001E0                           364  
-000001E0                           365  *************************
-000001E0                           366  CHECK_MOVE_AND_MOVEA_AND_MOVEQ
-000001E0                           367  
-000001E0  6194                     368      BSR     ReadFirstFourBits
-000001E2                           369      
-000001E2  1C3C 0001                370      MOVE.B      #MOVE_B,D6
-000001E6  BC03                     371      CMP.B       D3,D6
-000001E8  6700 0502                372      BEQ         MATCH_MOVE_B
-000001EC                           373      
-000001EC  1C3C 0003                374      MOVE.B      #MOVE_W,D6
-000001F0  BC03                     375      CMP.B       D3,D6
-000001F2  6700 04B0                376      BEQ         CHECK_MOVEA_W_AND_MOVE_W
-000001F6                           377      
-000001F6  1C3C 0002                378      MOVE.B      #MOVE_L,D6
-000001FA  BC03                     379      CMP.B       D3,D6
-000001FC  6700 04D0                380      BEQ         CHECK_MOVEA_L_AND_MOVE_L
-00000200                           381   
-00000200  1C3C 0007                382      MOVE.B      #MOVEQ_,D6
-00000204  BC03                     383      CMP.B       D3,D6
-00000206  6700 0562                384      BEQ         MATCH_MOVEQ
-0000020A                           385      
-0000020A  1C3C 000D                386      MOVE.B      #ADD_ADDA,D6
-0000020E  BC03                     387      CMP.B       D3,D6
-00000210  6700 03B4                388      BEQ         CHECK_ADD_ADDA
-00000214                           389      
-00000214  1C3C 0005                390      MOVE.B      #ADDQ,D6
-00000218  BC03                     391      CMP.B       D3,D6
-0000021A  6700 0400                392      BEQ         CHECK_ADDQ
-0000021E                           393      
-0000021E  1C3C 0009                394      MOVE.B      #SUB,D6
-00000222  BC03                     395      CMP.B       D3,D6
-00000224  6700 043E                396      BEQ         CHECK_SUB
-00000228                           397      
-00000228  1C3C 0008                398      MOVE.B      #DIVU_OR,D6
-0000022C  BC03                     399      CMP.B       D3,D6
-0000022E  6700 0318                400      BEQ         CHECK_DIVU_OR
-00000232                           401      
-00000232  1C3C 000C                402      MOVE.B      #MULS_W_AND,D6
-00000236  BC03                     403      CMP.B       D3,D6
-00000238  6700 02C0                404      BEQ         CHECK_MULS_W_AND
-0000023C                           405      
-0000023C  1C3C 0004                406      MOVE.B      #MULS_LEA_CLR_JSR_RTS,D6
-00000240  BC03                     407      CMP.B       D3,D6
-00000242  6700 0264                408      BEQ         CHECK_MULS_LEA_CLR_JSR_RTS
-00000246                           409      
-00000246  1C3C 000B                410      MOVE.B      #CMP,D6
-0000024A  BC03                     411      CMP.B       D3,D6
-0000024C  6700 0234                412      BEQ         CHECK_CMP
-00000250                           413      
-00000250  1C3C 0006                414      MOVE.B      #BCC,D6
-00000254  BC03                     415      CMP.B       D3,D6
-00000256  6700 0006                416      BEQ         CHECK_BCC
-0000025A                           417      
-0000025A  6000 FF14                418      BRA         opdec_return
-0000025E                           419  ***********************************
-0000025E                           420  CHECK_BCC
-0000025E                           421      
-0000025E  1C3C 0000                422      MOVE.B      #BCC_16,D6
-00000262  BC02                     423      CMP.B       D2,D6
-00000264  6700 00B8                424      BEQ         CHECK_BCC_16
-00000268                           425      
-00000268  1C3C 00FF                426      MOVE.B      #BCC_32,D6
-0000026C  BC02                     427      CMP.B       D2,D6
-0000026E  6700 0156                428      BEQ         CHECK_BCC_32
-00000272                           429      
-00000272  6000 0002                430      BRA         CHECK_BCC_8
-00000276                           431      
-00000276                           432  ***********************************
-00000276                           433  CHECK_BCC_8
-00000276                           434      
-00000276  6100 01F6                435      BSR         ISOLATE_CC_CODE_FOR_BCC
-0000027A                           436      
-0000027A  1C3C 0000                437      MOVE.B      #CC_T,D6
-0000027E  BC03                     438      CMP.B       D3,D6
-00000280  6700 0556                439      BEQ         MATCH_CC_T_8
-00000284                           440      
-00000284  1C3C 0001                441      MOVE.B      #CC_F,D6
-00000288  BC03                     442      CMP.B       D3,D6
-0000028A  6700 0552                443      BEQ         MATCH_CC_F_8
-0000028E                           444      
-0000028E  1C3C 0002                445      MOVE.B      #CC_HI,D6
-00000292  BC03                     446      CMP.B       D3,D6
-00000294  6700 054E                447      BEQ         MATCH_CC_HI_8
-00000298                           448      
-00000298  1C3C 0003                449      MOVE.B      #CC_LS,D6
-0000029C  BC03                     450      CMP.B       D3,D6
-0000029E  6700 054A                451      BEQ         MATCH_CC_LS_8
-000002A2                           452      
-000002A2  1C3C 0004                453      MOVE.B      #CC_CC,D6
-000002A6  BC03                     454      CMP.B       D3,D6
-000002A8  6700 0546                455      BEQ         MATCH_CC_CC_8
-000002AC                           456      
-000002AC  1C3C 0005                457      MOVE.B      #CC_CS,D6
-000002B0  BC03                     458      CMP.B       D3,D6
-000002B2  6700 0542                459      BEQ         MATCH_CC_CS_8
-000002B6                           460      
-000002B6  1C3C 0006                461      MOVE.B      #CC_NE,D6
-000002BA  BC03                     462      CMP.B       D3,D6
-000002BC  6700 053E                463      BEQ         MATCH_CC_NE_8
-000002C0                           464      
-000002C0  1C3C 0007                465      MOVE.B      #CC_EQ,D6
-000002C4  BC03                     466      CMP.B       D3,D6
-000002C6  6700 053A                467      BEQ         MATCH_CC_EQ_8
-000002CA                           468      
-000002CA  1C3C 0008                469      MOVE.B      #CC_VC,D6
-000002CE  BC03                     470      CMP.B       D3,D6
-000002D0  6700 0536                471      BEQ         MATCH_CC_VC_8
-000002D4                           472      
-000002D4  1C3C 0009                473      MOVE.B      #CC_VS,D6
-000002D8  BC03                     474      CMP.B       D3,D6
-000002DA  6700 0532                475      BEQ         MATCH_CC_VS_8
-000002DE                           476      
-000002DE  1C3C 000A                477      MOVE.B      #CC_PL,D6
-000002E2  BC03                     478      CMP.B       D3,D6
-000002E4  6700 052E                479      BEQ         MATCH_CC_PL_8
-000002E8                           480      
-000002E8  1C3C 000B                481      MOVE.B      #CC_MI,D6
-000002EC  BC03                     482      CMP.B       D3,D6
-000002EE  6700 052A                483      BEQ         MATCH_CC_MI_8
-000002F2                           484      
-000002F2  1C3C 000C                485      MOVE.B      #CC_GE,D6
-000002F6  BC03                     486      CMP.B       D3,D6
-000002F8  6700 0526                487      BEQ         MATCH_CC_GE_8
-000002FC                           488      
-000002FC  1C3C 000D                489      MOVE.B      #CC_LT,D6
-00000300  BC03                     490      CMP.B       D3,D6
-00000302  6700 0522                491      BEQ         MATCH_CC_LT_8
-00000306                           492      
-00000306  1C3C 000E                493      MOVE.B      #CC_GT,D6
-0000030A  BC03                     494      CMP.B       D3,D6
-0000030C  6700 051E                495      BEQ         MATCH_CC_GT_8
-00000310                           496      
-00000310  1C3C 000F                497      MOVE.B      #CC_LE,D6
-00000314  BC03                     498      CMP.B       D3,D6
-00000316  6700 051A                499      BEQ         MATCH_CC_LE_8
-0000031A                           500  
-0000031A  6000 051C                501      BRA         ERROR
-0000031E                           502      
-0000031E                           503  ***********************************
-0000031E                           504  CHECK_BCC_16
-0000031E                           505  
-0000031E  6100 014E                506      BSR         ISOLATE_CC_CODE_FOR_BCC
-00000322                           507      
-00000322  1C3C 0000                508      MOVE.B      #CC_T,D6
-00000326  BC03                     509      CMP.B       D3,D6
-00000328  6700 04B0                510      BEQ         MATCH_CC_T_16
-0000032C                           511      
-0000032C  1C3C 0001                512      MOVE.B      #CC_F,D6
-00000330  BC03                     513      CMP.B       D3,D6
-00000332  6700 04AC                514      BEQ         MATCH_CC_F_16
-00000336                           515      
-00000336  1C3C 0002                516      MOVE.B      #CC_HI,D6
-0000033A  BC03                     517      CMP.B       D3,D6
-0000033C  6700 04A8                518      BEQ         MATCH_CC_HI_16
-00000340                           519      
-00000340  1C3C 0003                520      MOVE.B      #CC_LS,D6
-00000344  BC03                     521      CMP.B       D3,D6
-00000346  6700 04A4                522      BEQ         MATCH_CC_LS_16
-0000034A                           523      
-0000034A  1C3C 0004                524      MOVE.B      #CC_CC,D6
-0000034E  BC03                     525      CMP.B       D3,D6
-00000350  6700 04A0                526      BEQ         MATCH_CC_CC_16
-00000354                           527      
-00000354  1C3C 0005                528      MOVE.B      #CC_CS,D6
-00000358  BC03                     529      CMP.B       D3,D6
-0000035A  6700 049C                530      BEQ         MATCH_CC_CS_16
-0000035E                           531      
-0000035E  1C3C 0006                532      MOVE.B      #CC_NE,D6
-00000362  BC03                     533      CMP.B       D3,D6
-00000364  6700 0498                534      BEQ         MATCH_CC_NE_16
-00000368                           535      
-00000368  1C3C 0007                536      MOVE.B      #CC_EQ,D6
-0000036C  BC03                     537      CMP.B       D3,D6
-0000036E  6700 0494                538      BEQ         MATCH_CC_EQ_16
-00000372                           539      
-00000372  1C3C 0008                540      MOVE.B      #CC_VC,D6
-00000376  BC03                     541      CMP.B       D3,D6
-00000378  6700 0490                542      BEQ         MATCH_CC_VC_16
-0000037C                           543      
-0000037C  1C3C 0009                544      MOVE.B      #CC_VS,D6
-00000380  BC03                     545      CMP.B       D3,D6
-00000382  6700 048C                546      BEQ         MATCH_CC_VS_16
-00000386                           547      
-00000386  1C3C 000A                548      MOVE.B      #CC_PL,D6
-0000038A  BC03                     549      CMP.B       D3,D6
-0000038C  6700 0488                550      BEQ         MATCH_CC_PL_16
-00000390                           551      
-00000390  1C3C 000B                552      MOVE.B      #CC_MI,D6
-00000394  BC03                     553      CMP.B       D3,D6
-00000396  6700 0484                554      BEQ         MATCH_CC_MI_16
-0000039A                           555      
-0000039A  1C3C 000C                556      MOVE.B      #CC_GE,D6
-0000039E  BC03                     557      CMP.B       D3,D6
-000003A0  6700 0480                558      BEQ         MATCH_CC_GE_16
-000003A4                           559      
-000003A4  1C3C 000D                560      MOVE.B      #CC_LT,D6
-000003A8  BC03                     561      CMP.B       D3,D6
-000003AA  6700 047C                562      BEQ         MATCH_CC_LT_16
-000003AE                           563      
-000003AE  1C3C 000E                564      MOVE.B      #CC_GT,D6
-000003B2  BC03                     565      CMP.B       D3,D6
-000003B4  6700 0478                566      BEQ         MATCH_CC_GT_16
-000003B8                           567      
-000003B8  1C3C 000F                568      MOVE.B      #CC_LE,D6
-000003BC  BC03                     569      CMP.B       D3,D6
-000003BE  6700 0474                570      BEQ         MATCH_CC_LE_16
-000003C2                           571  
-000003C2  6000 0474                572      BRA         ERROR
-000003C6                           573  
-000003C6                           574  ***********************************
-000003C6                           575  CHECK_BCC_32  
-000003C6                           576  
-000003C6  6100 00A6                577      BSR         ISOLATE_CC_CODE_FOR_BCC 
-000003CA                           578      
-000003CA  1C3C 0000                579      MOVE.B      #CC_T,D6
-000003CE  BC03                     580      CMP.B       D3,D6
-000003D0  6700 040A                581      BEQ         MATCH_CC_T_32
-000003D4                           582      
-000003D4  1C3C 0001                583      MOVE.B      #CC_F,D6
-000003D8  BC03                     584      CMP.B       D3,D6
-000003DA  6700 0406                585      BEQ         MATCH_CC_F_32
-000003DE                           586      
-000003DE  1C3C 0002                587      MOVE.B      #CC_HI,D6
-000003E2  BC03                     588      CMP.B       D3,D6
-000003E4  6700 0402                589      BEQ         MATCH_CC_HI_32
-000003E8                           590      
-000003E8  1C3C 0003                591      MOVE.B      #CC_LS,D6
-000003EC  BC03                     592      CMP.B       D3,D6
-000003EE  6700 03FE                593      BEQ         MATCH_CC_LS_32
-000003F2                           594      
-000003F2  1C3C 0004                595      MOVE.B      #CC_CC,D6
-000003F6  BC03                     596      CMP.B       D3,D6
-000003F8  6700 03FA                597      BEQ         MATCH_CC_CC_32
-000003FC                           598      
-000003FC  1C3C 0005                599      MOVE.B      #CC_CS,D6
-00000400  BC03                     600      CMP.B       D3,D6
-00000402  6700 03F6                601      BEQ         MATCH_CC_CS_32
-00000406                           602      
-00000406  1C3C 0006                603      MOVE.B      #CC_NE,D6
-0000040A  BC03                     604      CMP.B       D3,D6
-0000040C  6700 03F2                605      BEQ         MATCH_CC_NE_32
-00000410                           606      
-00000410  1C3C 0007                607      MOVE.B      #CC_EQ,D6
-00000414  BC03                     608      CMP.B       D3,D6
-00000416  6700 03EE                609      BEQ         MATCH_CC_EQ_32
-0000041A                           610      
-0000041A  1C3C 0008                611      MOVE.B      #CC_VC,D6
-0000041E  BC03                     612      CMP.B       D3,D6
-00000420  6700 03EA                613      BEQ         MATCH_CC_VC_32
-00000424                           614      
-00000424  1C3C 0009                615      MOVE.B      #CC_VS,D6
-00000428  BC03                     616      CMP.B       D3,D6
-0000042A  6700 03E6                617      BEQ         MATCH_CC_VS_32
-0000042E                           618      
-0000042E  1C3C 000A                619      MOVE.B      #CC_PL,D6
-00000432  BC03                     620      CMP.B       D3,D6
-00000434  6700 03E2                621      BEQ         MATCH_CC_PL_32
-00000438                           622      
-00000438  1C3C 000B                623      MOVE.B      #CC_MI,D6
-0000043C  BC03                     624      CMP.B       D3,D6
-0000043E  6700 03DE                625      BEQ         MATCH_CC_MI_32
-00000442                           626      
-00000442  1C3C 000C                627      MOVE.B      #CC_GE,D6
-00000446  BC03                     628      CMP.B       D3,D6
-00000448  6700 03DA                629      BEQ         MATCH_CC_GE_32
-0000044C                           630      
-0000044C  1C3C 000D                631      MOVE.B      #CC_LT,D6
-00000450  BC03                     632      CMP.B       D3,D6
-00000452  6700 03D6                633      BEQ         MATCH_CC_LT_32
-00000456                           634      
-00000456  1C3C 000E                635      MOVE.B      #CC_GT,D6
-0000045A  BC03                     636      CMP.B       D3,D6
-0000045C  6700 03D2                637      BEQ         MATCH_CC_GT_32
-00000460                           638      
-00000460  1C3C 000F                639      MOVE.B      #CC_LE,D6
-00000464  BC03                     640      CMP.B       D3,D6
-00000466  6700 03CE                641      BEQ         MATCH_CC_LE_32
-0000046A                           642  
-0000046A  6000 03CC                643      BRA         ERROR
-0000046E                           644   
-0000046E                           645  ***********************************
-0000046E                           646  ISOLATE_CC_CODE_FOR_BCC
-0000046E                           647  
-0000046E  48A7 2000                648      MOVEM.W     D2, -(SP) 
-00000472                           649      
-00000472  E94A                     650      LSL.W       #4,D2
-00000474  1E3C 000C                651      MOVE.B      #12,D7
-00000478  EE6A                     652      LSR.W       D7,D2
-0000047A                           653      
-0000047A  1602                     654      MOVE.B      D2,D3      
-0000047C                           655  
-0000047C  4C9F 0004                656      MOVEM.W     (SP)+,D2 
-00000480  4E75                     657      RTS
-00000482                           658  ***********************************
-00000482                           659  CHECK_CMP
-00000482                           660      
-00000482  6100 0232                661      BSR         ISOLATE_OP_CODE
-00000486                           662      
-00000486  1C3C 0000                663      MOVE.B      #CMP_B,D6
-0000048A  BC03                     664      CMP.B       D3,D6
-0000048C  6700 0344                665      BEQ         MATCH_CMP_B
-00000490                           666      
-00000490  1C3C 0001                667      MOVE.B      #CMP_W,D6
-00000494  BC03                     668      CMP.B       D3,D6
-00000496  6700 033C                669      BEQ         MATCH_CMP_W
-0000049A                           670      
-0000049A  1C3C 0002                671      MOVE.B      #CMP_L,D6
-0000049E  BC03                     672      CMP.B       D3,D6
-000004A0  6700 0334                673      BEQ         MATCH_CMP_L
-000004A4                           674      
-000004A4  6000 0392                675      BRA         ERROR
-000004A8                           676  ***********************************
-000004A8                           677  CHECK_MULS_LEA_CLR_JSR_RTS
-000004A8                           678  
-000004A8  3C3C 4E75                679      MOVE.W      #RTS,D6
-000004AC  BC42                     680      CMP.W       D2,D6
-000004AE  6700 0308                681      BEQ         MATCH_RTS
-000004B2                           682      
-000004B2  6100 0202                683      BSR         ISOLATE_OP_CODE
-000004B6                           684      
-000004B6  1C3C 0007                685      MOVE.B      #LEA,D6
-000004BA  BC03                     686      CMP.B       D3,D6
-000004BC  6700 02FC                687      BEQ         MATCH_LEA
-000004C0                           688      
-000004C0  6100 FCC6                689      BSR         ReadFirstTenBits
-000004C4                           690      
-000004C4  3C3C 013A                691      MOVE.W      #JSR,D6
-000004C8  BC43                     692      CMP.W       D3,D6
-000004CA  6700 02F0                693      BEQ         MATCH_JSR
-000004CE                           694      
-000004CE  3C3C 0108                695      MOVE.W      #CLR_B,D6
-000004D2  BC43                     696      CMP.W       D3,D6
-000004D4  6700 02E8                697      BEQ         MATCH_CLR_B
-000004D8                           698      
-000004D8  3C3C 0109                699      MOVE.W      #CLR_W,D6
-000004DC  BC43                     700      CMP.W       D3,D6
-000004DE  6700 02E0                701      BEQ         MATCH_CLR_W
-000004E2                           702      
-000004E2  3C3C 010A                703      MOVE.W      #CLR_L,D6
-000004E6  BC43                     704      CMP.W       D3,D6
-000004E8  6700 02D8                705      BEQ         MATCH_CLR_L
-000004EC                           706      
-000004EC  3C3C 0130                707      MOVE.W      #MULS_L,D6  * Shouldn't need to check for the rest of the opcode..?
-000004F0  BC43                     708      CMP.W       D3,D6
-000004F2  6700 02D0                709      BEQ         MATCH_MULS_L
-000004F6                           710      
-000004F6  6000 0340                711      BRA         ERROR
-000004FA                           712      
-000004FA                           713  ***********************************
-000004FA                           714  CHECK_MULS_W_AND
-000004FA                           715  
-000004FA  6100 01BA                716      BSR         ISOLATE_OP_CODE
-000004FE                           717      
-000004FE  1C3C 0007                718      MOVE.B      #MULS_OP_W,D6
-00000502  BC03                     719      CMP.B       D3,D6
-00000504  6700 02A4                720      BEQ         MATCH_MULS_W
-00000508                           721      
-00000508  1C3C 0000                722      MOVE.B      #DN_B,D6
-0000050C  BC03                     723      CMP.B       D3,D6
-0000050E  6700 029C                724      BEQ         MATCH_AND_DN_B
-00000512                           725      
-00000512  1C3C 0001                726      MOVE.B      #DN_W,D6
-00000516  BC03                     727      CMP.B       D3,D6
-00000518  6700 0294                728      BEQ         MATCH_AND_DN_W
-0000051C                           729      
-0000051C  1C3C 0002                730      MOVE.B      #DN_L,D6
-00000520  BC03                     731      CMP.B       D3,D6
-00000522  6700 028C                732      BEQ         MATCH_AND_DN_L
-00000526                           733      
-00000526  1C3C 0004                734      MOVE.B      #EA_B,D6
-0000052A  BC03                     735      CMP.B       D3,D6
-0000052C  6700 0284                736      BEQ         MATCH_AND_EA_B
-00000530                           737      
-00000530  1C3C 0005                738      MOVE.B      #EA_W,D6
-00000534  BC03                     739      CMP.B       D3,D6
-00000536  6700 027C                740      BEQ         MATCH_AND_EA_W
-0000053A                           741      
-0000053A  1C3C 0006                742      MOVE.B      #EA_L,D6
-0000053E  BC03                     743      CMP.B       D3,D6
-00000540  6700 0274                744      BEQ         MATCH_AND_EA_L
-00000544                           745      
-00000544  6000 02F2                746      BRA         ERROR
-00000548                           747  ***********************************    
-00000548                           748  CHECK_DIVU_OR
-00000548                           749      
-00000548  6100 016C                750      BSR         ISOLATE_OP_CODE
-0000054C                           751      
-0000054C  1C3C 0003                752      MOVE.B      #DIVU,D6
-00000550  BC03                     753      CMP.B       D3,D6
-00000552  6700 0248                754      BEQ         MATCH_DIVU
-00000556                           755      
-00000556  1C3C 0000                756      MOVE.B      #DN_B,D6
-0000055A  BC03                     757      CMP.B       D3,D6
-0000055C  6700 0240                758      BEQ         MATCH_OR_DN_B
-00000560                           759      
-00000560  1C3C 0001                760      MOVE.B      #DN_W,D6
-00000564  BC03                     761      CMP.B       D3,D6
-00000566  6700 0238                762      BEQ         MATCH_OR_DN_W
-0000056A                           763      
-0000056A  1C3C 0002                764      MOVE.B      #DN_L,D6
-0000056E  BC03                     765      CMP.B       D3,D6
-00000570  6700 0230                766      BEQ         MATCH_OR_DN_L
-00000574                           767      
-00000574  1C3C 0004                768      MOVE.B      #EA_B,D6
-00000578  BC03                     769      CMP.B       D3,D6
-0000057A  6700 0228                770      BEQ         MATCH_OR_EA_B
-0000057E                           771      
-0000057E  1C3C 0005                772      MOVE.B      #EA_W,D6
-00000582  BC03                     773      CMP.B       D3,D6
-00000584  6700 0220                774      BEQ         MATCH_OR_EA_W
-00000588                           775      
-00000588  1C3C 0006                776      MOVE.B      #EA_L,D6
-0000058C  BC03                     777      CMP.B       D3,D6
-0000058E  6700 0218                778      BEQ         MATCH_OR_EA_L
-00000592                           779      
-00000592  6000 02A4                780      BRA         ERROR
-00000596                           781  ***********************************
-00000596                           782  CHECK_MOVEM
-00000596                           783      
-00000596  6100 FBF0                784      BSR         ReadFirstTenBits
-0000059A                           785      
-0000059A  3C3C 0122                786      MOVE.W      #MOVEM_TO_MEM_W,D6
-0000059E  BC43                     787      CMP.W       D3,D6
-000005A0  6700 01CA                788      BEQ         MATCH_MOVEM_TO_MEM_W
-000005A4                           789      
-000005A4  3C3C 0123                790      MOVE.W      #MOVEM_TO_MEM_L,D6
-000005A8  BC43                     791      CMP.W       D3,D6
-000005AA  6700 01C2                792      BEQ         MATCH_MOVEM_TO_MEM_L
-000005AE                           793      
-000005AE  3C3C 0132                794      MOVE.W      #MOVEM_TO_REG_W,D6
-000005B2  BC43                     795      CMP.W       D3,D6
-000005B4  6700 01BA                796      BEQ         MATCH_MOVEM_TO_REG_W
-000005B8                           797      
-000005B8  3C3C 0133                798      MOVE.W      #MOVEM_TO_REG_L,D6
-000005BC  BC43                     799      CMP.W       D3,D6
-000005BE  6700 01B2                800      BEQ         MATCH_MOVEM_TO_REG_L
-000005C2                           801      
-000005C2  6000 FBAC                802      BRA         opdec_return
-000005C6                           803  **************************************** 
-000005C6                           804  CHECK_ADD_ADDA
-000005C6                           805      
-000005C6  6100 00EE                806      BSR         ISOLATE_OP_CODE
-000005CA                           807      
-000005CA  3C3C 0000                808      MOVE.W      #DN_B,D6
-000005CE  BC43                     809      CMP.W       D3,D6
-000005D0  6700 01A8                810      BEQ         MATCH_ADD_TO_REG_B
-000005D4                           811      
-000005D4  3C3C 0001                812      MOVE.W      #DN_W,D6
-000005D8  BC43                     813      CMP.W       D3,D6
-000005DA  6700 01A0                814      BEQ         MATCH_ADD_TO_REG_W
-000005DE                           815      
-000005DE  3C3C 0002                816      MOVE.W      #DN_L,D6
-000005E2  BC43                     817      CMP.W       D3,D6
-000005E4  6700 0198                818      BEQ         MATCH_ADD_TO_REG_L
-000005E8                           819      
-000005E8  3C3C 0004                820      MOVE.W      #EA_B,D6
-000005EC  BC43                     821      CMP.W       D3,D6
-000005EE  6700 0190                822      BEQ         MATCH_ADD_TO_EA_B
-000005F2                           823      
-000005F2  3C3C 0005                824      MOVE.W      #EA_W,D6
-000005F6  BC43                     825      CMP.W       D3,D6
-000005F8  6700 0188                826      BEQ         MATCH_ADD_TO_EA_W
-000005FC                           827      
-000005FC  3C3C 0006                828      MOVE.W      #EA_L,D6
-00000600  BC43                     829      CMP.W       D3,D6
-00000602  6700 0180                830      BEQ         MATCH_ADD_TO_EA_L
-00000606                           831      
-00000606  3C3C 0003                832      MOVE.W      #ADDA_W,D6
-0000060A  BC43                     833      CMP.W       D3,D6
-0000060C  6700 0178                834      BEQ         MATCH_ADDA_W
-00000610                           835      
-00000610  3C3C 0007                836      MOVE.W      #ADDA_L,D6
-00000614  BC43                     837      CMP.W       D3,D6
-00000616  6700 0170                838      BEQ         MATCH_ADDA_L
-0000061A                           839      
-0000061A  4E75                     840      RTS ** Change later?
-0000061C                           841  ****************************************  
-0000061C                           842  CHECK_ADDQ
-0000061C                           843      
-0000061C  6100 0098                844      BSR         ISOLATE_OP_CODE
-00000620                           845      
-00000620  3C3C 0000                846      MOVE.W      #ADDQ_B,D6
-00000624  BC43                     847      CMP.W       D3,D6
-00000626  6700 0162                848      BEQ         MATCH_ADDQ_B
-0000062A                           849      
-0000062A  3C3C 0001                850      MOVE.W      #ADDQ_W,D6
-0000062E  BC43                     851      CMP.W       D3,D6
-00000630  6700 015A                852      BEQ         MATCH_ADDQ_W
-00000634                           853      
-00000634  3C3C 0002                854      MOVE.W      #ADDQ_L,D6
-00000638  BC43                     855      CMP.W       D3,D6
-0000063A  6700 0152                856      BEQ         MATCH_ADDQ_L
-0000063E                           857      
-0000063E                           858  ****************************************
-0000063E                           859  CHECK_ADDI
-0000063E                           860  
-0000063E  6100 FB48                861      BSR         ReadFirstTenBits
-00000642                           862      
-00000642  3C3C 0018                863      MOVE.W      #ADDI_B,D6
-00000646  BC43                     864      CMP.W       D3,D6
-00000648  6700 012A                865      BEQ         MATCH_ADDI_B
-0000064C                           866      
-0000064C  3C3C 0019                867      MOVE.W      #ADDI_W,D6
-00000650  BC43                     868      CMP.W       D3,D6
-00000652  6700 0122                869      BEQ         MATCH_ADDI_W
-00000656                           870      
-00000656  3C3C 001A                871      MOVE.W      #ADDI_L,D6
-0000065A  BC43                     872      CMP.W       D3,D6
-0000065C  6700 011A                873      BEQ         MATCH_ADDI_L
-00000660                           874      
-00000660  6000 FB0E                875      BRA         opdec_return
-00000664                           876  *****************************************
-00000664                           877  CHECK_SUB
-00000664                           878      
-00000664  6100 0050                879      BSR         ISOLATE_OP_CODE
-00000668                           880      
-00000668  3C3C 0000                881      MOVE.W      #DN_B,D6
-0000066C  BC43                     882      CMP.W       D3,D6
-0000066E  6700 0120                883      BEQ         MATCH_SUB_TO_DN_B
-00000672                           884      
-00000672  3C3C 0001                885      MOVE.W      #DN_W,D6
-00000676  BC43                     886      CMP.W       D3,D6
-00000678  6700 0118                887      BEQ         MATCH_SUB_TO_DN_W
-0000067C                           888      
-0000067C  3C3C 0002                889      MOVE.W      #DN_L,D6
-00000680  BC43                     890      CMP.W       D3,D6
-00000682  6700 0110                891      BEQ         MATCH_SUB_TO_DN_L
-00000686                           892      
-00000686  3C3C 0004                893      MOVE.W      #EA_B,D6
-0000068A  BC43                     894      CMP.W       D3,D6
-0000068C  6700 0108                895      BEQ         MATCH_SUB_TO_EA_B
-00000690                           896      
-00000690  3C3C 0005                897      MOVE.W      #EA_W,D6
-00000694  BC43                     898      CMP.W       D3,D6
-00000696  6700 0100                899      BEQ         MATCH_SUB_TO_EA_W
-0000069A                           900      
-0000069A  3C3C 0006                901      MOVE.W      #EA_L,D6
-0000069E  BC43                     902      CMP.W       D3,D6
-000006A0  6700 00F8                903      BEQ         MATCH_SUB_TO_EA_L
-000006A4                           904  *****************************************
-000006A4                           905  CHECK_MOVEA_W_AND_MOVE_W
-000006A4                           906      
-000006A4  6100 0010                907      BSR         ISOLATE_OP_CODE
-000006A8                           908         
-000006A8  1C3C 0001                909      MOVE.B      #MOVEA_WL,D6
-000006AC  BC03                     910      CMP.B       D3,D6
-000006AE  6700 00B6                911      BEQ         MATCH_MOVEA_W
-000006B2                           912      
-000006B2  6000 0074                913      BRA         MATCH_MOVE_W 
-000006B6                           914  ************************************************
-000006B6                           915  ISOLATE_OP_CODE 
-000006B6                           916  
-000006B6  48A7 2000                917      MOVEM.W     D2, -(SP)    
-000006BA                           918     
-000006BA  1E3C 0007                919      MOVE.B      #7,D7          
-000006BE  EF6A                     920      LSL.W       D7,D2
-000006C0  1E3C 000D                921      MOVE.B      #13,D7
-000006C4  EE6A                     922      LSR.W       D7,D2
-000006C6  1602                     923      MOVE.B      D2,D3    
-000006C8                           924         
-000006C8  4C9F 0004                925      MOVEM.W     (SP)+,D2 
-000006CC  4E75                     926      RTS
-000006CE                           927  **********************************************
-000006CE                           928  CHECK_MOVEA_L_AND_MOVE_L
-000006CE                           929      
-000006CE  61E6                     930      BSR         ISOLATE_OP_CODE
-000006D0                           931         
-000006D0  1C3C 0001                932      MOVE.B      #MOVEA_WL,D6
-000006D4  BC03                     933      CMP.B       D3,D6
-000006D6  6700 0090                934      BEQ         MATCH_MOVEA_L 
-000006DA                           935      
-000006DA  6000 0088                936      BRA         MATCH_MOVE_L   
-000006DE                           937  **********************************************  
-000006DE                           938  ** D2 is holding the op command bits        **
-000006DE                           939  
-000006DE                           940  MATCH_NOP
-000006DE  43F8 013D                941      LEA         pr_NOP,A1
-000006E2  103C 000E                942      MOVE.B      #14,D0
-000006E6  4E4F                     943      TRAP        #15
-000006E8  6000 FA86                944      BRA         opdec_return
-000006EC                           945      
-000006EC                           946  MATCH_MOVE_B
-000006EC                           947      ** Move command size into D1
-000006EC  7202                     948      MOVE.L      #2,D1
-000006EE                           949      ** Print command
-000006EE  103C 000E                950      MOVE.B      #14,D0
-000006F2  43F8 0141                951      LEA         pr_MOVE,A1
-000006F6  4E4F                     952      TRAP        #15
-000006F8                           953      ** Print size
-000006F8  43F8 0134                954      LEA         pr_BYTE,A1
-000006FC  4E4F                     955      TRAP        #15
-000006FE                           956      ** Print space
-000006FE  43F8 0130                957      LEA         pr_space,A1
-00000702  4E4F                     958      TRAP        #15
-00000704                           959      ** Decode right side ea
-00000704  1002                     960      MOVE.B      D2,D0
-00000706  0200 003F                961      ANDI.B      #%00111111,D0
-0000070A  4EB8 0018                962      JSR         EADecoder
-0000070E                           963      ** Add comma
-0000070E  103C 000E                964      MOVE.B      #14,D0
-00000712  43F8 0132                965      LEA         pr_comma,A1
-00000716  4E4F                     966      TRAP        #15
-00000718                           967      ** Decode left side ea
-00000718  3002                     968      MOVE.W      D2,D0
-0000071A  0240 0FC0                969      ANDI.W      #%0000111111000000,D0
-0000071E  EC48                     970      LSR.W       #6,D0
-00000720  4EB8 0000                971      JSR         EADecoder_left
-00000724                           972      
-00000724  6000 FA4A                973      BRA         opdec_return
-00000728                           974      
-00000728                           975  MATCH_MOVE_W
-00000728                           976      ** Move command size into D1
-00000728  7202                     977      MOVE.L      #2,D1
-0000072A                           978      ** Print command
-0000072A  103C 000E                979      MOVE.B      #14,D0
-0000072E  43F8 0141                980      LEA         pr_MOVE,A1
-00000732  4E4F                     981      TRAP        #15
-00000734                           982      ** Print size
-00000734  43F8 0137                983      LEA         pr_WORD,A1
-00000738  4E4F                     984      TRAP        #15
-0000073A                           985      ** Print space
-0000073A  43F8 0130                986      LEA         pr_space,A1
-0000073E  4E4F                     987      TRAP        #15
-00000740                           988      ** Decode right side ea
-00000740  1002                     989      MOVE.B      D2,D0
-00000742  0200 003F                990      ANDI.B      #%00111111,D0
-00000746  4EB8 0018                991      JSR         EADecoder
-0000074A                           992      ** Add comma
-0000074A  103C 000E                993      MOVE.B      #14,D0
-0000074E  43F8 0132                994      LEA         pr_comma,A1
-00000752  4E4F                     995      TRAP        #15
-00000754                           996      ** Decode left side ea
-00000754  3002                     997      MOVE.W      D2,D0
-00000756  0240 0FC0                998      ANDI.W      #%0000111111000000,D0
-0000075A  EC48                     999      LSR.W       #6,D0
-0000075C  4EB8 0000               1000      JSR         EADecoder_left
-00000760                          1001      
-00000760  6000 FA0E               1002      BRA         opdec_return
-00000764                          1003      
-00000764                          1004  MATCH_MOVE_L
-00000764  3A02                    1005      MOVE.W      D2,D5       *REMOVE
-00000766                          1006  MATCH_MOVEA_W
-00000766  3A02                    1007      MOVE.W      D2,D5       *REMOVE
-00000768                          1008  MATCH_MOVEA_L
-00000768  3A02                    1009      MOVE.W      D2,D5       *REMOVE
-0000076A                          1010  MATCH_MOVEQ
-0000076A  3A02                    1011      MOVE.W      D2,D5       *REMOVE
-0000076C                          1012  MATCH_MOVEM_TO_MEM_W
-0000076C  3A02                    1013      MOVE.W      D2,D5       *REMOVE
-0000076E                          1014  MATCH_MOVEM_TO_MEM_L
-0000076E  3A02                    1015      MOVE.W      D2,D5       *REMOVE
-00000770                          1016  MATCH_MOVEM_TO_REG_W
-00000770  3A02                    1017      MOVE.W      D2,D5       *REMOVE
-00000772                          1018  MATCH_MOVEM_TO_REG_L
-00000772  3A02                    1019      MOVE.W      D2,D5       *REMOVE
-00000774                          1020  MATCH_ADDI_B
-00000774  3A02                    1021      MOVE.W      D2,D5       *REMOVE
-00000776                          1022  MATCH_ADDI_W
-00000776  3A02                    1023      MOVE.W      D2,D5       *REMOVE
-00000778                          1024  MATCH_ADDI_L
-00000778  3A02                    1025      MOVE.W      D2,D5       *REMOVE
-0000077A                          1026  MATCH_ADD_TO_REG_B
-0000077A  3A02                    1027      MOVE.W      D2,D5       *REMOVE
-0000077C                          1028  MATCH_ADD_TO_REG_W
-0000077C  3A02                    1029      MOVE.W      D2,D5       *REMOVE
-0000077E                          1030  MATCH_ADD_TO_REG_L
-0000077E  3A02                    1031      MOVE.W      D2,D5       *REMOVE
-00000780                          1032  MATCH_ADD_TO_EA_B
-00000780  3A02                    1033      MOVE.W      D2,D5       *REMOVE
-00000782                          1034  MATCH_ADD_TO_EA_W
-00000782  3A02                    1035      MOVE.W      D2,D5       *REMOVE
-00000784                          1036  MATCH_ADD_TO_EA_L 
-00000784  3A02                    1037      MOVE.W      D2,D5       *REMOVE
-00000786                          1038  MATCH_ADDA_W
-00000786  3A02                    1039      MOVE.W      D2,D5       *REMOVE
-00000788                          1040  MATCH_ADDA_L
-00000788  3A02                    1041      MOVE.W      D2,D5       *REMOVE
-0000078A                          1042  MATCH_ADDQ_B
-0000078A  3A02                    1043      MOVE.W      D2,D5       *REMOVE
-0000078C                          1044  MATCH_ADDQ_W
-0000078C  3A02                    1045      MOVE.W      D2,D5       *REMOVE
-0000078E                          1046  MATCH_ADDQ_L
-0000078E  3A02                    1047      MOVE.W      D2,D5       *REMOVE
-00000790                          1048  MATCH_SUB_TO_DN_B
-00000790  3A02                    1049      MOVE.W      D2,D5       *REMOVE
-00000792                          1050  MATCH_SUB_TO_DN_W
-00000792  3A02                    1051      MOVE.W      D2,D5       *REMOVE
-00000794                          1052  MATCH_SUB_TO_DN_L
-00000794  3A02                    1053      MOVE.W      D2,D5       *REMOVE
-00000796                          1054  MATCH_SUB_TO_EA_B
-00000796  3A02                    1055      MOVE.W      D2,D5       *REMOVE
-00000798                          1056  MATCH_SUB_TO_EA_W
-00000798  3A02                    1057      MOVE.W      D2,D5       *REMOVE
-0000079A                          1058  MATCH_SUB_TO_EA_L
-0000079A  3A02                    1059      MOVE.W      D2,D5       *REMOVE
-0000079C                          1060  MATCH_DIVU
-0000079C  3A02                    1061      MOVE.W      D2,D5       *REMOVE
-0000079E                          1062  MATCH_OR_DN_B
-0000079E  3A02                    1063      MOVE.W      D2,D5       *REMOVE
-000007A0                          1064  MATCH_OR_DN_W
-000007A0  3A02                    1065      MOVE.W      D2,D5       *REMOVE
-000007A2                          1066  MATCH_OR_DN_L
-000007A2  3A02                    1067      MOVE.W      D2,D5       *REMOVE
-000007A4                          1068  MATCH_OR_EA_B
-000007A4  3A02                    1069      MOVE.W      D2,D5       *REMOVE
-000007A6                          1070  MATCH_OR_EA_W
-000007A6  3A02                    1071      MOVE.W      D2,D5       *REMOVE
-000007A8                          1072  MATCH_OR_EA_L
-000007A8  3A02                    1073      MOVE.W      D2,D5       *REMOVE
-000007AA                          1074  MATCH_MULS_W
-000007AA  3A02                    1075      MOVE.W      D2,D5       *REMOVE
-000007AC                          1076  MATCH_AND_DN_B
-000007AC  3A02                    1077      MOVE.W      D2,D5       *REMOVE
-000007AE                          1078  MATCH_AND_DN_W
-000007AE  3A02                    1079      MOVE.W      D2,D5       *REMOVE
-000007B0                          1080  MATCH_AND_DN_L
-000007B0  3A02                    1081      MOVE.W      D2,D5       *REMOVE
-000007B2                          1082  MATCH_AND_EA_B
-000007B2  3A02                    1083      MOVE.W      D2,D5       *REMOVE
-000007B4                          1084  MATCH_AND_EA_W
-000007B4  3A02                    1085      MOVE.W      D2,D5       *REMOVE
-000007B6                          1086  MATCH_AND_EA_L
-000007B6  3A02                    1087      MOVE.W      D2,D5       *REMOVE
-000007B8                          1088  MATCH_RTS
-000007B8  3A02                    1089      MOVE.W      D2,D5       *REMOVE
-000007BA                          1090  MATCH_LEA
-000007BA  3A02                    1091      MOVE.W      D2,D5       *REMOVE
-000007BC                          1092  MATCH_JSR
-000007BC  3A02                    1093      MOVE.W      D2,D5       *REMOVE
-000007BE                          1094  MATCH_CLR_B
-000007BE  3A02                    1095      MOVE.W      D2,D5       *REMOVE
-000007C0                          1096  MATCH_CLR_W
-000007C0  3A02                    1097      MOVE.W      D2,D5       *REMOVE
-000007C2                          1098  MATCH_CLR_L
-000007C2  3A02                    1099      MOVE.W      D2,D5       *REMOVE
-000007C4                          1100  MATCH_MULS_L
-000007C4  3A02                    1101      MOVE.W      D2,D5       *REMOVE
-000007C6                          1102  MATCH_LSL
-000007C6  3A02                    1103      MOVE.W      D2,D5       *REMOVE
-000007C8                          1104  MATCH_LSR
-000007C8  3A02                    1105      MOVE.W      D2,D5       *REMOVE
-000007CA                          1106  MATCH_ASR
-000007CA  3A02                    1107      MOVE.W      D2,D5       *REMOVE
-000007CC                          1108  MATCH_ASL
-000007CC  3A02                    1109      MOVE.W      D2,D5       *REMOVE
-000007CE                          1110  MATCH_ROL
-000007CE  3A02                    1111      MOVE.W      D2,D5       *REMOVE
-000007D0                          1112  MATCH_ROR
-000007D0  3A02                    1113      MOVE.W      D2,D5       *REMOVE
-000007D2                          1114  MATCH_CMP_B
-000007D2  3A02                    1115      MOVE.W      D2,D5       *REMOVE
-000007D4                          1116  MATCH_CMP_W
-000007D4  3A02                    1117      MOVE.W      D2,D5       *REMOVE
-000007D6                          1118  MATCH_CMP_L
-000007D6  3A02                    1119      MOVE.W      D2,D5       *REMOVE
-000007D8                          1120      
-000007D8                          1121  **********BCC OPCODE MATCHES*******
-000007D8                          1122  MATCH_CC_T_8
-000007D8  3A02                    1123      MOVE.W      D2,D5       *REMOVE
-000007DA                          1124  MATCH_CC_T_16
-000007DA  3A02                    1125      MOVE.W      D2,D5       *REMOVE
-000007DC                          1126  MATCH_CC_T_32
-000007DC  3A02                    1127      MOVE.W      D2,D5       *REMOVE
-000007DE                          1128  *****
-000007DE                          1129  MATCH_CC_F_8
-000007DE  3A02                    1130      MOVE.W      D2,D5       *REMOVE
-000007E0                          1131  MATCH_CC_F_16
-000007E0  3A02                    1132      MOVE.W      D2,D5       *REMOVE
-000007E2                          1133  MATCH_CC_F_32
-000007E2  3A02                    1134      MOVE.W      D2,D5       *REMOVE
-000007E4                          1135  *****
-000007E4                          1136  MATCH_CC_HI_8
-000007E4  3A02                    1137      MOVE.W      D2,D5       *REMOVE
-000007E6                          1138  MATCH_CC_HI_16
-000007E6  3A02                    1139      MOVE.W      D2,D5       *REMOVE
-000007E8                          1140  MATCH_CC_HI_32
-000007E8  3A02                    1141      MOVE.W      D2,D5       *REMOVE
-000007EA                          1142  *****
-000007EA                          1143  MATCH_CC_LS_8
-000007EA  3A02                    1144      MOVE.W      D2,D5       *REMOVE
-000007EC                          1145  MATCH_CC_LS_16
-000007EC  3A02                    1146      MOVE.W      D2,D5       *REMOVE
-000007EE                          1147  MATCH_CC_LS_32  
-000007EE  3A02                    1148      MOVE.W      D2,D5       *REMOVE
-000007F0                          1149  *****
-000007F0                          1150  MATCH_CC_CC_8
-000007F0  3A02                    1151      MOVE.W      D2,D5       *REMOVE
-000007F2                          1152  MATCH_CC_CC_16
-000007F2  3A02                    1153      MOVE.W      D2,D5       *REMOVE
-000007F4                          1154  MATCH_CC_CC_32
-000007F4  3A02                    1155      MOVE.W      D2,D5       *REMOVE
-000007F6                          1156  *****
-000007F6                          1157  MATCH_CC_CS_8
-000007F6  3A02                    1158      MOVE.W      D2,D5       *REMOVE
-000007F8                          1159  MATCH_CC_CS_16
-000007F8  3A02                    1160      MOVE.W      D2,D5       *REMOVE
-000007FA                          1161  MATCH_CC_CS_32
-000007FA  3A02                    1162      MOVE.W      D2,D5       *REMOVE
-000007FC                          1163  *****
-000007FC                          1164  MATCH_CC_NE_8
-000007FC  3A02                    1165      MOVE.W      D2,D5       *REMOVE
-000007FE                          1166  MATCH_CC_NE_16
-000007FE  3A02                    1167      MOVE.W      D2,D5       *REMOVE
-00000800                          1168  MATCH_CC_NE_32
-00000800  3A02                    1169      MOVE.W      D2,D5       *REMOVE
-00000802                          1170  *****
-00000802                          1171  MATCH_CC_EQ_8
-00000802  3A02                    1172      MOVE.W      D2,D5       *REMOVE
-00000804                          1173  MATCH_CC_EQ_16
-00000804  3A02                    1174      MOVE.W      D2,D5       *REMOVE
-00000806                          1175  MATCH_CC_EQ_32
-00000806  3A02                    1176      MOVE.W      D2,D5       *REMOVE
-00000808                          1177  *****
-00000808                          1178  MATCH_CC_VC_8
-00000808  3A02                    1179      MOVE.W      D2,D5       *REMOVE
-0000080A                          1180  MATCH_CC_VC_16
-0000080A  3A02                    1181      MOVE.W      D2,D5       *REMOVE
-0000080C                          1182  MATCH_CC_VC_32
-0000080C  3A02                    1183      MOVE.W      D2,D5       *REMOVE
-0000080E                          1184  *****
-0000080E                          1185  MATCH_CC_VS_8
-0000080E  3A02                    1186      MOVE.W      D2,D5       *REMOVE
-00000810                          1187  MATCH_CC_VS_16
-00000810  3A02                    1188      MOVE.W      D2,D5       *REMOVE
-00000812                          1189  MATCH_CC_VS_32
-00000812  3A02                    1190      MOVE.W      D2,D5       *REMOVE
-00000814                          1191  *****
-00000814                          1192  MATCH_CC_PL_8
-00000814  3A02                    1193      MOVE.W      D2,D5       *REMOVE
-00000816                          1194  MATCH_CC_PL_16
-00000816  3A02                    1195      MOVE.W      D2,D5       *REMOVE
-00000818                          1196  MATCH_CC_PL_32
-00000818  3A02                    1197      MOVE.W      D2,D5       *REMOVE
-0000081A                          1198  *****
-0000081A                          1199  MATCH_CC_MI_8
-0000081A  3A02                    1200      MOVE.W      D2,D5       *REMOVE
-0000081C                          1201  MATCH_CC_MI_16
-0000081C  3A02                    1202      MOVE.W      D2,D5       *REMOVE
-0000081E                          1203  MATCH_CC_MI_32
-0000081E  3A02                    1204      MOVE.W      D2,D5       *REMOVE
-00000820                          1205  *****
-00000820                          1206  MATCH_CC_GE_8
-00000820  3A02                    1207      MOVE.W      D2,D5       *REMOVE
-00000822                          1208  MATCH_CC_GE_16
-00000822  3A02                    1209      MOVE.W      D2,D5       *REMOVE
-00000824                          1210  MATCH_CC_GE_32
-00000824  3A02                    1211      MOVE.W      D2,D5       *REMOVE
-00000826                          1212  *****
-00000826                          1213  MATCH_CC_LT_8
-00000826  3A02                    1214      MOVE.W      D2,D5       *REMOVE
-00000828                          1215  MATCH_CC_LT_16
-00000828  3A02                    1216      MOVE.W      D2,D5       *REMOVE
-0000082A                          1217  MATCH_CC_LT_32
-0000082A  3A02                    1218      MOVE.W      D2,D5       *REMOVE
-0000082C                          1219  *****
-0000082C                          1220  MATCH_CC_GT_8
-0000082C  3A02                    1221      MOVE.W      D2,D5       *REMOVE
-0000082E                          1222  MATCH_CC_GT_16
-0000082E  3A02                    1223      MOVE.W      D2,D5       *REMOVE
-00000830                          1224  MATCH_CC_GT_32
-00000830  3A02                    1225      MOVE.W      D2,D5       *REMOVE
-00000832                          1226  *****
-00000832                          1227  MATCH_CC_LE_8
-00000832  3A02                    1228      MOVE.W      D2,D5       *REMOVE
-00000834                          1229  MATCH_CC_LE_16
-00000834  3A02                    1230      MOVE.W      D2,D5       *REMOVE
-00000836                          1231  MATCH_CC_LE_32
-00000836  3A02                    1232      MOVE.W      D2,D5       *REMOVE
-00000838                          1233  **********************************   
-00000838                          1234  ERROR
-00000838  3A02                    1235      MOVE.W      D2,D5       *REMOVE
-Line 1236 WARNING: END directive missing, starting address not set
+0000001C                            38  left_skip   
+0000001C  4242                      39          CLR     D2     
+0000001E  1401                      40          MOVE.B  D1,D2 ** Store opcode size in bytes into D2
+00000020                            41          
+00000020  43F9 00010000             42          LEA     output,A1
+00000026  45F9 00010000             43          LEA     output,A2
+0000002C                            44          
+0000002C                            45          *First, decoder will check for the 3 types with hard coded register values
+0000002C  163C 0001                 46          MOVE.B  #1,D3
+00000030  B07C 003C                 47          CMP     #IMMEDIATE,D0
+00000034  6700 0068                 48          BEQ     dec_immediate
+00000038                            49          
+00000038  B07C 0038                 50          CMP     #ABS_WORD,D0
+0000003C  6700 007C                 51          BEQ     dec_abs_word
+00000040                            52          
+00000040  B07C 0039                 53          CMP     #ABS_LONG,D0
+00000044  6700 0080                 54          BEQ     dec_abs_long
+00000048                            55          
+00000048                            56          *If it was none of the above, store the register and mode seperately
+00000048  4243                      57          CLR     D3
+0000004A  1200                      58          MOVE.B  D0,D1
+0000004C  0201 0038                 59          ANDI.B  #%00111000,D1           *Get mode value
+00000050  0200 0007                 60          ANDI.B  #%00000111,D0           *Get register value
+00000054  0600 0030                 61          ADDI.B  #$30,D0
+00000058                            62                
+00000058  B27C 0000                 63          CMP     #Dn,D1
+0000005C  6700 0074                 64          BEQ     dec_Dn 
+00000060                            65          
+00000060  B27C 0008                 66          CMP     #An,D1
+00000064  6700 0078                 67          BEQ     dec_An
+00000068                            68                  
+00000068  B27C 0010                 69          CMP     #INDIRECT,D1
+0000006C  6700 007C                 70          BEQ     dec_indirect
+00000070                            71                  
+00000070  B27C 0018                 72          CMP     #POST_INC,D1
+00000074  6700 0088                 73          BEQ     dec_post_inc
+00000078                            74                  
+00000078  B27C 0020                 75          CMP     #PRE_DEC,D1
+0000007C  6700 009A                 76          BEQ     dec_pre_dec
+00000080                            77  
+00000080                            78  dec_return ** Common return for all types
+00000080                            79          
+00000080                            80          ** Print display string
+00000080  103C 000E                 81          MOVE.B  #14,D0
+00000084  4E4F                      82          TRAP    #15
+00000086                            83          
+00000086                            84          ** If there is immediate data to print, print it
+00000086  B67C 0001                 85          CMP     #1,D3
+0000008A  6600 000C                 86          BNE     imm_skip
+0000008E                            87          
+0000008E  103C 000F                 88          MOVE.B  #15,D0
+00000092  143C 0010                 89          MOVE.B  #16,D2
+00000096  4E4F                      90          TRAP    #15
+00000098                            91  
+00000098                            92  imm_skip
+00000098  4CDF 7EFF                 93          MOVEM.L     (SP)+, D0-D7/A1-A6 *Return register data from stack, except D0
+0000009C  4E75                      94          RTS
+0000009E                            95          
+0000009E                            96          * Individual EA decoders *
+0000009E                            97  
+0000009E                            98  dec_immediate   *DECODE IMMEDIATE VALUE*
+0000009E  14FC 0023                 99          MOVE.B  #'#',(A2)+  * Move '#' char into string
+000000A2  14FC 0024                100          MOVE.B  #'$',(A2)+  * Move '$' char into string
+000000A6  14FC 0000                101          MOVE.B  #$0,(A2)+   * Null terminate string
+000000AA  B47C 0002                102          CMP     #2,D2       * Check if data is word length
+000000AE  6700 0006                103          BEQ     imm_word    
+000000B2                           104          
+000000B2  2218                     105          MOVE.L  (A0)+,D1    * Length was long
+000000B4  60CA                     106          BRA     dec_return
+000000B6                           107          
+000000B6                           108  imm_word
+000000B6  3218                     109          MOVE.W  (A0)+,D1    * Length was word
+000000B8  60C6                     110          BRA     dec_return
+000000BA                           111  
+000000BA                           112  
+000000BA                           113  dec_abs_word    *DECODE ABSOLUTE WORD*
+000000BA  14FC 0024                114          MOVE.B  #'$',(A2)+  * Move '$' char into string
+000000BE  14FC 0000                115          MOVE.B  #$0,(A2)+   * Null terminate string
+000000C2  3218                     116          MOVE.W  (A0)+,D1
+000000C4  60BA                     117          BRA     dec_return
+000000C6                           118          
+000000C6                           119  
+000000C6                           120  dec_abs_long    *DECODE ABSOLUTE LONG*
+000000C6  14FC 0024                121          MOVE.B  #'$',(A2)+  * Move '$' char into string
+000000CA  14FC 0000                122          MOVE.B  #$0,(A2)+   * Null terminate string
+000000CE  2218                     123          MOVE.L  (A0)+,D1
+000000D0  60AE                     124          BRA     dec_return
+000000D2                           125          
+000000D2                           126  
+000000D2                           127  dec_Dn          *DECODE DIRECT DATA*
+000000D2  14FC 0044                128          MOVE.B  #'D',(A2)+
+000000D6  14C0                     129          MOVE.B  D0,(A2)+
+000000D8  14FC 0000                130          MOVE.B  #$0,(A2)+
+000000DC  60A2                     131          BRA     dec_return
+000000DE                           132  
+000000DE                           133          
+000000DE                           134  dec_An          *DECODE DIRECT ADDRESS*
+000000DE  14FC 0041                135          MOVE.B  #'A',(A2)+
+000000E2  14C0                     136          MOVE.B  D0,(A2)+
+000000E4  14FC 0000                137          MOVE.B  #$0,(A2)+
+000000E8  6096                     138          BRA     dec_return
+000000EA                           139  
+000000EA                           140  
+000000EA                           141  dec_indirect    *DECODE INDIRECT ACCESS*
+000000EA  14FC 0028                142          MOVE.B  #'(',(A2)+
+000000EE  14FC 0041                143          MOVE.B  #'A',(A2)+
+000000F2  14C0                     144          MOVE.B  D0,(A2)+
+000000F4  14FC 0029                145          MOVE.B  #')',(A2)+
+000000F8  14FC 0000                146          MOVE.B  #$0,(A2)+
+000000FC  6082                     147          BRA     dec_return
+000000FE                           148          
+000000FE                           149  
+000000FE                           150  dec_post_inc    *DECODE INDIRECT POST INCREMENT*
+000000FE  14FC 0028                151          MOVE.B  #'(',(A2)+
+00000102  14FC 0041                152          MOVE.B  #'A',(A2)+
+00000106  14C0                     153          MOVE.B  D0,(A2)+
+00000108  14FC 0029                154          MOVE.B  #')',(A2)+
+0000010C  14FC 002B                155          MOVE.B  #'+',(A2)+
+00000110  14FC 0000                156          MOVE.B  #$0,(A2)+
+00000114  6000 FF6A                157          BRA     dec_return
+00000118                           158          
+00000118                           159          
+00000118                           160  dec_pre_dec    *DECODE INDIRECT PRE DECREMENT*
+00000118  14FC 002D                161          MOVE.B  #'-',(A2)+
+0000011C  14FC 0028                162          MOVE.B  #'(',(A2)+
+00000120  14FC 0041                163          MOVE.B  #'A',(A2)+
+00000124  14C0                     164          MOVE.B  D0,(A2)+
+00000126  14FC 0029                165          MOVE.B  #')',(A2)+
+0000012A  14FC 0000                166          MOVE.B  #$0,(A2)+
+0000012E  6000 FF50                167          BRA     dec_return
+00000132                           168  
+00000132                           169  
+00000132                           170  
+00000132                           171  
+00000132                           172  
+00000132                           173  
+00000132                           174  
+00000132                           175  
+00000132                           176  -------------------- end include --------------------
+00000132                           177                  INCLUDE 'connor_opcodes.x68'
+00000132= 41 44 44 00              178  pr_ADD          DC.B    'ADD',0
+00000136= 41 44 44 49 00           179  pr_ADDI         DC.B    'ADDI',0
+0000013B= 41 44 44 51 00           180  pr_ADDQ         DC.B    'ADDQ',0
+00000140                           181  
+00000140                           182  MATCH_NOP
+00000140  43F9 00000525            183      LEA         pr_NOP,A1
+00000146  103C 000E                184      MOVE.B      #14,D0
+0000014A  4E4F                     185      TRAP        #15
+0000014C  6000 040C                186      BRA         opdec_return
+00000150                           187      
+00000150                           188  MATCH_MOVE_B
+00000150                           189      ** Move command size into D1
+00000150  123C 0002                190      MOVE.B      #2,D1
+00000154                           191      ** Print command
+00000154  103C 000E                192      MOVE.B      #14,D0
+00000158  43F9 00000529            193      LEA         pr_MOVE,A1
+0000015E  4E4F                     194      TRAP        #15
+00000160                           195      ** Print size
+00000160  43F9 0000051C            196      LEA         pr_BYTE,A1
+00000166  4E4F                     197      TRAP        #15
+00000168                           198      ** Print space
+00000168  43F9 00000518            199      LEA         pr_space,A1
+0000016E  4E4F                     200      TRAP        #15
+00000170                           201      ** Decode right side ea
+00000170  1002                     202      MOVE.B      D2,D0
+00000172  0200 003F                203      ANDI.B      #%00111111,D0
+00000176  4EB8 0018                204      JSR         EADecoder
+0000017A                           205      ** Add comma
+0000017A  103C 000E                206      MOVE.B      #14,D0
+0000017E  43F9 0000051A            207      LEA         pr_comma,A1
+00000184  4E4F                     208      TRAP        #15
+00000186                           209      ** Decode left side ea
+00000186  3002                     210      MOVE.W      D2,D0
+00000188  0240 0FC0                211      ANDI.W      #%0000111111000000,D0
+0000018C  EC48                     212      LSR.W       #6,D0
+0000018E  4EB8 0000                213      JSR         EADecoder_left
+00000192                           214      
+00000192  6000 03C6                215      BRA         opdec_return
+00000196                           216      
+00000196                           217  MATCH_MOVE_W
+00000196                           218      ** Move command size into D1
+00000196  123C 0002                219      MOVE.B      #2,D1
+0000019A                           220      ** Print command
+0000019A  103C 000E                221      MOVE.B      #14,D0
+0000019E  43F9 00000529            222      LEA         pr_MOVE,A1
+000001A4  4E4F                     223      TRAP        #15
+000001A6                           224      ** Print size
+000001A6  43F9 0000051F            225      LEA         pr_WORD,A1
+000001AC  4E4F                     226      TRAP        #15
+000001AE                           227      ** Print space
+000001AE  43F9 00000518            228      LEA         pr_space,A1
+000001B4  4E4F                     229      TRAP        #15
+000001B6                           230      ** Decode right side ea
+000001B6  1002                     231      MOVE.B      D2,D0
+000001B8  0200 003F                232      ANDI.B      #%00111111,D0
+000001BC  4EB8 0018                233      JSR         EADecoder
+000001C0                           234      ** Add comma
+000001C0  103C 000E                235      MOVE.B      #14,D0
+000001C4  43F9 0000051A            236      LEA         pr_comma,A1
+000001CA  4E4F                     237      TRAP        #15
+000001CC                           238      ** Decode left side ea
+000001CC  3002                     239      MOVE.W      D2,D0
+000001CE  0240 0FC0                240      ANDI.W      #%0000111111000000,D0
+000001D2  EC48                     241      LSR.W       #6,D0
+000001D4  4EB8 0000                242      JSR         EADecoder_left
+000001D8                           243      
+000001D8  6000 0380                244      BRA         opdec_return
+000001DC                           245  
+000001DC                           246  MATCH_ADDI_B
+000001DC                           247      ** Move command size into D1
+000001DC  123C 0002                248      MOVE.B      #2,D1
+000001E0                           249      ** Print command
+000001E0  103C 000E                250      MOVE.B      #14,D0
+000001E4  43F8 0136                251      LEA         pr_ADDI,A1
+000001E8  4E4F                     252      TRAP        #15
+000001EA                           253      ** Print size
+000001EA  43F9 0000051C            254      LEA         pr_BYTE,A1
+000001F0  4E4F                     255      TRAP        #15
+000001F2                           256      ** Print space
+000001F2  43F9 00000518            257      LEA         pr_space,A1
+000001F8  4E4F                     258      TRAP        #15
+000001FA                           259      ** Print Immediate data
+000001FA  103C 003C                260      MOVE.B      #%00111100,D0
+000001FE  4EB8 0018                261      JSR         EADecoder
+00000202                           262      ** Add comma
+00000202  103C 000E                263      MOVE.B      #14,D0
+00000206  43F9 0000051A            264      LEA         pr_comma,A1
+0000020C  4E4F                     265      TRAP        #15
+0000020E                           266      ** Decode right side ea
+0000020E  1002                     267      MOVE.B      D2,D0
+00000210  0200 003F                268      ANDI.B      #%00111111,D0
+00000214  4EB8 0018                269      JSR         EADecoder
+00000218                           270      
+00000218  6000 0340                271      BRA         opdec_return
+0000021C                           272      
+0000021C                           273  MATCH_ADDI_W
+0000021C                           274      ** Move command size into D1
+0000021C  123C 0002                275      MOVE.B      #2,D1
+00000220                           276      ** Print command
+00000220  103C 000E                277      MOVE.B      #14,D0
+00000224  43F8 0136                278      LEA         pr_ADDI,A1
+00000228  4E4F                     279      TRAP        #15
+0000022A                           280      ** Print size
+0000022A  43F9 0000051F            281      LEA         pr_WORD,A1
+00000230  4E4F                     282      TRAP        #15
+00000232                           283      ** Print space
+00000232  43F9 00000518            284      LEA         pr_space,A1
+00000238  4E4F                     285      TRAP        #15
+0000023A                           286      ** Print Immediate data
+0000023A  103C 003C                287      MOVE.B      #%00111100,D0
+0000023E  4EB8 0018                288      JSR         EADecoder
+00000242                           289      ** Add comma
+00000242  103C 000E                290      MOVE.B      #14,D0
+00000246  43F9 0000051A            291      LEA         pr_comma,A1
+0000024C  4E4F                     292      TRAP        #15
+0000024E                           293      ** Decode right side ea
+0000024E  1002                     294      MOVE.B      D2,D0
+00000250  0200 003F                295      ANDI.B      #%00111111,D0
+00000254  4EB8 0018                296      JSR         EADecoder
+00000258                           297      
+00000258  6000 0300                298      BRA         opdec_return
+0000025C                           299      
+0000025C                           300  MATCH_ADDI_L
+0000025C                           301      ** Move command size into D1
+0000025C  123C 0004                302      MOVE.B      #4,D1
+00000260                           303      ** Print command
+00000260  103C 000E                304      MOVE.B      #14,D0
+00000264  43F8 0136                305      LEA         pr_ADDI,A1
+00000268  4E4F                     306      TRAP        #15
+0000026A                           307      ** Print size
+0000026A  43F9 00000522            308      LEA         pr_LONG,A1
+00000270  4E4F                     309      TRAP        #15
+00000272                           310      ** Print space
+00000272  43F9 00000518            311      LEA         pr_space,A1
+00000278  4E4F                     312      TRAP        #15
+0000027A                           313      ** Print Immediate data
+0000027A  103C 003C                314      MOVE.B      #%00111100,D0
+0000027E  4EB8 0018                315      JSR         EADecoder
+00000282                           316      ** Add comma
+00000282  103C 000E                317      MOVE.B      #14,D0
+00000286  43F9 0000051A            318      LEA         pr_comma,A1
+0000028C  4E4F                     319      TRAP        #15
+0000028E                           320      ** Decode right side ea
+0000028E  1002                     321      MOVE.B      D2,D0
+00000290  0200 003F                322      ANDI.B      #%00111111,D0
+00000294  4EB8 0018                323      JSR         EADecoder
+00000298                           324      
+00000298  6000 02C0                325      BRA         opdec_return
+0000029C                           326      
+0000029C                           327  MATCH_ADD_TO_REG_B
+0000029C                           328      ** Move command size into D1
+0000029C  123C 0002                329      MOVE.B      #2,D1
+000002A0                           330      ** Print command
+000002A0  103C 000E                331      MOVE.B      #14,D0
+000002A4  43F8 0132                332      LEA         pr_ADD,A1
+000002A8  4E4F                     333      TRAP        #15
+000002AA                           334      ** Print size
+000002AA  43F9 0000051C            335      LEA         pr_BYTE,A1
+000002B0  4E4F                     336      TRAP        #15
+000002B2                           337      ** Print space
+000002B2  43F9 00000518            338      LEA         pr_space,A1
+000002B8  4E4F                     339      TRAP        #15
+000002BA                           340      ** Print source
+000002BA  1002                     341      MOVE.B      D2,D0
+000002BC  0200 003F                342      ANDI.B      #%00111111,D0
+000002C0  4EB8 0018                343      JSR         EADecoder
+000002C4                           344      ** Add comma
+000002C4  103C 000E                345      MOVE.B      #14,D0
+000002C8  43F9 0000051A            346      LEA         pr_comma,A1
+000002CE  4E4F                     347      TRAP        #15
+000002D0                           348      ** Print destination
+000002D0  3002                     349      MOVE.W      D2,D0
+000002D2  0240 0E00                350      ANDI.W      #%0000111000000000,D0
+000002D6  EC48                     351      LSR.W       #6,D0
+000002D8  4EB8 0000                352      JSR         EADecoder_left
+000002DC                           353      
+000002DC  6000 027C                354      BRA         opdec_return
+000002E0                           355      
+000002E0                           356  MATCH_ADD_TO_REG_W
+000002E0                           357      ** Move command size into D1
+000002E0  123C 0002                358      MOVE.B      #2,D1
+000002E4                           359      ** Print command
+000002E4  103C 000E                360      MOVE.B      #14,D0
+000002E8  43F8 0132                361      LEA         pr_ADD,A1
+000002EC  4E4F                     362      TRAP        #15
+000002EE                           363      ** Print size
+000002EE  43F9 0000051F            364      LEA         pr_WORD,A1
+000002F4  4E4F                     365      TRAP        #15
+000002F6                           366      ** Print space
+000002F6  43F9 00000518            367      LEA         pr_space,A1
+000002FC  4E4F                     368      TRAP        #15
+000002FE                           369      ** Print source
+000002FE  1002                     370      MOVE.B      D2,D0
+00000300  0200 003F                371      ANDI.B      #%00111111,D0
+00000304  4EB8 0018                372      JSR         EADecoder
+00000308                           373      ** Add comma
+00000308  103C 000E                374      MOVE.B      #14,D0
+0000030C  43F9 0000051A            375      LEA         pr_comma,A1
+00000312  4E4F                     376      TRAP        #15
+00000314                           377      ** Print destination
+00000314  3002                     378      MOVE.W      D2,D0
+00000316  0240 0E00                379      ANDI.W      #%0000111000000000,D0
+0000031A  EC48                     380      LSR.W       #6,D0
+0000031C  4EB8 0000                381      JSR         EADecoder_left
+00000320                           382      
+00000320  6000 0238                383      BRA         opdec_return
+00000324                           384      
+00000324                           385  MATCH_ADD_TO_REG_L
+00000324                           386      ** Move command size into D1
+00000324  123C 0004                387      MOVE.B      #4,D1
+00000328                           388      ** Print command
+00000328  103C 000E                389      MOVE.B      #14,D0
+0000032C  43F8 0132                390      LEA         pr_ADD,A1
+00000330  4E4F                     391      TRAP        #15
+00000332                           392      ** Print size
+00000332  43F9 00000522            393      LEA         pr_LONG,A1
+00000338  4E4F                     394      TRAP        #15
+0000033A                           395      ** Print space
+0000033A  43F9 00000518            396      LEA         pr_space,A1
+00000340  4E4F                     397      TRAP        #15
+00000342                           398      ** Print source
+00000342  1002                     399      MOVE.B      D2,D0
+00000344  0200 003F                400      ANDI.B      #%00111111,D0
+00000348  4EB8 0018                401      JSR         EADecoder
+0000034C                           402      ** Add comma
+0000034C  103C 000E                403      MOVE.B      #14,D0
+00000350  43F9 0000051A            404      LEA         pr_comma,A1
+00000356  4E4F                     405      TRAP        #15
+00000358                           406      ** Print destination
+00000358  3002                     407      MOVE.W      D2,D0
+0000035A  0240 0E00                408      ANDI.W      #%0000111000000000,D0
+0000035E  EC48                     409      LSR.W       #6,D0
+00000360  4EB8 0000                410      JSR         EADecoder_left
+00000364                           411      
+00000364  6000 01F4                412      BRA         opdec_return
+00000368                           413      
+00000368                           414  MATCH_ADD_TO_EA_B
+00000368                           415      ** Move command size into D1
+00000368  123C 0002                416      MOVE.B      #2,D1
+0000036C                           417      ** Print command
+0000036C  103C 000E                418      MOVE.B      #14,D0
+00000370  43F8 0132                419      LEA         pr_ADD,A1
+00000374  4E4F                     420      TRAP        #15
+00000376                           421      ** Print size
+00000376  43F9 0000051C            422      LEA         pr_BYTE,A1
+0000037C  4E4F                     423      TRAP        #15
+0000037E                           424      ** Print space
+0000037E  43F9 00000518            425      LEA         pr_space,A1
+00000384  4E4F                     426      TRAP        #15
+00000386                           427      ** Print Source
+00000386  3002                     428      MOVE.W      D2,D0
+00000388  0240 0E00                429      ANDI.W      #%0000111000000000,D0
+0000038C  EC48                     430      LSR.W       #6,D0
+0000038E  4EB8 0000                431      JSR         EADecoder_left
+00000392                           432      ** Add comma
+00000392  103C 000E                433      MOVE.B      #14,D0
+00000396  43F9 0000051A            434      LEA         pr_comma,A1
+0000039C  4E4F                     435      TRAP        #15
+0000039E                           436      ** Print source
+0000039E  1002                     437      MOVE.B      D2,D0
+000003A0  0200 003F                438      ANDI.B      #%00111111,D0
+000003A4  4EB8 0018                439      JSR         EADecoder
+000003A8                           440      
+000003A8  6000 01B0                441      BRA         opdec_return
+000003AC                           442      
+000003AC                           443  MATCH_ADD_TO_EA_W
+000003AC                           444      ** Move command size into D1
+000003AC  123C 0002                445      MOVE.B      #2,D1
+000003B0                           446      ** Print command
+000003B0  103C 000E                447      MOVE.B      #14,D0
+000003B4  43F8 0132                448      LEA         pr_ADD,A1
+000003B8  4E4F                     449      TRAP        #15
+000003BA                           450      ** Print size
+000003BA  43F9 0000051F            451      LEA         pr_WORD,A1
+000003C0  4E4F                     452      TRAP        #15
+000003C2                           453      ** Print space
+000003C2  43F9 00000518            454      LEA         pr_space,A1
+000003C8  4E4F                     455      TRAP        #15
+000003CA                           456      ** Print Source
+000003CA  3002                     457      MOVE.W      D2,D0
+000003CC  0240 0E00                458      ANDI.W      #%0000111000000000,D0
+000003D0  EC48                     459      LSR.W       #6,D0
+000003D2  4EB8 0000                460      JSR         EADecoder_left
+000003D6                           461      ** Add comma
+000003D6  103C 000E                462      MOVE.B      #14,D0
+000003DA  43F9 0000051A            463      LEA         pr_comma,A1
+000003E0  4E4F                     464      TRAP        #15
+000003E2                           465      ** Print source
+000003E2  1002                     466      MOVE.B      D2,D0
+000003E4  0200 003F                467      ANDI.B      #%00111111,D0
+000003E8  4EB8 0018                468      JSR         EADecoder
+000003EC                           469      
+000003EC  6000 016C                470      BRA         opdec_return
+000003F0                           471      
+000003F0                           472  MATCH_ADD_TO_EA_L 
+000003F0                           473      ** Move command size into D1
+000003F0  123C 0004                474      MOVE.B      #4,D1
+000003F4                           475      ** Print command
+000003F4  103C 000E                476      MOVE.B      #14,D0
+000003F8  43F8 0132                477      LEA         pr_ADD,A1
+000003FC  4E4F                     478      TRAP        #15
+000003FE                           479      ** Print size
+000003FE  43F9 00000522            480      LEA         pr_LONG,A1
+00000404  4E4F                     481      TRAP        #15
+00000406                           482      ** Print space
+00000406  43F9 00000518            483      LEA         pr_space,A1
+0000040C  4E4F                     484      TRAP        #15
+0000040E                           485      ** Print Source
+0000040E  3002                     486      MOVE.W      D2,D0
+00000410  0240 0E00                487      ANDI.W      #%0000111000000000,D0
+00000414  EC48                     488      LSR.W       #6,D0
+00000416  4EB8 0000                489      JSR         EADecoder_left
+0000041A                           490      ** Add comma
+0000041A  103C 000E                491      MOVE.B      #14,D0
+0000041E  43F9 0000051A            492      LEA         pr_comma,A1
+00000424  4E4F                     493      TRAP        #15
+00000426                           494      ** Print source
+00000426  1002                     495      MOVE.B      D2,D0
+00000428  0200 003F                496      ANDI.B      #%00111111,D0
+0000042C  4EB8 0018                497      JSR         EADecoder
+00000430                           498      
+00000430  6000 0128                499      BRA         opdec_return
+00000434                           500      
+00000434                           501  MATCH_ADDQ_B
+00000434                           502      ** Move command size into D1
+00000434  123C 0002                503      MOVE.B      #2,D1
+00000438                           504      ** Print command
+00000438  103C 000E                505      MOVE.B      #14,D0
+0000043C  43F8 013B                506      LEA         pr_ADDQ,A1
+00000440  4E4F                     507      TRAP        #15
+00000442                           508      ** Print size
+00000442  43F9 0000051C            509      LEA         pr_BYTE,A1
+00000448  4E4F                     510      TRAP        #15
+0000044A                           511      ** Print space
+0000044A  43F9 00000518            512      LEA         pr_space,A1
+00000450  4E4F                     513      TRAP        #15
+00000452                           514      ** Print Immediate data
+00000452  3602                     515      MOVE.W      D2,D3 * Temporarily move op data
+00000454  3202                     516      MOVE.W      D2,D1
+00000456  0241 0E00                517      ANDI.W      #%0000111000000000,D1
+0000045A  143C 0010                518      MOVE.B      #16,D2
+0000045E  303C 000F                519      MOVE.W      #15,D0
+00000462  4E4F                     520      TRAP        #15
+00000464                           521      
+00000464  3403                     522      MOVE.W      D3,D2 * Move op data back
+00000466                           523      
+00000466                           524      ** Add comma
+00000466  103C 000E                525      MOVE.B      #14,D0
+0000046A  43F9 0000051A            526      LEA         pr_comma,A1
+00000470  4E4F                     527      TRAP        #15
+00000472                           528      ** Decode right side ea
+00000472  1002                     529      MOVE.B      D2,D0
+00000474  0200 003F                530      ANDI.B      #%00111111,D0
+00000478  4EB8 0018                531      JSR         EADecoder
+0000047C                           532      
+0000047C  6000 00DC                533      BRA         opdec_return
+00000480                           534      
+00000480                           535  MATCH_ADDQ_W
+00000480                           536      ** Move command size into D1
+00000480  123C 0002                537      MOVE.B      #2,D1
+00000484                           538      ** Print command
+00000484  103C 000E                539      MOVE.B      #14,D0
+00000488  43F8 013B                540      LEA         pr_ADDQ,A1
+0000048C  4E4F                     541      TRAP        #15
+0000048E                           542      ** Print size
+0000048E  43F9 0000051F            543      LEA         pr_WORD,A1
+00000494  4E4F                     544      TRAP        #15
+00000496                           545      ** Print space
+00000496  43F9 00000518            546      LEA         pr_space,A1
+0000049C  4E4F                     547      TRAP        #15
+0000049E                           548      ** Print Immediate data
+0000049E  3602                     549      MOVE.W      D2,D3 * Temporarily move op data
+000004A0  3202                     550      MOVE.W      D2,D1
+000004A2  0241 0E00                551      ANDI.W      #%0000111000000000,D1
+000004A6  143C 0010                552      MOVE.B      #16,D2
+000004AA  303C 000F                553      MOVE.W      #15,D0
+000004AE  4E4F                     554      TRAP        #15
+000004B0                           555      
+000004B0  3403                     556      MOVE.W      D3,D2 * Move op data back
+000004B2                           557      
+000004B2                           558      ** Add comma
+000004B2  103C 000E                559      MOVE.B      #14,D0
+000004B6  43F9 0000051A            560      LEA         pr_comma,A1
+000004BC  4E4F                     561      TRAP        #15
+000004BE                           562      ** Decode right side ea
+000004BE  1002                     563      MOVE.B      D2,D0
+000004C0  0200 003F                564      ANDI.B      #%00111111,D0
+000004C4  4EB8 0018                565      JSR         EADecoder
+000004C8                           566      
+000004C8  6000 0090                567      BRA         opdec_return
+000004CC                           568      
+000004CC                           569  MATCH_ADDQ_L
+000004CC                           570      ** Move command size into D1
+000004CC  123C 0004                571      MOVE.B      #4,D1
+000004D0                           572      ** Print command
+000004D0  103C 000E                573      MOVE.B      #14,D0
+000004D4  43F8 013B                574      LEA         pr_ADDQ,A1
+000004D8  4E4F                     575      TRAP        #15
+000004DA                           576      ** Print size
+000004DA  43F9 00000522            577      LEA         pr_LONG,A1
+000004E0  4E4F                     578      TRAP        #15
+000004E2                           579      ** Print space
+000004E2  43F9 00000518            580      LEA         pr_space,A1
+000004E8  4E4F                     581      TRAP        #15
+000004EA                           582      ** Print Immediate data
+000004EA  3602                     583      MOVE.W      D2,D3 * Temporarily move op data
+000004EC  3202                     584      MOVE.W      D2,D1
+000004EE  0241 0E00                585      ANDI.W      #%0000111000000000,D1
+000004F2  143C 0010                586      MOVE.B      #16,D2
+000004F6  303C 000F                587      MOVE.W      #15,D0
+000004FA  4E4F                     588      TRAP        #15
+000004FC                           589      
+000004FC  3403                     590      MOVE.W      D3,D2 * Move op data back
+000004FE                           591      
+000004FE                           592      ** Add comma
+000004FE  103C 000E                593      MOVE.B      #14,D0
+00000502  43F9 0000051A            594      LEA         pr_comma,A1
+00000508  4E4F                     595      TRAP        #15
+0000050A                           596      ** Decode right side ea
+0000050A  1002                     597      MOVE.B      D2,D0
+0000050C  0200 003F                598      ANDI.B      #%00111111,D0
+00000510  4EB8 0018                599      JSR         EADecoder
+00000514                           600      
+00000514  6000 0044                601      BRA         opdec_return
+00000518                           602  
+00000518                           603  
+00000518                           604  -------------------- end include --------------------
+00000518                           605                  *INCLUDE 'spencer_opcodes.x68'
+00000518                           606                  *INCLUDE 'arsany_opcodes.x68'
+00000518                           607  
+00000518  =00004E71                608  NOP             EQU $4E71
+00000518  =00000001                609  MOVE_B          EQU %0001
+00000518  =00000003                610  MOVE_W          EQU %0011
+00000518  =00000002                611  MOVE_L          EQU %0010
+00000518  =00000001                612  MOVEA_WL        EQU %001 
+00000518  =00000007                613  MOVEQ_          EQU %0111
+00000518  =00000122                614  MOVEM_TO_MEM_W  EQU %0100100010
+00000518  =00000123                615  MOVEM_TO_MEM_L  EQU %0100100011
+00000518  =00000132                616  MOVEM_TO_REG_W  EQU %0100110010
+00000518  =00000133                617  MOVEM_TO_REG_L  EQU %0100110011
+00000518                           618  
+00000518  =00000018                619  ADDI_B          EQU %0000011000
+00000518  =00000019                620  ADDI_W          EQU %0000011001
+00000518  =0000001A                621  ADDI_L          EQU %0000011010
+00000518                           622  
+00000518  =0000000D                623  ADD_ADDA        EQU %1101
+00000518  =00000000                624  ADD_TO_REG_B    EQU %000
+00000518  =00000001                625  ADD_TO_REG_W    EQU %001
+00000518  =00000002                626  ADD_TO_REG_L    EQU %010
+00000518  =00000004                627  ADD_TO_EA_B     EQU %100
+00000518  =00000005                628  ADD_TO_EA_W     EQU %101
+00000518  =00000006                629  ADD_TO_EA_L     EQU %110
+00000518  =00000003                630  ADDA_W          EQU %011
+00000518  =00000007                631  ADDA_L          EQU %111
+00000518                           632  
+00000518  =00000005                633  ADDQ            EQU %0101
+00000518  =00000000                634  ADDQ_B          EQU %000
+00000518  =00000001                635  ADDQ_W          EQU %001
+00000518  =00000002                636  ADDQ_L          EQU %010
+00000518                           637  
+00000518  =0000000C                638  MULS_W_AND      EQU %1100
+00000518  =00000007                639  MULS_OP_W       EQU %111 
+00000518                           640  
+00000518  =00000009                641  SUB             EQU %1001
+00000518  =00000000                642  SUB_TO_DN_B     EQU %000
+00000518  =00000001                643  SUB_TO_DN_W     EQU %001
+00000518  =00000002                644  SUB_TO_DN_L     EQU %010
+00000518  =00000004                645  SUB_TO_EA_B     EQU %100
+00000518  =00000005                646  SUB_TO_EA_W     EQU %101
+00000518  =00000006                647  SUB_TO_EA_L     EQU %110
+00000518                           648  
+00000518  =00000008                649  DIVU_OR         EQU %1000
+00000518  =00000003                650  DIVU            EQU %011
+00000518                           651  
+00000518  =00000000                652  DN_B            EQU %000
+00000518  =00000001                653  DN_W            EQU %001
+00000518  =00000002                654  DN_L            EQU %010
+00000518  =00000004                655  EA_B            EQU %100
+00000518  =00000005                656  EA_W            EQU %101
+00000518  =00000006                657  EA_L            EQU %110
+00000518                           658  
+00000518  =00000004                659  MULS_LEA_CLR_JSR_RTS    EQU %0100
+00000518  =00004E75                660  RTS             EQU $4E75
+00000518  =00000007                661  LEA             EQU %111
+00000518  =0000013A                662  JSR             EQU %0100111010
+00000518  =00000108                663  CLR_B           EQU %0100001000
+00000518  =00000109                664  CLR_W           EQU %0100001001
+00000518  =0000010A                665  CLR_L           EQU %0100001010
+00000518  =00000130                666  MULS_L          EQU %0100110000
+00000518                           667  
+00000518  =0000038F                668  LSL             EQU %1110001111
+00000518  =0000038B                669  LSR             EQU %1110001011
+00000518  =00000387                670  ASR             EQU %1110000111
+00000518  =00000383                671  ASL             EQU %1110000011
+00000518  =0000039F                672  ROL             EQU %1110011111
+00000518  =0000039B                673  ROR             EQU %1110011011
+00000518                           674  
+00000518  =0000000B                675  CMP             EQU %1011
+00000518  =00000000                676  CMP_B           EQU %000
+00000518  =00000001                677  CMP_W           EQU %001
+00000518  =00000002                678  CMP_L           EQU %010
+00000518                           679  
+00000518  =00000006                680  BCC             EQU %0110
+00000518  =00000000                681  BCC_16          EQU %00000000
+00000518  =000000FF                682  BCC_32          EQU $FF
+00000518  =00000000                683  CC_T                EQU %0000
+00000518  =00000001                684  CC_F                EQU %0001
+00000518  =00000002                685  CC_HI           EQU %0010
+00000518  =00000003                686  CC_LS           EQU %0011
+00000518  =00000004                687  CC_CC           EQU %0100
+00000518  =00000005                688  CC_CS           EQU %0101
+00000518  =00000006                689  CC_NE           EQU %0110
+00000518  =00000007                690  CC_EQ           EQU %0111
+00000518  =00000008                691  CC_VC           EQU %1000
+00000518  =00000009                692  CC_VS           EQU %1001
+00000518  =0000000A                693  CC_PL           EQU %1010
+00000518  =0000000B                694  CC_MI           EQU %1011
+00000518  =0000000C                695  CC_GE           EQU %1100
+00000518  =0000000D                696  CC_LT           EQU %1101
+00000518  =0000000E                697  CC_GT           EQU %1110
+00000518  =0000000F                698  CC_LE           EQU %1111
+00000518                           699  
+00000518                           700  *** Common strings for printing
+00000518= 20 00                    701  pr_space    DC.B    ' ',0
+0000051A= 2C 00                    702  pr_comma    DC.B    ',',0
+0000051C= 2E 42 00                 703  pr_BYTE     DC.B    '.B',0
+0000051F= 2E 57 00                 704  pr_WORD     DC.B    '.W',0
+00000522= 2E 4C 00                 705  pr_LONG     DC.B    '.L',0
+00000525                           706  
+00000525                           707  ** Command strings constants
+00000525= 4E 4F 50 00              708  pr_NOP      DC.B    'NOP',0
+00000529= 4D 4F 56 45 00           709  pr_MOVE     DC.B    'MOVE',0
+0000052E= 4D 4F 56 45 41 00        710  pr_MOVEA    DC.B    'MOVEA',0
+00000534= 4D 4F 56 45 51 00        711  pr_MOVEQ    DC.B    'MOVEQ',0
+0000053A= 4D 4F 56 45 4D 00        712  pr_MOVEM    DC.B    'MOVEM',0
+00000540                           713  
+00000540                           714  
+00000540                           715  ********************************
+00000540                           716  ** BEGIN OpDecoder SUBROUTINE **
+00000540                           717  ********************************
+00000540                           718  
+00000540                           719  * A0 = INPUT    Decoder pointer; Persistant
+00000540                           720  * D2 = INPUT    Read opcode word
+00000540                           721  
+00000540                           722  OpDecoder
+00000540  48E7 FF7E                723      MOVEM.L     D0-D7/A1-A6, -(SP)
+00000544  4241                     724      CLR         D1
+00000546  6000 0078                725      BRA         CHECK_NOP
+0000054A                           726  NOP_RETURN
+0000054A  6000 0082                727      BRA         CHECK_FOUR_BIT_SIG
+0000054E                           728  FOUR_BIT_RETURN
+0000054E  6000 0434                729      BRA         CHECK_MOVEM
+00000552                           730  MOVEM_RETURN
+00000552  6000 04D8                731      BRA         CHECK_ADDI
+00000556                           732  ADDI_RETURN
+00000556  6000 0028                733      BRA         CHECK_SHIFT_AND_ROTATE
+0000055A                           734      
+0000055A                           735  opdec_return
+0000055A  4CDF 7EFF                736      MOVEM.L     (SP)+, D0-D7/A1-A6
+0000055E  4E75                     737      RTS
+00000560                           738  
+00000560                           739  *****************************
+00000560                           740  *   HELPER FUNCTIONS        *
+00000560                           741  *****************************
+00000560                           742  ReadFirstFourBits
+00000560                           743  
+00000560  48A7 2000                744      MOVEM.W     D2, -(SP)
+00000564                           745  
+00000564  1E3C 000C                746      MOVE.B      #12,D7 
+00000568  EE6A                     747      LSR.W       D7,D2 
+0000056A  1602                     748      MOVE.B      D2,D3
+0000056C                           749      
+0000056C  4C9F 0004                750      MOVEM.W     (SP)+,D2
+00000570  4E75                     751      RTS
+00000572                           752      
+00000572                           753  *************************
+00000572                           754  ReadFirstTenBits
+00000572                           755      
+00000572  48A7 2000                756      MOVEM.W     D2, -(SP)
+00000576                           757   
+00000576  EC4A                     758      LSR.W       #6,D2 
+00000578  3602                     759      MOVE.W      D2,D3
+0000057A                           760      
+0000057A  4C9F 0004                761      MOVEM.W     (SP)+,D2
+0000057E  4E75                     762      RTS
+00000580                           763  *************************
+00000580                           764  CHECK_SHIFT_AND_ROTATE
+00000580                           765  
+00000580  61F0                     766      BSR         ReadFirstTenBits
+00000582                           767      
+00000582  3C3C 038F                768      MOVE.W      #LSL,D6
+00000586  BC43                     769      CMP.W       D3,D6
+00000588  6700 058C                770      BEQ         MATCH_LSL
+0000058C                           771      
+0000058C  3C3C 038B                772      MOVE.W      #LSR,D6
+00000590  BC43                     773      CMP.W       D3,D6
+00000592  6700 0584                774      BEQ         MATCH_LSR
+00000596                           775      
+00000596  3C3C 0387                776      MOVE.W      #ASR,D6
+0000059A  BC43                     777      CMP.W       D3,D6
+0000059C  6700 057C                778      BEQ         MATCH_ASR
+000005A0                           779      
+000005A0  3C3C 0383                780      MOVE.W      #ASL,D6
+000005A4  BC43                     781      CMP.W       D3,D6
+000005A6  6700 0574                782      BEQ         MATCH_ASL
+000005AA                           783      
+000005AA  3C3C 039F                784      MOVE.W      #ROL,D6
+000005AE  BC43                     785      CMP.W       D3,D6
+000005B0  6700 056C                786      BEQ         MATCH_ROL
+000005B4                           787      
+000005B4  3C3C 039B                788      MOVE.W      #ROR,D6
+000005B8  BC43                     789      CMP.W       D3,D6
+000005BA  6700 0564                790      BEQ         MATCH_ROR
+000005BE                           791      
+000005BE  609A                     792      BRA         opdec_return
+000005C0                           793      
+000005C0                           794  *************************
+000005C0                           795  CHECK_NOP
+000005C0                           796      
+000005C0  3C3C 4E71                797      MOVE.W      #NOP,D6
+000005C4  BC42                     798      CMP.W       D2,D6
+000005C6  6700 FB78                799      BEQ         MATCH_NOP
+000005CA                           800      
+000005CA  6000 FF7E                801      BRA         NOP_RETURN
+000005CE                           802  
+000005CE                           803  *************************
+000005CE                           804  CHECK_FOUR_BIT_SIG
+000005CE                           805  
+000005CE  6190                     806      BSR         ReadFirstFourBits
+000005D0                           807      
+000005D0  1C3C 0001                808      MOVE.B      #MOVE_B,D6
+000005D4  BC03                     809      CMP.B       D3,D6
+000005D6  6700 FB78                810      BEQ         MATCH_MOVE_B
+000005DA                           811  
+000005DA  1C3C 0003                812      MOVE.B      #MOVE_W,D6
+000005DE  BC03                     813      CMP.B       D3,D6
+000005E0  6700 04B0                814      BEQ         CHECK_MOVEA_W_AND_MOVE_W
+000005E4                           815      
+000005E4  1C3C 0002                816      MOVE.B      #MOVE_L,D6
+000005E8  BC03                     817      CMP.B       D3,D6
+000005EA  6700 04D0                818      BEQ         CHECK_MOVEA_L_AND_MOVE_L
+000005EE                           819   
+000005EE  1C3C 0007                820      MOVE.B      #MOVEQ_,D6
+000005F2  BC03                     821      CMP.B       D3,D6
+000005F4  6700 04DC                822      BEQ         MATCH_MOVEQ
+000005F8                           823      
+000005F8  1C3C 000D                824      MOVE.B      #ADD_ADDA,D6
+000005FC  BC03                     825      CMP.B       D3,D6
+000005FE  6700 03B4                826      BEQ         CHECK_ADD_ADDA
+00000602                           827      
+00000602  1C3C 0005                828      MOVE.B      #ADDQ,D6
+00000606  BC03                     829      CMP.B       D3,D6
+00000608  6700 0400                830      BEQ         CHECK_ADDQ
+0000060C                           831      
+0000060C  1C3C 0009                832      MOVE.B      #SUB,D6
+00000610  BC03                     833      CMP.B       D3,D6
+00000612  6700 043E                834      BEQ         CHECK_SUB
+00000616                           835      
+00000616  1C3C 0008                836      MOVE.B      #DIVU_OR,D6
+0000061A  BC03                     837      CMP.B       D3,D6
+0000061C  6700 0318                838      BEQ         CHECK_DIVU_OR
+00000620                           839      
+00000620  1C3C 000C                840      MOVE.B      #MULS_W_AND,D6
+00000624  BC03                     841      CMP.B       D3,D6
+00000626  6700 02C0                842      BEQ         CHECK_MULS_W_AND
+0000062A                           843      
+0000062A  1C3C 0004                844      MOVE.B      #MULS_LEA_CLR_JSR_RTS,D6
+0000062E  BC03                     845      CMP.B       D3,D6
+00000630  6700 0264                846      BEQ         CHECK_MULS_LEA_CLR_JSR_RTS
+00000634                           847      
+00000634  1C3C 000B                848      MOVE.B      #CMP,D6
+00000638  BC03                     849      CMP.B       D3,D6
+0000063A  6700 0234                850      BEQ         CHECK_CMP
+0000063E                           851      
+0000063E  1C3C 0006                852      MOVE.B      #BCC,D6
+00000642  BC03                     853      CMP.B       D3,D6
+00000644  6700 0006                854      BEQ         CHECK_BCC
+00000648                           855      
+00000648  6000 FF04                856      BRA         FOUR_BIT_RETURN
+0000064C                           857  ***********************************
+0000064C                           858  CHECK_BCC
+0000064C                           859      
+0000064C  1C3C 0000                860      MOVE.B      #BCC_16,D6
+00000650  BC02                     861      CMP.B       D2,D6
+00000652  6700 00B8                862      BEQ         CHECK_BCC_16
+00000656                           863      
+00000656  1C3C 00FF                864      MOVE.B      #BCC_32,D6
+0000065A  BC02                     865      CMP.B       D2,D6
+0000065C  6700 0156                866      BEQ         CHECK_BCC_32
+00000660                           867      
+00000660  6000 0002                868      BRA         CHECK_BCC_8
+00000664                           869      
+00000664                           870  ***********************************
+00000664                           871  CHECK_BCC_8
+00000664                           872      
+00000664  6100 01F6                873      BSR         ISOLATE_CC_CODE_FOR_BCC
+00000668                           874      
+00000668  1C3C 0000                875      MOVE.B      #CC_T,D6
+0000066C  BC03                     876      CMP.B       D3,D6
+0000066E  6700 04B8                877      BEQ         MATCH_CC_T_8
+00000672                           878      
+00000672  1C3C 0001                879      MOVE.B      #CC_F,D6
+00000676  BC03                     880      CMP.B       D3,D6
+00000678  6700 04B4                881      BEQ         MATCH_CC_F_8
+0000067C                           882      
+0000067C  1C3C 0002                883      MOVE.B      #CC_HI,D6
+00000680  BC03                     884      CMP.B       D3,D6
+00000682  6700 04B0                885      BEQ         MATCH_CC_HI_8
+00000686                           886      
+00000686  1C3C 0003                887      MOVE.B      #CC_LS,D6
+0000068A  BC03                     888      CMP.B       D3,D6
+0000068C  6700 04AC                889      BEQ         MATCH_CC_LS_8
+00000690                           890      
+00000690  1C3C 0004                891      MOVE.B      #CC_CC,D6
+00000694  BC03                     892      CMP.B       D3,D6
+00000696  6700 04A8                893      BEQ         MATCH_CC_CC_8
+0000069A                           894      
+0000069A  1C3C 0005                895      MOVE.B      #CC_CS,D6
+0000069E  BC03                     896      CMP.B       D3,D6
+000006A0  6700 04A4                897      BEQ         MATCH_CC_CS_8
+000006A4                           898      
+000006A4  1C3C 0006                899      MOVE.B      #CC_NE,D6
+000006A8  BC03                     900      CMP.B       D3,D6
+000006AA  6700 04A0                901      BEQ         MATCH_CC_NE_8
+000006AE                           902      
+000006AE  1C3C 0007                903      MOVE.B      #CC_EQ,D6
+000006B2  BC03                     904      CMP.B       D3,D6
+000006B4  6700 049C                905      BEQ         MATCH_CC_EQ_8
+000006B8                           906      
+000006B8  1C3C 0008                907      MOVE.B      #CC_VC,D6
+000006BC  BC03                     908      CMP.B       D3,D6
+000006BE  6700 0498                909      BEQ         MATCH_CC_VC_8
+000006C2                           910      
+000006C2  1C3C 0009                911      MOVE.B      #CC_VS,D6
+000006C6  BC03                     912      CMP.B       D3,D6
+000006C8  6700 0494                913      BEQ         MATCH_CC_VS_8
+000006CC                           914      
+000006CC  1C3C 000A                915      MOVE.B      #CC_PL,D6
+000006D0  BC03                     916      CMP.B       D3,D6
+000006D2  6700 0490                917      BEQ         MATCH_CC_PL_8
+000006D6                           918      
+000006D6  1C3C 000B                919      MOVE.B      #CC_MI,D6
+000006DA  BC03                     920      CMP.B       D3,D6
+000006DC  6700 048C                921      BEQ         MATCH_CC_MI_8
+000006E0                           922      
+000006E0  1C3C 000C                923      MOVE.B      #CC_GE,D6
+000006E4  BC03                     924      CMP.B       D3,D6
+000006E6  6700 0488                925      BEQ         MATCH_CC_GE_8
+000006EA                           926      
+000006EA  1C3C 000D                927      MOVE.B      #CC_LT,D6
+000006EE  BC03                     928      CMP.B       D3,D6
+000006F0  6700 0484                929      BEQ         MATCH_CC_LT_8
+000006F4                           930      
+000006F4  1C3C 000E                931      MOVE.B      #CC_GT,D6
+000006F8  BC03                     932      CMP.B       D3,D6
+000006FA  6700 0480                933      BEQ         MATCH_CC_GT_8
+000006FE                           934      
+000006FE  1C3C 000F                935      MOVE.B      #CC_LE,D6
+00000702  BC03                     936      CMP.B       D3,D6
+00000704  6700 047C                937      BEQ         MATCH_CC_LE_8
+00000708                           938  
+00000708  6000 047E                939      BRA         ERROR
+0000070C                           940      
+0000070C                           941  ***********************************
+0000070C                           942  CHECK_BCC_16
+0000070C                           943  
+0000070C  6100 014E                944      BSR         ISOLATE_CC_CODE_FOR_BCC
+00000710                           945      
+00000710  1C3C 0000                946      MOVE.B      #CC_T,D6
+00000714  BC03                     947      CMP.B       D3,D6
+00000716  6700 0412                948      BEQ         MATCH_CC_T_16
+0000071A                           949      
+0000071A  1C3C 0001                950      MOVE.B      #CC_F,D6
+0000071E  BC03                     951      CMP.B       D3,D6
+00000720  6700 040E                952      BEQ         MATCH_CC_F_16
+00000724                           953      
+00000724  1C3C 0002                954      MOVE.B      #CC_HI,D6
+00000728  BC03                     955      CMP.B       D3,D6
+0000072A  6700 040A                956      BEQ         MATCH_CC_HI_16
+0000072E                           957      
+0000072E  1C3C 0003                958      MOVE.B      #CC_LS,D6
+00000732  BC03                     959      CMP.B       D3,D6
+00000734  6700 0406                960      BEQ         MATCH_CC_LS_16
+00000738                           961      
+00000738  1C3C 0004                962      MOVE.B      #CC_CC,D6
+0000073C  BC03                     963      CMP.B       D3,D6
+0000073E  6700 0402                964      BEQ         MATCH_CC_CC_16
+00000742                           965      
+00000742  1C3C 0005                966      MOVE.B      #CC_CS,D6
+00000746  BC03                     967      CMP.B       D3,D6
+00000748  6700 03FE                968      BEQ         MATCH_CC_CS_16
+0000074C                           969      
+0000074C  1C3C 0006                970      MOVE.B      #CC_NE,D6
+00000750  BC03                     971      CMP.B       D3,D6
+00000752  6700 03FA                972      BEQ         MATCH_CC_NE_16
+00000756                           973      
+00000756  1C3C 0007                974      MOVE.B      #CC_EQ,D6
+0000075A  BC03                     975      CMP.B       D3,D6
+0000075C  6700 03F6                976      BEQ         MATCH_CC_EQ_16
+00000760                           977      
+00000760  1C3C 0008                978      MOVE.B      #CC_VC,D6
+00000764  BC03                     979      CMP.B       D3,D6
+00000766  6700 03F2                980      BEQ         MATCH_CC_VC_16
+0000076A                           981      
+0000076A  1C3C 0009                982      MOVE.B      #CC_VS,D6
+0000076E  BC03                     983      CMP.B       D3,D6
+00000770  6700 03EE                984      BEQ         MATCH_CC_VS_16
+00000774                           985      
+00000774  1C3C 000A                986      MOVE.B      #CC_PL,D6
+00000778  BC03                     987      CMP.B       D3,D6
+0000077A  6700 03EA                988      BEQ         MATCH_CC_PL_16
+0000077E                           989      
+0000077E  1C3C 000B                990      MOVE.B      #CC_MI,D6
+00000782  BC03                     991      CMP.B       D3,D6
+00000784  6700 03E6                992      BEQ         MATCH_CC_MI_16
+00000788                           993      
+00000788  1C3C 000C                994      MOVE.B      #CC_GE,D6
+0000078C  BC03                     995      CMP.B       D3,D6
+0000078E  6700 03E2                996      BEQ         MATCH_CC_GE_16
+00000792                           997      
+00000792  1C3C 000D                998      MOVE.B      #CC_LT,D6
+00000796  BC03                     999      CMP.B       D3,D6
+00000798  6700 03DE               1000      BEQ         MATCH_CC_LT_16
+0000079C                          1001      
+0000079C  1C3C 000E               1002      MOVE.B      #CC_GT,D6
+000007A0  BC03                    1003      CMP.B       D3,D6
+000007A2  6700 03DA               1004      BEQ         MATCH_CC_GT_16
+000007A6                          1005      
+000007A6  1C3C 000F               1006      MOVE.B      #CC_LE,D6
+000007AA  BC03                    1007      CMP.B       D3,D6
+000007AC  6700 03D6               1008      BEQ         MATCH_CC_LE_16
+000007B0                          1009  
+000007B0  6000 03D6               1010      BRA         ERROR
+000007B4                          1011  
+000007B4                          1012  
+000007B4                          1013  ***********************************
+000007B4                          1014  CHECK_BCC_32  
+000007B4                          1015  
+000007B4  6100 00A6               1016      BSR         ISOLATE_CC_CODE_FOR_BCC 
+000007B8                          1017      
+000007B8  1C3C 0000               1018      MOVE.B      #CC_T,D6
+000007BC  BC03                    1019      CMP.B       D3,D6
+000007BE  6700 036C               1020      BEQ         MATCH_CC_T_32
+000007C2                          1021      
+000007C2  1C3C 0001               1022      MOVE.B      #CC_F,D6
+000007C6  BC03                    1023      CMP.B       D3,D6
+000007C8  6700 0368               1024      BEQ         MATCH_CC_F_32
+000007CC                          1025      
+000007CC  1C3C 0002               1026      MOVE.B      #CC_HI,D6
+000007D0  BC03                    1027      CMP.B       D3,D6
+000007D2  6700 0364               1028      BEQ         MATCH_CC_HI_32
+000007D6                          1029      
+000007D6  1C3C 0003               1030      MOVE.B      #CC_LS,D6
+000007DA  BC03                    1031      CMP.B       D3,D6
+000007DC  6700 0360               1032      BEQ         MATCH_CC_LS_32
+000007E0                          1033      
+000007E0  1C3C 0004               1034      MOVE.B      #CC_CC,D6
+000007E4  BC03                    1035      CMP.B       D3,D6
+000007E6  6700 035C               1036      BEQ         MATCH_CC_CC_32
+000007EA                          1037      
+000007EA  1C3C 0005               1038      MOVE.B      #CC_CS,D6
+000007EE  BC03                    1039      CMP.B       D3,D6
+000007F0  6700 0358               1040      BEQ         MATCH_CC_CS_32
+000007F4                          1041      
+000007F4  1C3C 0006               1042      MOVE.B      #CC_NE,D6
+000007F8  BC03                    1043      CMP.B       D3,D6
+000007FA  6700 0354               1044      BEQ         MATCH_CC_NE_32
+000007FE                          1045      
+000007FE  1C3C 0007               1046      MOVE.B      #CC_EQ,D6
+00000802  BC03                    1047      CMP.B       D3,D6
+00000804  6700 0350               1048      BEQ         MATCH_CC_EQ_32
+00000808                          1049      
+00000808  1C3C 0008               1050      MOVE.B      #CC_VC,D6
+0000080C  BC03                    1051      CMP.B       D3,D6
+0000080E  6700 034C               1052      BEQ         MATCH_CC_VC_32
+00000812                          1053      
+00000812  1C3C 0009               1054      MOVE.B      #CC_VS,D6
+00000816  BC03                    1055      CMP.B       D3,D6
+00000818  6700 0348               1056      BEQ         MATCH_CC_VS_32
+0000081C                          1057      
+0000081C  1C3C 000A               1058      MOVE.B      #CC_PL,D6
+00000820  BC03                    1059      CMP.B       D3,D6
+00000822  6700 0344               1060      BEQ         MATCH_CC_PL_32
+00000826                          1061      
+00000826  1C3C 000B               1062      MOVE.B      #CC_MI,D6
+0000082A  BC03                    1063      CMP.B       D3,D6
+0000082C  6700 0340               1064      BEQ         MATCH_CC_MI_32
+00000830                          1065      
+00000830  1C3C 000C               1066      MOVE.B      #CC_GE,D6
+00000834  BC03                    1067      CMP.B       D3,D6
+00000836  6700 033C               1068      BEQ         MATCH_CC_GE_32
+0000083A                          1069      
+0000083A  1C3C 000D               1070      MOVE.B      #CC_LT,D6
+0000083E  BC03                    1071      CMP.B       D3,D6
+00000840  6700 0338               1072      BEQ         MATCH_CC_LT_32
+00000844                          1073      
+00000844  1C3C 000E               1074      MOVE.B      #CC_GT,D6
+00000848  BC03                    1075      CMP.B       D3,D6
+0000084A  6700 0334               1076      BEQ         MATCH_CC_GT_32
+0000084E                          1077      
+0000084E  1C3C 000F               1078      MOVE.B      #CC_LE,D6
+00000852  BC03                    1079      CMP.B       D3,D6
+00000854  6700 0330               1080      BEQ         MATCH_CC_LE_32
+00000858                          1081  
+00000858  6000 032E               1082      BRA         ERROR
+0000085C                          1083   
+0000085C                          1084  ***********************************
+0000085C                          1085  ISOLATE_CC_CODE_FOR_BCC
+0000085C                          1086  
+0000085C  48A7 2000               1087      MOVEM.W     D2, -(SP) 
+00000860                          1088      
+00000860  E94A                    1089      LSL.W       #4,D2
+00000862  1E3C 000C               1090      MOVE.B      #12,D7
+00000866  EE6A                    1091      LSR.W       D7,D2
+00000868                          1092      
+00000868  1602                    1093      MOVE.B      D2,D3      
+0000086A                          1094  
+0000086A  4C9F 0004               1095      MOVEM.W     (SP)+,D2 
+0000086E  4E75                    1096      RTS
+00000870                          1097  ***********************************
+00000870                          1098  CHECK_CMP
+00000870                          1099      
+00000870  6100 0232               1100      BSR         ISOLATE_OP_CODE
+00000874                          1101      
+00000874  1C3C 0000               1102      MOVE.B      #CMP_B,D6
+00000878  BC03                    1103      CMP.B       D3,D6
+0000087A  6700 02A6               1104      BEQ         MATCH_CMP_B
+0000087E                          1105      
+0000087E  1C3C 0001               1106      MOVE.B      #CMP_W,D6
+00000882  BC03                    1107      CMP.B       D3,D6
+00000884  6700 029E               1108      BEQ         MATCH_CMP_W
+00000888                          1109      
+00000888  1C3C 0002               1110      MOVE.B      #CMP_L,D6
+0000088C  BC03                    1111      CMP.B       D3,D6
+0000088E  6700 0296               1112      BEQ         MATCH_CMP_L
+00000892                          1113      
+00000892  6000 02F4               1114      BRA         ERROR
+00000896                          1115  ***********************************
+00000896                          1116  CHECK_MULS_LEA_CLR_JSR_RTS
+00000896                          1117  
+00000896  3C3C 4E75               1118      MOVE.W      #RTS,D6
+0000089A  BC42                    1119      CMP.W       D2,D6
+0000089C  6700 026A               1120      BEQ         MATCH_RTS
+000008A0                          1121      
+000008A0  6100 0202               1122      BSR         ISOLATE_OP_CODE
+000008A4                          1123      
+000008A4  1C3C 0007               1124      MOVE.B      #LEA,D6
+000008A8  BC03                    1125      CMP.B       D3,D6
+000008AA  6700 025E               1126      BEQ         MATCH_LEA
+000008AE                          1127      
+000008AE  6100 FCC2               1128      BSR         ReadFirstTenBits
+000008B2                          1129      
+000008B2  3C3C 013A               1130      MOVE.W      #JSR,D6
+000008B6  BC43                    1131      CMP.W       D3,D6
+000008B8  6700 0252               1132      BEQ         MATCH_JSR
+000008BC                          1133      
+000008BC  3C3C 0108               1134      MOVE.W      #CLR_B,D6
+000008C0  BC43                    1135      CMP.W       D3,D6
+000008C2  6700 024A               1136      BEQ         MATCH_CLR_B
+000008C6                          1137      
+000008C6  3C3C 0109               1138      MOVE.W      #CLR_W,D6
+000008CA  BC43                    1139      CMP.W       D3,D6
+000008CC  6700 0242               1140      BEQ         MATCH_CLR_W
+000008D0                          1141      
+000008D0  3C3C 010A               1142      MOVE.W      #CLR_L,D6
+000008D4  BC43                    1143      CMP.W       D3,D6
+000008D6  6700 023A               1144      BEQ         MATCH_CLR_L
+000008DA                          1145      
+000008DA  3C3C 0130               1146      MOVE.W      #MULS_L,D6  * Shouldn't need to check for the rest of the opcode..?
+000008DE  BC43                    1147      CMP.W       D3,D6
+000008E0  6700 0232               1148      BEQ         MATCH_MULS_L
+000008E4                          1149      
+000008E4  6000 02A2               1150      BRA         ERROR
+000008E8                          1151      
+000008E8                          1152  ***********************************
+000008E8                          1153  CHECK_MULS_W_AND
+000008E8                          1154  
+000008E8  6100 01BA               1155      BSR         ISOLATE_OP_CODE
+000008EC                          1156      
+000008EC  1C3C 0007               1157      MOVE.B      #MULS_OP_W,D6
+000008F0  BC03                    1158      CMP.B       D3,D6
+000008F2  6700 0206               1159      BEQ         MATCH_MULS_W
+000008F6                          1160      
+000008F6  1C3C 0000               1161      MOVE.B      #DN_B,D6
+000008FA  BC03                    1162      CMP.B       D3,D6
+000008FC  6700 01FE               1163      BEQ         MATCH_AND_DN_B
+00000900                          1164      
+00000900  1C3C 0001               1165      MOVE.B      #DN_W,D6
+00000904  BC03                    1166      CMP.B       D3,D6
+00000906  6700 01F6               1167      BEQ         MATCH_AND_DN_W
+0000090A                          1168      
+0000090A  1C3C 0002               1169      MOVE.B      #DN_L,D6
+0000090E  BC03                    1170      CMP.B       D3,D6
+00000910  6700 01EE               1171      BEQ         MATCH_AND_DN_L
+00000914                          1172      
+00000914  1C3C 0004               1173      MOVE.B      #EA_B,D6
+00000918  BC03                    1174      CMP.B       D3,D6
+0000091A  6700 01E6               1175      BEQ         MATCH_AND_EA_B
+0000091E                          1176      
+0000091E  1C3C 0005               1177      MOVE.B      #EA_W,D6
+00000922  BC03                    1178      CMP.B       D3,D6
+00000924  6700 01DE               1179      BEQ         MATCH_AND_EA_W
+00000928                          1180      
+00000928  1C3C 0006               1181      MOVE.B      #EA_L,D6
+0000092C  BC03                    1182      CMP.B       D3,D6
+0000092E  6700 01D6               1183      BEQ         MATCH_AND_EA_L
+00000932                          1184      
+00000932  6000 0254               1185      BRA         ERROR
+00000936                          1186  
+00000936                          1187  ***********************************    
+00000936                          1188  CHECK_DIVU_OR
+00000936                          1189      
+00000936  6100 016C               1190      BSR         ISOLATE_OP_CODE
+0000093A                          1191      
+0000093A  1C3C 0003               1192      MOVE.B      #DIVU,D6
+0000093E  BC03                    1193      CMP.B       D3,D6
+00000940  6700 01AA               1194      BEQ         MATCH_DIVU
+00000944                          1195      
+00000944  1C3C 0000               1196      MOVE.B      #DN_B,D6
+00000948  BC03                    1197      CMP.B       D3,D6
+0000094A  6700 01A2               1198      BEQ         MATCH_OR_DN_B
+0000094E                          1199      
+0000094E  1C3C 0001               1200      MOVE.B      #DN_W,D6
+00000952  BC03                    1201      CMP.B       D3,D6
+00000954  6700 019A               1202      BEQ         MATCH_OR_DN_W
+00000958                          1203      
+00000958  1C3C 0002               1204      MOVE.B      #DN_L,D6
+0000095C  BC03                    1205      CMP.B       D3,D6
+0000095E  6700 0192               1206      BEQ         MATCH_OR_DN_L
+00000962                          1207      
+00000962  1C3C 0004               1208      MOVE.B      #EA_B,D6
+00000966  BC03                    1209      CMP.B       D3,D6
+00000968  6700 018A               1210      BEQ         MATCH_OR_EA_B
+0000096C                          1211      
+0000096C  1C3C 0005               1212      MOVE.B      #EA_W,D6
+00000970  BC03                    1213      CMP.B       D3,D6
+00000972  6700 0182               1214      BEQ         MATCH_OR_EA_W
+00000976                          1215      
+00000976  1C3C 0006               1216      MOVE.B      #EA_L,D6
+0000097A  BC03                    1217      CMP.B       D3,D6
+0000097C  6700 017A               1218      BEQ         MATCH_OR_EA_L
+00000980                          1219      
+00000980  6000 0206               1220      BRA         ERROR
+00000984                          1221  
+00000984                          1222  ***********************************
+00000984                          1223  CHECK_MOVEM
+00000984                          1224      
+00000984  6100 FBEC               1225      BSR         ReadFirstTenBits
+00000988                          1226      
+00000988  3C3C 0122               1227      MOVE.W      #MOVEM_TO_MEM_W,D6
+0000098C  BC43                    1228      CMP.W       D3,D6
+0000098E  6700 0144               1229      BEQ         MATCH_MOVEM_TO_MEM_W
+00000992                          1230      
+00000992  3C3C 0123               1231      MOVE.W      #MOVEM_TO_MEM_L,D6
+00000996  BC43                    1232      CMP.W       D3,D6
+00000998  6700 013C               1233      BEQ         MATCH_MOVEM_TO_MEM_L
+0000099C                          1234      
+0000099C  3C3C 0132               1235      MOVE.W      #MOVEM_TO_REG_W,D6
+000009A0  BC43                    1236      CMP.W       D3,D6
+000009A2  6700 0134               1237      BEQ         MATCH_MOVEM_TO_REG_W
+000009A6                          1238      
+000009A6  3C3C 0133               1239      MOVE.W      #MOVEM_TO_REG_L,D6
+000009AA  BC43                    1240      CMP.W       D3,D6
+000009AC  6700 012C               1241      BEQ         MATCH_MOVEM_TO_REG_L
+000009B0                          1242      
+000009B0  6000 FBA0               1243      BRA         MOVEM_RETURN
+000009B4                          1244  **************************************** 
+000009B4                          1245  CHECK_ADD_ADDA
+000009B4                          1246      
+000009B4  6100 00EE               1247      BSR         ISOLATE_OP_CODE
+000009B8                          1248      
+000009B8  3C3C 0000               1249      MOVE.W      #DN_B,D6
+000009BC  BC43                    1250      CMP.W       D3,D6
+000009BE  6700 F8DC               1251      BEQ         MATCH_ADD_TO_REG_B
+000009C2                          1252      
+000009C2  3C3C 0001               1253      MOVE.W      #DN_W,D6
+000009C6  BC43                    1254      CMP.W       D3,D6
+000009C8  6700 F916               1255      BEQ         MATCH_ADD_TO_REG_W
+000009CC                          1256      
+000009CC  3C3C 0002               1257      MOVE.W      #DN_L,D6
+000009D0  BC43                    1258      CMP.W       D3,D6
+000009D2  6700 F950               1259      BEQ         MATCH_ADD_TO_REG_L
+000009D6                          1260      
+000009D6  3C3C 0004               1261      MOVE.W      #EA_B,D6
+000009DA  BC43                    1262      CMP.W       D3,D6
+000009DC  6700 F98A               1263      BEQ         MATCH_ADD_TO_EA_B
+000009E0                          1264      
+000009E0  3C3C 0005               1265      MOVE.W      #EA_W,D6
+000009E4  BC43                    1266      CMP.W       D3,D6
+000009E6  6700 F9C4               1267      BEQ         MATCH_ADD_TO_EA_W
+000009EA                          1268      
+000009EA  3C3C 0006               1269      MOVE.W      #EA_L,D6
+000009EE  BC43                    1270      CMP.W       D3,D6
+000009F0  6700 F9FE               1271      BEQ         MATCH_ADD_TO_EA_L
+000009F4                          1272      
+000009F4  3C3C 0003               1273      MOVE.W      #ADDA_W,D6
+000009F8  BC43                    1274      CMP.W       D3,D6
+000009FA  6700 00E0               1275      BEQ         MATCH_ADDA_W
+000009FE                          1276      
+000009FE  3C3C 0007               1277      MOVE.W      #ADDA_L,D6
+00000A02  BC43                    1278      CMP.W       D3,D6
+00000A04  6700 00D8               1279      BEQ         MATCH_ADDA_L
+00000A08                          1280      
+00000A08  4E75                    1281      RTS ** Change later?
+00000A0A                          1282  ****************************************  
+00000A0A                          1283  CHECK_ADDQ
+00000A0A                          1284      
+00000A0A  6100 0098               1285      BSR         ISOLATE_OP_CODE
+00000A0E                          1286      
+00000A0E  3C3C 0000               1287      MOVE.W      #ADDQ_B,D6
+00000A12  BC43                    1288      CMP.W       D3,D6
+00000A14  6700 FA1E               1289      BEQ         MATCH_ADDQ_B
+00000A18                          1290      
+00000A18  3C3C 0001               1291      MOVE.W      #ADDQ_W,D6
+00000A1C  BC43                    1292      CMP.W       D3,D6
+00000A1E  6700 FA60               1293      BEQ         MATCH_ADDQ_W
+00000A22                          1294      
+00000A22  3C3C 0002               1295      MOVE.W      #ADDQ_L,D6
+00000A26  BC43                    1296      CMP.W       D3,D6
+00000A28  6700 FAA2               1297      BEQ         MATCH_ADDQ_L
+00000A2C                          1298      
+00000A2C                          1299  ****************************************
+00000A2C                          1300  CHECK_ADDI
+00000A2C                          1301  
+00000A2C  6100 FB44               1302      BSR         ReadFirstTenBits
+00000A30                          1303      
+00000A30  3C3C 0018               1304      MOVE.W      #ADDI_B,D6
+00000A34  BC43                    1305      CMP.W       D3,D6
+00000A36  6700 F7A4               1306      BEQ         MATCH_ADDI_B
+00000A3A                          1307      
+00000A3A  3C3C 0019               1308      MOVE.W      #ADDI_W,D6
+00000A3E  BC43                    1309      CMP.W       D3,D6
+00000A40  6700 F7DA               1310      BEQ         MATCH_ADDI_W
+00000A44                          1311      
+00000A44  3C3C 001A               1312      MOVE.W      #ADDI_L,D6
+00000A48  BC43                    1313      CMP.W       D3,D6
+00000A4A  6700 F810               1314      BEQ         MATCH_ADDI_L
+00000A4E                          1315      
+00000A4E  6000 FB06               1316      BRA         ADDI_RETURN
+00000A52                          1317  *****************************************
+00000A52                          1318  CHECK_SUB
+00000A52                          1319      
+00000A52  6100 0050               1320      BSR         ISOLATE_OP_CODE
+00000A56                          1321      
+00000A56  3C3C 0000               1322      MOVE.W      #DN_B,D6
+00000A5A  BC43                    1323      CMP.W       D3,D6
+00000A5C  6700 0082               1324      BEQ         MATCH_SUB_TO_DN_B
+00000A60                          1325      
+00000A60  3C3C 0001               1326      MOVE.W      #DN_W,D6
+00000A64  BC43                    1327      CMP.W       D3,D6
+00000A66  6700 007A               1328      BEQ         MATCH_SUB_TO_DN_W
+00000A6A                          1329      
+00000A6A  3C3C 0002               1330      MOVE.W      #DN_L,D6
+00000A6E  BC43                    1331      CMP.W       D3,D6
+00000A70  6700 0072               1332      BEQ         MATCH_SUB_TO_DN_L
+00000A74                          1333      
+00000A74  3C3C 0004               1334      MOVE.W      #EA_B,D6
+00000A78  BC43                    1335      CMP.W       D3,D6
+00000A7A  6700 006A               1336      BEQ         MATCH_SUB_TO_EA_B
+00000A7E                          1337      
+00000A7E  3C3C 0005               1338      MOVE.W      #EA_W,D6
+00000A82  BC43                    1339      CMP.W       D3,D6
+00000A84  6700 0062               1340      BEQ         MATCH_SUB_TO_EA_W
+00000A88                          1341      
+00000A88  3C3C 0006               1342      MOVE.W      #EA_L,D6
+00000A8C  BC43                    1343      CMP.W       D3,D6
+00000A8E  6700 005A               1344      BEQ         MATCH_SUB_TO_EA_L
+00000A92                          1345  *****************************************
+00000A92                          1346  CHECK_MOVEA_W_AND_MOVE_W
+00000A92                          1347      
+00000A92  6100 0010               1348      BSR         ISOLATE_OP_CODE
+00000A96                          1349         
+00000A96  1C3C 0001               1350      MOVE.B      #MOVEA_WL,D6
+00000A9A  BC03                    1351      CMP.B       D3,D6
+00000A9C  6700 0030               1352      BEQ         MATCH_MOVEA_W
+00000AA0                          1353      
+00000AA0  6000 F6F4               1354      BRA         MATCH_MOVE_W 
+00000AA4                          1355  ************************************************
+00000AA4                          1356  ISOLATE_OP_CODE 
+00000AA4                          1357  
+00000AA4  48A7 2000               1358      MOVEM.W     D2, -(SP)    
+00000AA8                          1359     
+00000AA8  1E3C 0007               1360      MOVE.B      #7,D7          
+00000AAC  EF6A                    1361      LSL.W       D7,D2
+00000AAE  1E3C 000D               1362      MOVE.B      #13,D7
+00000AB2  EE6A                    1363      LSR.W       D7,D2
+00000AB4  1602                    1364      MOVE.B      D2,D3    
+00000AB6                          1365         
+00000AB6  4C9F 0004               1366      MOVEM.W     (SP)+,D2 
+00000ABA  4E75                    1367      RTS
+00000ABC                          1368  **********************************************
+00000ABC                          1369  CHECK_MOVEA_L_AND_MOVE_L
+00000ABC                          1370      
+00000ABC  61E6                    1371      BSR         ISOLATE_OP_CODE
+00000ABE                          1372         
+00000ABE  1C3C 0001               1373      MOVE.B      #MOVEA_WL,D6
+00000AC2  BC03                    1374      CMP.B       D3,D6
+00000AC4  6700 000A               1375      BEQ         MATCH_MOVEA_L 
+00000AC8                          1376      
+00000AC8  6000 0002               1377      BRA         MATCH_MOVE_L   
+00000ACC                          1378  **********************************************  
+00000ACC                          1379  ** D2 is holding the op command bits        **
+00000ACC                          1380   
+00000ACC                          1381  MATCH_MOVE_L
+00000ACC  3A02                    1382      MOVE.W      D2,D5       *REMOVE
+00000ACE                          1383  MATCH_MOVEA_W
+00000ACE  3A02                    1384      MOVE.W      D2,D5       *REMOVE
+00000AD0                          1385  MATCH_MOVEA_L
+00000AD0  3A02                    1386      MOVE.W      D2,D5       *REMOVE
+00000AD2                          1387  MATCH_MOVEQ
+00000AD2  3A02                    1388      MOVE.W      D2,D5       *REMOVE
+00000AD4                          1389      
+00000AD4                          1390  ***********************************
+00000AD4                          1391  MATCH_MOVEM_TO_MEM_W
+00000AD4  3A02                    1392      MOVE.W      D2,D5       *REMOVE
+00000AD6                          1393  MATCH_MOVEM_TO_MEM_L
+00000AD6  3A02                    1394      MOVE.W      D2,D5       *REMOVE
+00000AD8                          1395  MATCH_MOVEM_TO_REG_W
+00000AD8  3A02                    1396      MOVE.W      D2,D5       *REMOVE
+00000ADA                          1397  MATCH_MOVEM_TO_REG_L
+00000ADA  3A02                    1398      MOVE.W      D2,D5       *REMOVE
+00000ADC                          1399  ***********************************
+00000ADC                          1400      
+00000ADC                          1401  MATCH_ADDA_W
+00000ADC  3A02                    1402      MOVE.W      D2,D5       *REMOVE
+00000ADE                          1403  MATCH_ADDA_L
+00000ADE  3A02                    1404      MOVE.W      D2,D5       *REMOVE
+00000AE0                          1405  MATCH_SUB_TO_DN_B
+00000AE0  3A02                    1406      MOVE.W      D2,D5       *REMOVE
+00000AE2                          1407  MATCH_SUB_TO_DN_W
+00000AE2  3A02                    1408      MOVE.W      D2,D5       *REMOVE
+00000AE4                          1409  MATCH_SUB_TO_DN_L
+00000AE4  3A02                    1410      MOVE.W      D2,D5       *REMOVE
+00000AE6                          1411  MATCH_SUB_TO_EA_B
+00000AE6  3A02                    1412      MOVE.W      D2,D5       *REMOVE
+00000AE8                          1413  MATCH_SUB_TO_EA_W
+00000AE8  3A02                    1414      MOVE.W      D2,D5       *REMOVE
+00000AEA                          1415  MATCH_SUB_TO_EA_L
+00000AEA  3A02                    1416      MOVE.W      D2,D5       *REMOVE
+00000AEC                          1417  MATCH_DIVU
+00000AEC  3A02                    1418      MOVE.W      D2,D5       *REMOVE
+00000AEE                          1419  MATCH_OR_DN_B
+00000AEE  3A02                    1420      MOVE.W      D2,D5       *REMOVE
+00000AF0                          1421  MATCH_OR_DN_W
+00000AF0  3A02                    1422      MOVE.W      D2,D5       *REMOVE
+00000AF2                          1423  MATCH_OR_DN_L
+00000AF2  3A02                    1424      MOVE.W      D2,D5       *REMOVE
+00000AF4                          1425  MATCH_OR_EA_B
+00000AF4  3A02                    1426      MOVE.W      D2,D5       *REMOVE
+00000AF6                          1427  MATCH_OR_EA_W
+00000AF6  3A02                    1428      MOVE.W      D2,D5       *REMOVE
+00000AF8                          1429  MATCH_OR_EA_L
+00000AF8  3A02                    1430      MOVE.W      D2,D5       *REMOVE
+00000AFA                          1431  MATCH_MULS_W
+00000AFA  3A02                    1432      MOVE.W      D2,D5       *REMOVE
+00000AFC                          1433  MATCH_AND_DN_B
+00000AFC  3A02                    1434      MOVE.W      D2,D5       *REMOVE
+00000AFE                          1435  MATCH_AND_DN_W
+00000AFE  3A02                    1436      MOVE.W      D2,D5       *REMOVE
+00000B00                          1437  MATCH_AND_DN_L
+00000B00  3A02                    1438      MOVE.W      D2,D5       *REMOVE
+00000B02                          1439  MATCH_AND_EA_B
+00000B02  3A02                    1440      MOVE.W      D2,D5       *REMOVE
+00000B04                          1441  MATCH_AND_EA_W
+00000B04  3A02                    1442      MOVE.W      D2,D5       *REMOVE
+00000B06                          1443  MATCH_AND_EA_L
+00000B06  3A02                    1444      MOVE.W      D2,D5       *REMOVE
+00000B08                          1445  MATCH_RTS
+00000B08  3A02                    1446      MOVE.W      D2,D5       *REMOVE
+00000B0A                          1447  MATCH_LEA
+00000B0A  3A02                    1448      MOVE.W      D2,D5       *REMOVE
+00000B0C                          1449  MATCH_JSR
+00000B0C  3A02                    1450      MOVE.W      D2,D5       *REMOVE
+00000B0E                          1451  MATCH_CLR_B
+00000B0E  3A02                    1452      MOVE.W      D2,D5       *REMOVE
+00000B10                          1453  MATCH_CLR_W
+00000B10  3A02                    1454      MOVE.W      D2,D5       *REMOVE
+00000B12                          1455  MATCH_CLR_L
+00000B12  3A02                    1456      MOVE.W      D2,D5       *REMOVE
+00000B14                          1457  MATCH_MULS_L
+00000B14  3A02                    1458      MOVE.W      D2,D5       *REMOVE
+00000B16                          1459  MATCH_LSL
+00000B16  3A02                    1460      MOVE.W      D2,D5       *REMOVE
+00000B18                          1461  MATCH_LSR
+00000B18  3A02                    1462      MOVE.W      D2,D5       *REMOVE
+00000B1A                          1463  MATCH_ASR
+00000B1A  3A02                    1464      MOVE.W      D2,D5       *REMOVE
+00000B1C                          1465  MATCH_ASL
+00000B1C  3A02                    1466      MOVE.W      D2,D5       *REMOVE
+00000B1E                          1467  MATCH_ROL
+00000B1E  3A02                    1468      MOVE.W      D2,D5       *REMOVE
+00000B20                          1469  MATCH_ROR
+00000B20  3A02                    1470      MOVE.W      D2,D5       *REMOVE
+00000B22                          1471  MATCH_CMP_B
+00000B22  3A02                    1472      MOVE.W      D2,D5       *REMOVE
+00000B24                          1473  MATCH_CMP_W
+00000B24  3A02                    1474      MOVE.W      D2,D5       *REMOVE
+00000B26                          1475  MATCH_CMP_L
+00000B26  3A02                    1476      MOVE.W      D2,D5       *REMOVE
+00000B28                          1477      
+00000B28                          1478  **********BCC OPCODE MATCHES*******
+00000B28                          1479  MATCH_CC_T_8
+00000B28  3A02                    1480      MOVE.W      D2,D5       *REMOVE
+00000B2A                          1481  MATCH_CC_T_16
+00000B2A  3A02                    1482      MOVE.W      D2,D5       *REMOVE
+00000B2C                          1483  MATCH_CC_T_32
+00000B2C  3A02                    1484      MOVE.W      D2,D5       *REMOVE
+00000B2E                          1485  *****
+00000B2E                          1486  MATCH_CC_F_8
+00000B2E  3A02                    1487      MOVE.W      D2,D5       *REMOVE
+00000B30                          1488  MATCH_CC_F_16
+00000B30  3A02                    1489      MOVE.W      D2,D5       *REMOVE
+00000B32                          1490  MATCH_CC_F_32
+00000B32  3A02                    1491      MOVE.W      D2,D5       *REMOVE
+00000B34                          1492  *****
+00000B34                          1493  MATCH_CC_HI_8
+00000B34  3A02                    1494      MOVE.W      D2,D5       *REMOVE
+00000B36                          1495  MATCH_CC_HI_16
+00000B36  3A02                    1496      MOVE.W      D2,D5       *REMOVE
+00000B38                          1497  MATCH_CC_HI_32
+00000B38  3A02                    1498      MOVE.W      D2,D5       *REMOVE
+00000B3A                          1499  *****
+00000B3A                          1500  MATCH_CC_LS_8
+00000B3A  3A02                    1501      MOVE.W      D2,D5       *REMOVE
+00000B3C                          1502  MATCH_CC_LS_16
+00000B3C  3A02                    1503      MOVE.W      D2,D5       *REMOVE
+00000B3E                          1504  MATCH_CC_LS_32  
+00000B3E  3A02                    1505      MOVE.W      D2,D5       *REMOVE
+00000B40                          1506  *****
+00000B40                          1507  MATCH_CC_CC_8
+00000B40  3A02                    1508      MOVE.W      D2,D5       *REMOVE
+00000B42                          1509  MATCH_CC_CC_16
+00000B42  3A02                    1510      MOVE.W      D2,D5       *REMOVE
+00000B44                          1511  MATCH_CC_CC_32
+00000B44  3A02                    1512      MOVE.W      D2,D5       *REMOVE
+00000B46                          1513  *****
+00000B46                          1514  MATCH_CC_CS_8
+00000B46  3A02                    1515      MOVE.W      D2,D5       *REMOVE
+00000B48                          1516  MATCH_CC_CS_16
+00000B48  3A02                    1517      MOVE.W      D2,D5       *REMOVE
+00000B4A                          1518  MATCH_CC_CS_32
+00000B4A  3A02                    1519      MOVE.W      D2,D5       *REMOVE
+00000B4C                          1520  *****
+00000B4C                          1521  MATCH_CC_NE_8
+00000B4C  3A02                    1522      MOVE.W      D2,D5       *REMOVE
+00000B4E                          1523  MATCH_CC_NE_16
+00000B4E  3A02                    1524      MOVE.W      D2,D5       *REMOVE
+00000B50                          1525  MATCH_CC_NE_32
+00000B50  3A02                    1526      MOVE.W      D2,D5       *REMOVE
+00000B52                          1527  *****
+00000B52                          1528  MATCH_CC_EQ_8
+00000B52  3A02                    1529      MOVE.W      D2,D5       *REMOVE
+00000B54                          1530  MATCH_CC_EQ_16
+00000B54  3A02                    1531      MOVE.W      D2,D5       *REMOVE
+00000B56                          1532  MATCH_CC_EQ_32
+00000B56  3A02                    1533      MOVE.W      D2,D5       *REMOVE
+00000B58                          1534  *****
+00000B58                          1535  MATCH_CC_VC_8
+00000B58  3A02                    1536      MOVE.W      D2,D5       *REMOVE
+00000B5A                          1537  MATCH_CC_VC_16
+00000B5A  3A02                    1538      MOVE.W      D2,D5       *REMOVE
+00000B5C                          1539  MATCH_CC_VC_32
+00000B5C  3A02                    1540      MOVE.W      D2,D5       *REMOVE
+00000B5E                          1541  *****
+00000B5E                          1542  MATCH_CC_VS_8
+00000B5E  3A02                    1543      MOVE.W      D2,D5       *REMOVE
+00000B60                          1544  MATCH_CC_VS_16
+00000B60  3A02                    1545      MOVE.W      D2,D5       *REMOVE
+00000B62                          1546  MATCH_CC_VS_32
+00000B62  3A02                    1547      MOVE.W      D2,D5       *REMOVE
+00000B64                          1548  *****
+00000B64                          1549  MATCH_CC_PL_8
+00000B64  3A02                    1550      MOVE.W      D2,D5       *REMOVE
+00000B66                          1551  MATCH_CC_PL_16
+00000B66  3A02                    1552      MOVE.W      D2,D5       *REMOVE
+00000B68                          1553  MATCH_CC_PL_32
+00000B68  3A02                    1554      MOVE.W      D2,D5       *REMOVE
+00000B6A                          1555  *****
+00000B6A                          1556  MATCH_CC_MI_8
+00000B6A  3A02                    1557      MOVE.W      D2,D5       *REMOVE
+00000B6C                          1558  MATCH_CC_MI_16
+00000B6C  3A02                    1559      MOVE.W      D2,D5       *REMOVE
+00000B6E                          1560  MATCH_CC_MI_32
+00000B6E  3A02                    1561      MOVE.W      D2,D5       *REMOVE
+00000B70                          1562  *****
+00000B70                          1563  MATCH_CC_GE_8
+00000B70  3A02                    1564      MOVE.W      D2,D5       *REMOVE
+00000B72                          1565  MATCH_CC_GE_16
+00000B72  3A02                    1566      MOVE.W      D2,D5       *REMOVE
+00000B74                          1567  MATCH_CC_GE_32
+00000B74  3A02                    1568      MOVE.W      D2,D5       *REMOVE
+00000B76                          1569  *****
+00000B76                          1570  MATCH_CC_LT_8
+00000B76  3A02                    1571      MOVE.W      D2,D5       *REMOVE
+00000B78                          1572  MATCH_CC_LT_16
+00000B78  3A02                    1573      MOVE.W      D2,D5       *REMOVE
+00000B7A                          1574  MATCH_CC_LT_32
+00000B7A  3A02                    1575      MOVE.W      D2,D5       *REMOVE
+00000B7C                          1576  *****
+00000B7C                          1577  MATCH_CC_GT_8
+00000B7C  3A02                    1578      MOVE.W      D2,D5       *REMOVE
+00000B7E                          1579  MATCH_CC_GT_16
+00000B7E  3A02                    1580      MOVE.W      D2,D5       *REMOVE
+00000B80                          1581  MATCH_CC_GT_32
+00000B80  3A02                    1582      MOVE.W      D2,D5       *REMOVE
+00000B82                          1583  *****
+00000B82                          1584  MATCH_CC_LE_8
+00000B82  3A02                    1585      MOVE.W      D2,D5       *REMOVE
+00000B84                          1586  MATCH_CC_LE_16
+00000B84  3A02                    1587      MOVE.W      D2,D5       *REMOVE
+00000B86                          1588  MATCH_CC_LE_32
+00000B86  3A02                    1589      MOVE.W      D2,D5       *REMOVE
+00000B88                          1590  **********************************   
+00000B88                          1591  ERROR
+00000B88  3A02                    1592      MOVE.W      D2,D5       *REMOVE
+00000B8A                          1593  
+00000B8A                          1594  
+Line 1595 WARNING: END directive missing, starting address not set
 
 No errors detected
 1 warning generated
@@ -1246,12 +1605,13 @@ No errors detected
 SYMBOL TABLE INFORMATION
 Symbol-name         Value
 -------------------------
-ABS_LONG            38
-ABS_WORD            39
+ABS_LONG            39
+ABS_WORD            38
 ADDA_L              7
 ADDA_W              3
 ADDI_B              18
 ADDI_L              1A
+ADDI_RETURN         556
 ADDI_W              19
 ADDQ                5
 ADDQ_B              0
@@ -1286,24 +1646,24 @@ CC_PL               A
 CC_T                0
 CC_VC               8
 CC_VS               9
-CHECK_ADDI          63E
-CHECK_ADDQ          61C
-CHECK_ADD_ADDA      5C6
-CHECK_BCC           25E
-CHECK_BCC_16        31E
-CHECK_BCC_32        3C6
-CHECK_BCC_8         276
-CHECK_CMP           482
-CHECK_DIVU_OR       548
-CHECK_MOVEA_L_AND_MOVE_L  6CE
-CHECK_MOVEA_W_AND_MOVE_W  6A4
-CHECK_MOVEM         596
-CHECK_MOVE_AND_MOVEA_AND_MOVEQ  1E0
-CHECK_MULS_LEA_CLR_JSR_RTS  4A8
-CHECK_MULS_W_AND    4FA
-CHECK_NOP           1D6
-CHECK_SHIFT_AND_ROTATE  196
-CHECK_SUB           664
+CHECK_ADDI          A2C
+CHECK_ADDQ          A0A
+CHECK_ADD_ADDA      9B4
+CHECK_BCC           64C
+CHECK_BCC_16        70C
+CHECK_BCC_32        7B4
+CHECK_BCC_8         664
+CHECK_CMP           870
+CHECK_DIVU_OR       936
+CHECK_FOUR_BIT_SIG  5CE
+CHECK_MOVEA_L_AND_MOVE_L  ABC
+CHECK_MOVEA_W_AND_MOVE_W  A92
+CHECK_MOVEM         984
+CHECK_MULS_LEA_CLR_JSR_RTS  896
+CHECK_MULS_W_AND    8E8
+CHECK_NOP           5C0
+CHECK_SHIFT_AND_ROTATE  580
+CHECK_SUB           A52
 CLR_B               108
 CLR_L               10A
 CLR_W               109
@@ -1311,15 +1671,15 @@ CMP                 B
 CMP_B               0
 CMP_L               2
 CMP_W               1
-DEC_ABS_LONG        C4
-DEC_ABS_WORD        B8
-DEC_AN              DC
-DEC_DN              D0
-DEC_IMMEDIATE       9C
-DEC_INDIRECT        E8
-DEC_POST_INC        FC
-DEC_PRE_DEC         116
-DEC_RETURN          7E
+DEC_ABS_LONG        C6
+DEC_ABS_WORD        BA
+DEC_AN              DE
+DEC_DN              D2
+DEC_IMMEDIATE       9E
+DEC_INDIRECT        EA
+DEC_POST_INC        FE
+DEC_PRE_DEC         118
+DEC_RETURN          80
 DIVU                3
 DIVU_OR             8
 DN                  0
@@ -1331,128 +1691,130 @@ EADECODER_LEFT      0
 EA_B                4
 EA_L                6
 EA_W                5
-ERROR               838
+ERROR               B88
+FOUR_BIT_RETURN     54E
 IMMEDIATE           3C
-IMM_SKIP            96
-IMM_WORD            B4
+IMM_SKIP            98
+IMM_WORD            B6
 INDIRECT            10
-ISOLATE_CC_CODE_FOR_BCC  46E
-ISOLATE_OP_CODE     6B6
+ISOLATE_CC_CODE_FOR_BCC  85C
+ISOLATE_OP_CODE     AA4
 JSR                 13A
 LEA                 7
 LEFT_SKIP           1C
 LSL                 38F
 LSR                 38B
-MATCH_ADDA_L        788
-MATCH_ADDA_W        786
-MATCH_ADDI_B        774
-MATCH_ADDI_L        778
-MATCH_ADDI_W        776
-MATCH_ADDQ_B        78A
-MATCH_ADDQ_L        78E
-MATCH_ADDQ_W        78C
-MATCH_ADD_TO_EA_B   780
-MATCH_ADD_TO_EA_L   784
-MATCH_ADD_TO_EA_W   782
-MATCH_ADD_TO_REG_B  77A
-MATCH_ADD_TO_REG_L  77E
-MATCH_ADD_TO_REG_W  77C
-MATCH_AND_DN_B      7AC
-MATCH_AND_DN_L      7B0
-MATCH_AND_DN_W      7AE
-MATCH_AND_EA_B      7B2
-MATCH_AND_EA_L      7B6
-MATCH_AND_EA_W      7B4
-MATCH_ASL           7CC
-MATCH_ASR           7CA
-MATCH_CC_CC_16      7F2
-MATCH_CC_CC_32      7F4
-MATCH_CC_CC_8       7F0
-MATCH_CC_CS_16      7F8
-MATCH_CC_CS_32      7FA
-MATCH_CC_CS_8       7F6
-MATCH_CC_EQ_16      804
-MATCH_CC_EQ_32      806
-MATCH_CC_EQ_8       802
-MATCH_CC_F_16       7E0
-MATCH_CC_F_32       7E2
-MATCH_CC_F_8        7DE
-MATCH_CC_GE_16      822
-MATCH_CC_GE_32      824
-MATCH_CC_GE_8       820
-MATCH_CC_GT_16      82E
-MATCH_CC_GT_32      830
-MATCH_CC_GT_8       82C
-MATCH_CC_HI_16      7E6
-MATCH_CC_HI_32      7E8
-MATCH_CC_HI_8       7E4
-MATCH_CC_LE_16      834
-MATCH_CC_LE_32      836
-MATCH_CC_LE_8       832
-MATCH_CC_LS_16      7EC
-MATCH_CC_LS_32      7EE
-MATCH_CC_LS_8       7EA
-MATCH_CC_LT_16      828
-MATCH_CC_LT_32      82A
-MATCH_CC_LT_8       826
-MATCH_CC_MI_16      81C
-MATCH_CC_MI_32      81E
-MATCH_CC_MI_8       81A
-MATCH_CC_NE_16      7FE
-MATCH_CC_NE_32      800
-MATCH_CC_NE_8       7FC
-MATCH_CC_PL_16      816
-MATCH_CC_PL_32      818
-MATCH_CC_PL_8       814
-MATCH_CC_T_16       7DA
-MATCH_CC_T_32       7DC
-MATCH_CC_T_8        7D8
-MATCH_CC_VC_16      80A
-MATCH_CC_VC_32      80C
-MATCH_CC_VC_8       808
-MATCH_CC_VS_16      810
-MATCH_CC_VS_32      812
-MATCH_CC_VS_8       80E
-MATCH_CLR_B         7BE
-MATCH_CLR_L         7C2
-MATCH_CLR_W         7C0
-MATCH_CMP_B         7D2
-MATCH_CMP_L         7D6
-MATCH_CMP_W         7D4
-MATCH_DIVU          79C
-MATCH_JSR           7BC
-MATCH_LEA           7BA
-MATCH_LSL           7C6
-MATCH_LSR           7C8
-MATCH_MOVEA_L       768
-MATCH_MOVEA_W       766
-MATCH_MOVEM_TO_MEM_L  76E
-MATCH_MOVEM_TO_MEM_W  76C
-MATCH_MOVEM_TO_REG_L  772
-MATCH_MOVEM_TO_REG_W  770
-MATCH_MOVEQ         76A
-MATCH_MOVE_B        6EC
-MATCH_MOVE_L        764
-MATCH_MOVE_W        728
-MATCH_MULS_L        7C4
-MATCH_MULS_W        7AA
-MATCH_NOP           6DE
-MATCH_OR_DN_B       79E
-MATCH_OR_DN_L       7A2
-MATCH_OR_DN_W       7A0
-MATCH_OR_EA_B       7A4
-MATCH_OR_EA_L       7A8
-MATCH_OR_EA_W       7A6
-MATCH_ROL           7CE
-MATCH_ROR           7D0
-MATCH_RTS           7B8
-MATCH_SUB_TO_DN_B   790
-MATCH_SUB_TO_DN_L   794
-MATCH_SUB_TO_DN_W   792
-MATCH_SUB_TO_EA_B   796
-MATCH_SUB_TO_EA_L   79A
-MATCH_SUB_TO_EA_W   798
+MATCH_ADDA_L        ADE
+MATCH_ADDA_W        ADC
+MATCH_ADDI_B        1DC
+MATCH_ADDI_L        25C
+MATCH_ADDI_W        21C
+MATCH_ADDQ_B        434
+MATCH_ADDQ_L        4CC
+MATCH_ADDQ_W        480
+MATCH_ADD_TO_EA_B   368
+MATCH_ADD_TO_EA_L   3F0
+MATCH_ADD_TO_EA_W   3AC
+MATCH_ADD_TO_REG_B  29C
+MATCH_ADD_TO_REG_L  324
+MATCH_ADD_TO_REG_W  2E0
+MATCH_AND_DN_B      AFC
+MATCH_AND_DN_L      B00
+MATCH_AND_DN_W      AFE
+MATCH_AND_EA_B      B02
+MATCH_AND_EA_L      B06
+MATCH_AND_EA_W      B04
+MATCH_ASL           B1C
+MATCH_ASR           B1A
+MATCH_CC_CC_16      B42
+MATCH_CC_CC_32      B44
+MATCH_CC_CC_8       B40
+MATCH_CC_CS_16      B48
+MATCH_CC_CS_32      B4A
+MATCH_CC_CS_8       B46
+MATCH_CC_EQ_16      B54
+MATCH_CC_EQ_32      B56
+MATCH_CC_EQ_8       B52
+MATCH_CC_F_16       B30
+MATCH_CC_F_32       B32
+MATCH_CC_F_8        B2E
+MATCH_CC_GE_16      B72
+MATCH_CC_GE_32      B74
+MATCH_CC_GE_8       B70
+MATCH_CC_GT_16      B7E
+MATCH_CC_GT_32      B80
+MATCH_CC_GT_8       B7C
+MATCH_CC_HI_16      B36
+MATCH_CC_HI_32      B38
+MATCH_CC_HI_8       B34
+MATCH_CC_LE_16      B84
+MATCH_CC_LE_32      B86
+MATCH_CC_LE_8       B82
+MATCH_CC_LS_16      B3C
+MATCH_CC_LS_32      B3E
+MATCH_CC_LS_8       B3A
+MATCH_CC_LT_16      B78
+MATCH_CC_LT_32      B7A
+MATCH_CC_LT_8       B76
+MATCH_CC_MI_16      B6C
+MATCH_CC_MI_32      B6E
+MATCH_CC_MI_8       B6A
+MATCH_CC_NE_16      B4E
+MATCH_CC_NE_32      B50
+MATCH_CC_NE_8       B4C
+MATCH_CC_PL_16      B66
+MATCH_CC_PL_32      B68
+MATCH_CC_PL_8       B64
+MATCH_CC_T_16       B2A
+MATCH_CC_T_32       B2C
+MATCH_CC_T_8        B28
+MATCH_CC_VC_16      B5A
+MATCH_CC_VC_32      B5C
+MATCH_CC_VC_8       B58
+MATCH_CC_VS_16      B60
+MATCH_CC_VS_32      B62
+MATCH_CC_VS_8       B5E
+MATCH_CLR_B         B0E
+MATCH_CLR_L         B12
+MATCH_CLR_W         B10
+MATCH_CMP_B         B22
+MATCH_CMP_L         B26
+MATCH_CMP_W         B24
+MATCH_DIVU          AEC
+MATCH_JSR           B0C
+MATCH_LEA           B0A
+MATCH_LSL           B16
+MATCH_LSR           B18
+MATCH_MOVEA_L       AD0
+MATCH_MOVEA_W       ACE
+MATCH_MOVEM_TO_MEM_L  AD6
+MATCH_MOVEM_TO_MEM_W  AD4
+MATCH_MOVEM_TO_REG_L  ADA
+MATCH_MOVEM_TO_REG_W  AD8
+MATCH_MOVEQ         AD2
+MATCH_MOVE_B        150
+MATCH_MOVE_L        ACC
+MATCH_MOVE_W        196
+MATCH_MULS_L        B14
+MATCH_MULS_W        AFA
+MATCH_NOP           140
+MATCH_OR_DN_B       AEE
+MATCH_OR_DN_L       AF2
+MATCH_OR_DN_W       AF0
+MATCH_OR_EA_B       AF4
+MATCH_OR_EA_L       AF8
+MATCH_OR_EA_W       AF6
+MATCH_ROL           B1E
+MATCH_ROR           B20
+MATCH_RTS           B08
+MATCH_SUB_TO_DN_B   AE0
+MATCH_SUB_TO_DN_L   AE4
+MATCH_SUB_TO_DN_W   AE2
+MATCH_SUB_TO_EA_B   AE6
+MATCH_SUB_TO_EA_L   AEA
+MATCH_SUB_TO_EA_W   AE8
 MOVEA_WL            1
+MOVEM_RETURN        552
 MOVEM_TO_MEM_L      123
 MOVEM_TO_MEM_W      122
 MOVEM_TO_REG_L      133
@@ -1466,23 +1828,27 @@ MULS_LEA_CLR_JSR_RTS  4
 MULS_OP_W           7
 MULS_W_AND          C
 NOP                 4E71
-OPDECODER           158
-OPDEC_RETURN        170
+NOP_RETURN          54A
+OPDECODER           540
+OPDEC_RETURN        55A
 OUTPUT              10000
 POST_INC            18
 PRE_DEC             20
-PR_BYTE             134
-PR_COMMA            132
-PR_LONG             13A
-PR_MOVE             141
-PR_MOVEA            146
-PR_MOVEM            152
-PR_MOVEQ            14C
-PR_NOP              13D
-PR_SPACE            130
-PR_WORD             137
-READFIRSTFOURBITS   176
-READFIRSTTENBITS    188
+PR_ADD              132
+PR_ADDI             136
+PR_ADDQ             13B
+PR_BYTE             51C
+PR_COMMA            51A
+PR_LONG             522
+PR_MOVE             529
+PR_MOVEA            52E
+PR_MOVEM            53A
+PR_MOVEQ            534
+PR_NOP              525
+PR_SPACE            518
+PR_WORD             51F
+READFIRSTFOURBITS   560
+READFIRSTTENBITS    572
 ROL                 39F
 ROR                 39B
 RTS                 4E75
