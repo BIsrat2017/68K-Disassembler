@@ -6,7 +6,8 @@
 *-----------------------------------------------------------
 CR      EQU     $0D
 LF      EQU     $0A   
-        INCLUDE 'CSS422StringConvertor.x68'
+        INCLUDE 'ASCII_HEX_Conversions.x68'
+        INCLUDE 'opcodes.x68'
 START:  ORG     $1000                
 
 * Put program code here
@@ -55,6 +56,7 @@ MESSAGE DC.B    'Enter a number: ',0
 *~Font size~10~
 *~Tab type~1~
 *~Tab size~4~
+
 
 
 *~Font name~Courier New~
