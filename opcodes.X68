@@ -116,6 +116,8 @@ pr_MULS     DC.B    'MULS',0
 pr_CLR      DC.B    'CLR',0
 pr_RTS      DC.B    'RTS',0
 pr_CMP      DC.B    'CMP',0
+pr_JSR      DC.B    'JSR',0
+pr_AND      DC.B    'AND',0
 
 ********************************
 ** BEGIN OpDecoder SUBROUTINE **
@@ -928,30 +930,10 @@ MATCH_OR_EA_W
     MOVE.W      D2,D5       *REMOVE
 MATCH_OR_EA_L
     MOVE.W      D2,D5       *REMOVE
-MATCH_AND_DN_B
-    MOVE.W      D2,D5       *REMOVE
-MATCH_AND_DN_W
-    MOVE.W      D2,D5       *REMOVE
-MATCH_AND_DN_L
-    MOVE.W      D2,D5       *REMOVE
-MATCH_AND_EA_B
-    MOVE.W      D2,D5       *REMOVE
-MATCH_AND_EA_W
-    MOVE.W      D2,D5       *REMOVE
-MATCH_AND_EA_L
-    MOVE.W      D2,D5       *REMOVE
-MATCH_RTS
-    MOVE.W      D2,D5       *REMOVE
+
 MATCH_LEA
     MOVE.W      D2,D5       *REMOVE
-MATCH_JSR
-    MOVE.W      D2,D5       *REMOVE
-MATCH_CLR_B 
 
-MATCH_CLR_W
-    MOVE.W      D2,D5       *REMOVE
-MATCH_CLR_L
-    MOVE.W      D2,D5       *REMOVE
 MATCH_MULS_L
    MOVE.W      D2,D5       *REMOVE
 MATCH_LSL
@@ -1083,6 +1065,7 @@ MATCH_CC_LE_32
 **********************************   
 ERROR
     MOVE.W      D2,D5       *REMOVE
+
 
 
 
