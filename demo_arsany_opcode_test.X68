@@ -25,7 +25,6 @@ start	EQU	$00009000	* ORG and END address
         CLR.B   D0
         CLR.W   D1
         CLR.L   D2
-
         
         AND.B   D0,D1
         AND.W   D0,D2

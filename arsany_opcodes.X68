@@ -172,7 +172,7 @@ MATCH_CMP_B
     TRAP        #15
     ** Decode left side ea
     MOVE.W      D2,D0
-    ANDI.W      #%0000111111000000,D0
+    ANDI.W      #%0000111000000000,D0
     LSR.L       #6,D0
     JSR         EADecoder_left   
     
@@ -190,6 +190,7 @@ MATCH_CMP_W
     ** Print space
     LEA         pr_space,A1
     TRAP        #15
+    CLR         D0
     ** Decode right side ea
     MOVE.B      D2,D0
     ANDI.B      #%00111111,D0
@@ -200,7 +201,7 @@ MATCH_CMP_W
     TRAP        #15
     ** Decode left side ea
     MOVE.W      D2,D0
-    ANDI.W      #%0000111111000000,D0
+    ANDI.W      #%0000111000000000,D0
     LSR.L       #6,D0
     JSR         EADecoder_left   
     
@@ -228,9 +229,9 @@ MATCH_CMP_L
     TRAP        #15
     ** Decode left side ea
     MOVE.W      D2,D0
-    ANDI.W      #%0000111111000000,D0
+    ANDI.W      #%0000111000000000,D0
     LSR.L       #6,D0
-    JSR         EADecoder_left   
+    JSR         EADecoder_left     
     
     BRA         opdec_return
 MATCH_JSR
@@ -327,7 +328,7 @@ MATCH_AND_DN_B
     TRAP        #15
     ** Decode left side ea
     MOVE.W      D2,D0
-    ANDI.W      #%0000111111000000,D0
+    ANDI.W      #%0000111000000000,D0
     LSR.L       #6,D0
     JSR         EADecoder_left   
     
@@ -355,9 +356,9 @@ MATCH_AND_DN_W
     TRAP        #15
     ** Decode left side ea
     MOVE.W      D2,D0
-    ANDI.W      #%0000111111000000,D0
+    ANDI.W      #%0000111000000000,D0
     LSR.L       #6,D0
-    JSR         EADecoder_left   
+    JSR         EADecoder_left  
     
     BRA         opdec_return
 MATCH_AND_DN_L
@@ -383,11 +384,12 @@ MATCH_AND_DN_L
     TRAP        #15
     ** Decode left side ea
     MOVE.W      D2,D0
-    ANDI.W      #%0000111111000000,D0
+    ANDI.W      #%0000111000000000,D0
     LSR.L       #6,D0
-    JSR         EADecoder_left   
+    JSR         EADecoder_left  
     
     BRA         opdec_return
+    
 MATCH_AND_EA_B
     ** Move command size into D1
     MOVE.B      #2,D1
@@ -401,19 +403,19 @@ MATCH_AND_EA_B
     ** Print space
     LEA         pr_space,A1
     TRAP        #15
-    ** Decode right side ea
-    MOVE.B      D2,D0
-    ANDI.B      #%00111111,D0
+    ** Decode left side ea
+    MOVE.W      D2,D0
+    ANDI.W      #%0000111000000000,D0
+    LSR.L       #6,D0
     JSR         EADecoder_left
     ** Add comma
     MOVE.B      #14,D0
     LEA         pr_comma,A1
     TRAP        #15
-    ** Decode left side ea
-    MOVE.W      D2,D0
-    ANDI.W      #%0000111111000000,D0
-    LSR.L       #6,D0
-    JSR         EADecoder 
+    ** Decode right side ea
+    MOVE.B      D2,D0
+    ANDI.B      #%00111111,D0
+    JSR         EADecoder
     
     BRA         opdec_return
 MATCH_AND_EA_W
@@ -429,19 +431,19 @@ MATCH_AND_EA_W
     ** Print space
     LEA         pr_space,A1
     TRAP        #15
-    ** Decode right side ea
-    MOVE.B      D2,D0
-    ANDI.B      #%00111111,D0
+    ** Decode left side ea
+    MOVE.W      D2,D0
+    ANDI.W      #%0000111000000000,D0
+    LSR.L       #6,D0
     JSR         EADecoder_left
     ** Add comma
     MOVE.B      #14,D0
     LEA         pr_comma,A1
     TRAP        #15
-    ** Decode left side ea
-    MOVE.W      D2,D0
-    ANDI.W      #%0000111111000000,D0
-    LSR.L       #6,D0
-    JSR         EADecoder 
+    ** Decode right side ea
+    MOVE.B      D2,D0
+    ANDI.B      #%00111111,D0
+    JSR         EADecoder
     
     BRA         opdec_return
 MATCH_AND_EA_L
@@ -457,19 +459,19 @@ MATCH_AND_EA_L
     ** Print space
     LEA         pr_space,A1
     TRAP        #15
-    ** Decode right side ea
-    MOVE.B      D2,D0
-    ANDI.B      #%00111111,D0
+    ** Decode left side ea
+    MOVE.W      D2,D0
+    ANDI.W      #%0000111000000000,D0
+    LSR.L       #6,D0
     JSR         EADecoder_left
     ** Add comma
     MOVE.B      #14,D0
     LEA         pr_comma,A1
     TRAP        #15
-    ** Decode left side ea
-    MOVE.W      D2,D0
-    ANDI.W      #%0000111111000000,D0
-    LSR.L       #6,D0
-    JSR         EADecoder   
+    ** Decode right side ea
+    MOVE.B      D2,D0
+    ANDI.B      #%00111111,D0
+    JSR         EADecoder
     
     BRA         opdec_return
 
