@@ -40,7 +40,7 @@ PrintHex
     MOVEM.W     D2, -(SP)
     
     MOVE.B      #15,D0
-    MOVE.B      #$16,D2 * print base 16
+    MOVE.B      #16,D2 * print base 16
     TRAP        #15
 
     MOVEM.W     (SP)+,D2
@@ -823,6 +823,7 @@ ERROR
     LEA         pr_ERROR,A1                
     BSR         PrintString
     BRA         opdec_return
+
 
 *~Font name~Courier New~
 *~Font size~10~
