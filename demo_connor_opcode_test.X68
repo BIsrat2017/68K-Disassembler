@@ -37,11 +37,13 @@ start	EQU	$00009000	* ORG and END address
         ADDQ.B  #5,D1
         ADDQ.W  #4,(A0)
         ADDQ.L  #6,$4567
+        DIVU.W  (A0),D2
         
         SIMHALT
     
         
 	    END	start
+
 
 
 *~Font name~Courier New~

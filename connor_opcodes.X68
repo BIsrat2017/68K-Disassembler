@@ -9,6 +9,7 @@ pr_ADD          DC.B    'ADD',0
 pr_ADDI         DC.B    'ADDI',0
 pr_ADDQ         DC.B    'ADDQ',0
 pr_SUB          DC.B    'SUB',0
+pr_DIVU         DC.B    'DIVU',0
 
 
 *************************************
@@ -445,7 +446,39 @@ print_addq
     JSR         EADecoder
     
     BRA         opdec_return
-
+    
+*************************************
+**          DIVU COMMANDS          **
+*************************************
+  
+MATCH_DIVU_W
+    ** Move command size into D1
+    MOVE.B      #2,D1
+    ** Print command
+    MOVE.B      #14,D0
+    LEA         pr_DIVU,A1
+    TRAP        #15
+    ** Print size
+    LEA         pr_WORD,A1
+    TRAP        #15
+    ** Print space
+    LEA         pr_space,A1
+    TRAP        #15
+    ** Decode right side ea
+    MOVE.B      D2,D0
+    ANDI.B      #%00111111,D0
+    JSR         EADecoder
+    ** Add comma
+    MOVE.B      #14,D0
+    LEA         pr_comma,A1
+    TRAP        #15
+    ** Decode left side ea
+    MOVE.W      D2,D0
+    ANDI.W      #%0000111111000000,D0
+    LSR.L       #6,D0
+    JSR         EADecoder_left    
+    
+    BRA         opdec_return
 
 
 *~Font name~Courier New~
