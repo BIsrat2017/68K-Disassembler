@@ -22,6 +22,11 @@ start		EQU	$00007000	* ORG and END address
 
 * This is a group of ADD instructions
 add_start	
+                
+label
+
+                 
+                BCC.B  label    
                 *JSR	(A3)		* Address register indirect
 		*BCC	clear		
 		*BGT	compares		
@@ -29,7 +34,7 @@ add_start
                 *CMP.B	(A3),D5
 		*CMP.L	$ABC0FF00,D2
                 *DIVU	(A3)+,D5
-                MOVE.B  #$45,D2
+                *MOVE.B  #$45,D2
                 *MOVE.W  D1,D2
                 *MOVE.L  D1,D2
                 *MOVEA.W D1,A5
@@ -109,6 +114,7 @@ multiply	MULS	D0,D3		*Optional instruction
 	
 
 		END	start
+
 
 
 
