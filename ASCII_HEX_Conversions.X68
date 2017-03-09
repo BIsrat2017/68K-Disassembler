@@ -31,9 +31,14 @@ upSubRTN
         CLR     D0                      *Clear D0
 addBytes
         ADD.B   (A0)+,D0
+        SUBI.B  #1,D1
+        BEQ     conv_end
+addByteLoop
         ASL.L   #4,D0
-        DBEQ    D1,addBytes
-
+        ADD.B   (A0)+,D0
+        SUBI.B  #1,D1
+        BNE     addByteLoop
+conv_end
         MOVEM.L     (SP)+, D1-D7/A0-A6
         RTS
         
@@ -53,6 +58,7 @@ upSEnd
         SUB.W   #1,D1                   *Decrement loop counter
         BNE     upSub                   
         BRA     upSubRTN
+
 
 *~Font name~Courier New~
 *~Font size~10~
