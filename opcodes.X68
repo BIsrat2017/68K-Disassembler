@@ -107,12 +107,12 @@ pr_comma    DC.B    ',',0
 pr_BYTE     DC.B    '.B',0
 pr_WORD     DC.B    '.W',0
 pr_LONG     DC.B    '.L',0
+pr_hash     DC.B    '#',0
 
 ** Command strings constants
 pr_NOP      DC.B    'NOP',0
 pr_MOVE     DC.B    'MOVE',0
 pr_MOVEA    DC.B    'MOVEA',0
-pr_MOVEQ    DC.B    'MOVEQ',0
 pr_MOVEM    DC.B    'MOVEM',0
 pr_ADDA     DC.B    'ADDA',0
 pr_MULS     DC.B    'MULS',0
@@ -787,12 +787,6 @@ CHECK_MOVEA_L_AND_MOVE_L
     BRA         MATCH_MOVE_L   
 **********************************************  
 ** D2 is holding the op command bits        **
- 
-MATCH_MOVE_L
-    MOVE.W      D2,D5       *REMOVE
-
-MATCH_MOVEQ
-    MOVE.W      D2,D5       *REMOVE
     
 ***********************************
 MATCH_MOVEM_TO_MEM_W
@@ -805,18 +799,8 @@ MATCH_MOVEM_TO_REG_L
     MOVE.W      D2,D5       *REMOVE
 ***********************************
     
-MATCH_SUB_TO_DN_B
-    MOVE.W      D2,D5       *REMOVE
-MATCH_SUB_TO_DN_W
-    MOVE.W      D2,D5       *REMOVE
-MATCH_SUB_TO_DN_L
-    MOVE.W      D2,D5       *REMOVE
-MATCH_SUB_TO_EA_B
-    MOVE.W      D2,D5       *REMOVE
-MATCH_SUB_TO_EA_W
-    MOVE.W      D2,D5       *REMOVE
-MATCH_SUB_TO_EA_L
-    MOVE.W      D2,D5       *REMOVE
+
+
 MATCH_DIVU
     MOVE.W      D2,D5       *REMOVE
 MATCH_OR_DN_B

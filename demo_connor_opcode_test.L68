@@ -1,0 +1,57 @@
+00009000 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.15.04
+Created On: 3/9/2017 1:16:19 PM
+
+00000000                             1  *****************************
+00000000                             2  *
+00000000                             3  * demo_connor_opcode_test.X68
+00000000                             4  *
+00000000                             5  * Created 03/09/2017
+00000000                             6  *
+00000000                             7  * Test program for Connor's commands
+00000000                             8  *
+00000000                             9  *****************************
+00000000                            10  
+00000000  =00009000                 11  start   EQU $00009000   * ORG and END address
+00000000                            12  
+00000000                            13  * ORG the program so that it straddles the address boundary $00007FFF to $00008000
+00000000                            14  
+00009000                            15          ORG start
+00009000                            16          
+00009000  4E71                      17          NOP
+00009002  1200                      18          MOVE.B  D0,D1
+00009004  31C0 56AA                 19          MOVE.W  D0,$56AA
+00009008  20BC 44444444             20          MOVE.L  #$44444444,(A0)
+0000900E  7245                      21          MOVEQ   #$45,D1
+00009010  0602 0045                 22          ADDI.B  #$45,D2
+00009014  0643 8777                 23          ADDI.W  #$8777,D3
+00009018  0684 00999988             24          ADDI.L  #$00999988,D4
+0000901E  D118                      25          ADD.B   D0,(A0)+
+00009020  D360                      26          ADD.W   D1,-(A0)
+00009022  D7B9 45666666             27          ADD.L   D3,$45666666
+00009028  D003                      28          ADD.B   D3,D0
+0000902A  D243                      29          ADD.W   D3,D1
+0000902C  D483                      30          ADD.L   D3,D2
+0000902E  9118                      31          SUB.B   D0,(A0)+
+00009030  9360                      32          SUB.W   D1,-(A0)
+00009032  97B9 45666666             33          SUB.L   D3,$45666666
+00009038  9003                      34          SUB.B   D3,D0
+0000903A  9243                      35          SUB.W   D3,D1
+0000903C  9483                      36          SUB.L   D3,D2
+0000903E  5A01                      37          ADDQ.B  #5,D1
+00009040  5850                      38          ADDQ.W  #4,(A0)
+00009042  5CB8 4567                 39          ADDQ.L  #6,$4567
+00009046                            40          
+00009046  FFFF FFFF                 41          SIMHALT
+0000904A                            42      
+0000904A                            43          
+0000904A                            44          END start
+
+No errors detected
+No warnings generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+START               9000
