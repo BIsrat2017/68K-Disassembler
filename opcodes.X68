@@ -105,12 +105,13 @@ pr_BYTE     DC.B    '.B',0
 pr_WORD     DC.B    '.W',0
 pr_LONG     DC.B    '.L',0
 
-** Command strings
+** Command strings constants
 pr_NOP      DC.B    'NOP',0
 pr_MOVE     DC.B    'MOVE',0
 pr_MOVEA    DC.B    'MOVEA',0
 pr_MOVEQ    DC.B    'MOVEQ',0
 pr_MOVEM    DC.B    'MOVEM',0
+
 
 ********************************
 ** BEGIN OpDecoder SUBROUTINE **
@@ -767,6 +768,8 @@ CHECK_MOVEA_L_AND_MOVE_L
     
     BRA         MATCH_MOVE_L   
 **********************************************  
+** D2 is holding the op command bits        **
+
 MATCH_NOP
     LEA         pr_NOP,A1
     MOVE.B      #14,D0
