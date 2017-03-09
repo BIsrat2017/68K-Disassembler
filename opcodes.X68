@@ -6,7 +6,7 @@
 *-----------------------------------------------------------
                 INCLUDE 'EADecoder.x68'
                 INCLUDE 'connor_opcodes.x68'
-                *INCLUDE 'spencer_opcodes.x68'
+                INCLUDE 'spencer_opcodes.x68'
                 INCLUDE 'arsany_opcodes.x68'
 
 NOP             EQU $4E71
@@ -849,124 +849,6 @@ MATCH_ROL
     MOVE.W      D2,D5       *REMOVE
 MATCH_ROR
     MOVE.W      D2,D5       *REMOVE
-    
-**********BCC OPCODE MATCHES*******
-MATCH_CC_T_8
-    MOVE.W      D2,D5       *REMOVE
-MATCH_CC_T_16
-    MOVE.W      D2,D5       *REMOVE
-MATCH_CC_T_32
-    MOVE.W      D2,D5       *REMOVE
-*****
-MATCH_CC_F_8
-    MOVE.W      D2,D5       *REMOVE
-MATCH_CC_F_16
-    MOVE.W      D2,D5       *REMOVE
-MATCH_CC_F_32
-    MOVE.W      D2,D5       *REMOVE
-*****
-MATCH_CC_HI_8
-    MOVE.W      D2,D5       *REMOVE
-MATCH_CC_HI_16
-    MOVE.W      D2,D5       *REMOVE
-MATCH_CC_HI_32
-    MOVE.W      D2,D5       *REMOVE
-*****
-MATCH_CC_LS_8
-    MOVE.W      D2,D5       *REMOVE
-MATCH_CC_LS_16
-    MOVE.W      D2,D5       *REMOVE
-MATCH_CC_LS_32  
-    MOVE.W      D2,D5       *REMOVE
-*****
-MATCH_CC_CC_8
-    MOVE.W      D2,D5       *REMOVE
-MATCH_CC_CC_16
-    MOVE.W      D2,D5       *REMOVE
-MATCH_CC_CC_32
-    MOVE.W      D2,D5       *REMOVE
-*****
-MATCH_CC_CS_8
-    MOVE.W      D2,D5       *REMOVE
-MATCH_CC_CS_16
-    MOVE.W      D2,D5       *REMOVE
-MATCH_CC_CS_32
-    MOVE.W      D2,D5       *REMOVE
-*****
-MATCH_CC_NE_8
-    MOVE.W      D2,D5       *REMOVE
-MATCH_CC_NE_16
-    MOVE.W      D2,D5       *REMOVE
-MATCH_CC_NE_32
-    MOVE.W      D2,D5       *REMOVE
-*****
-MATCH_CC_EQ_8
-    MOVE.W      D2,D5       *REMOVE
-MATCH_CC_EQ_16
-    MOVE.W      D2,D5       *REMOVE
-MATCH_CC_EQ_32
-    MOVE.W      D2,D5       *REMOVE
-*****
-MATCH_CC_VC_8
-    MOVE.W      D2,D5       *REMOVE
-MATCH_CC_VC_16
-    MOVE.W      D2,D5       *REMOVE
-MATCH_CC_VC_32
-    MOVE.W      D2,D5       *REMOVE
-*****
-MATCH_CC_VS_8
-    MOVE.W      D2,D5       *REMOVE
-MATCH_CC_VS_16
-    MOVE.W      D2,D5       *REMOVE
-MATCH_CC_VS_32
-    MOVE.W      D2,D5       *REMOVE
-*****
-MATCH_CC_PL_8
-    MOVE.W      D2,D5       *REMOVE
-MATCH_CC_PL_16
-    MOVE.W      D2,D5       *REMOVE
-MATCH_CC_PL_32
-    MOVE.W      D2,D5       *REMOVE
-*****
-MATCH_CC_MI_8
-    MOVE.W      D2,D5       *REMOVE
-MATCH_CC_MI_16
-    MOVE.W      D2,D5       *REMOVE
-MATCH_CC_MI_32
-    MOVE.W      D2,D5       *REMOVE
-*****
-MATCH_CC_GE_8
-    MOVE.W      D2,D5       *REMOVE
-MATCH_CC_GE_16
-    MOVE.W      D2,D5       *REMOVE
-MATCH_CC_GE_32
-    MOVE.W      D2,D5       *REMOVE
-*****
-MATCH_CC_LT_8
-    MOVE.W      D2,D5       *REMOVE
-MATCH_CC_LT_16
-    MOVE.W      D2,D5       *REMOVE
-MATCH_CC_LT_32
-    MOVE.W      D2,D5       *REMOVE
-*****
-MATCH_CC_GT_8
-    MOVE.W      D2,D5       *REMOVE
-MATCH_CC_GT_16
-    MOVE.W      D2,D5       *REMOVE
-MATCH_CC_GT_32
-    MOVE.W      D2,D5       *REMOVE
-*****
-MATCH_CC_LE_8
-    MOVE.W      D2,D5       *REMOVE
-MATCH_CC_LE_16
-    MOVE.W      D2,D5       *REMOVE
-MATCH_CC_LE_32
-    MOVE.W      D2,D5       *REMOVE
-**********************************   
-ERROR
-    MOVE.W      D2,D5       *REMOVE
-
-
 
 
 *~Font name~Courier New~
