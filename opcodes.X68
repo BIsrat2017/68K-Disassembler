@@ -6,6 +6,8 @@
 *-----------------------------------------------------------
                 INCLUDE 'EADecoder.x68'
                 INCLUDE 'connor_opcodes.x68'
+                INCLUDE 'spencer_opcodes.x68'
+                INCLUDE 'arsany_opcodes.x68'
 
 NOP             EQU $4E71
 MOVE_B          EQU %0001
@@ -770,8 +772,7 @@ CHECK_MOVEA_L_AND_MOVE_L
     BRA         MATCH_MOVE_L   
 **********************************************  
 ** D2 is holding the op command bits        **
-
-    
+ 
 MATCH_MOVE_L
     MOVE.W      D2,D5       *REMOVE
 MATCH_MOVEA_W
@@ -780,6 +781,8 @@ MATCH_MOVEA_L
     MOVE.W      D2,D5       *REMOVE
 MATCH_MOVEQ
     MOVE.W      D2,D5       *REMOVE
+    
+***********************************
 MATCH_MOVEM_TO_MEM_W
     MOVE.W      D2,D5       *REMOVE
 MATCH_MOVEM_TO_MEM_L
@@ -788,33 +791,11 @@ MATCH_MOVEM_TO_REG_W
     MOVE.W      D2,D5       *REMOVE
 MATCH_MOVEM_TO_REG_L
     MOVE.W      D2,D5       *REMOVE
-MATCH_ADDI_B
-    MOVE.W      D2,D5       *REMOVE
-MATCH_ADDI_W
-    MOVE.W      D2,D5       *REMOVE
-MATCH_ADDI_L
-    MOVE.W      D2,D5       *REMOVE
-MATCH_ADD_TO_REG_B
-    MOVE.W      D2,D5       *REMOVE
-MATCH_ADD_TO_REG_W
-    MOVE.W      D2,D5       *REMOVE
-MATCH_ADD_TO_REG_L
-    MOVE.W      D2,D5       *REMOVE
-MATCH_ADD_TO_EA_B
-    MOVE.W      D2,D5       *REMOVE
-MATCH_ADD_TO_EA_W
-    MOVE.W      D2,D5       *REMOVE
-MATCH_ADD_TO_EA_L 
-    MOVE.W      D2,D5       *REMOVE
+***********************************
+    
 MATCH_ADDA_W
     MOVE.W      D2,D5       *REMOVE
 MATCH_ADDA_L
-    MOVE.W      D2,D5       *REMOVE
-MATCH_ADDQ_B
-    MOVE.W      D2,D5       *REMOVE
-MATCH_ADDQ_W
-    MOVE.W      D2,D5       *REMOVE
-MATCH_ADDQ_L
     MOVE.W      D2,D5       *REMOVE
 MATCH_SUB_TO_DN_B
     MOVE.W      D2,D5       *REMOVE
@@ -1004,6 +985,7 @@ MATCH_CC_LE_32
 **********************************   
 ERROR
     MOVE.W      D2,D5       *REMOVE
+
 
 
 *~Font name~Courier New~
