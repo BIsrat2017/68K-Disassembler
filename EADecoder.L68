@@ -1,6 +1,6 @@
-00002000 Starting Address
+00001000 Starting Address
 Assembler used: EASy68K Editor/Assembler v5.15.04
-Created On: 3/8/2017 2:14:38 PM
+Created On: 3/8/2017 5:45:49 PM
 
 00000000                             1  *-----------------------------------------------------------
 00000000                             2  * Title      :  EA Decoders
@@ -60,145 +60,144 @@ Created On: 3/8/2017 2:14:38 PM
 00000024  45F9 00010000             56          LEA     output,A2
 0000002A                            57          
 0000002A                            58          *First, decoder will check for the 3 types with hard coded register values
-0000002A  B07C 003C                 59          CMP     #IMMEDIATE,D0
-0000002E  6700 006C                 60          BEQ     dec_immediate
-00000032                            61          
-00000032  B07C 0039                 62          CMP     #ABS_WORD,D0
-00000036  6700 0080                 63          BEQ     dec_abs_word
-0000003A                            64          
-0000003A  B07C 0038                 65          CMP     #ABS_LONG,D0
-0000003E  6700 0084                 66          BEQ     dec_abs_long
-00000042                            67          
-00000042  163C 0001                 68          MOVE.B  #1,D3
-00000046                            69          
-00000046                            70          *If it was none of the above, store the register and mode seperately
-00000046  1200                      71          MOVE.B  D0,D1
-00000048  0201 0038                 72          ANDI.B  #%00111000,D1           *Get mode value
-0000004C  0200 0007                 73          ANDI.B  #%00000111,D0           *Get register value
-00000050  0600 0030                 74          ADDI.B  #$30,D0
-00000054                            75                
-00000054  B27C 0000                 76          CMP     #Dn,D1
-00000058  6700 0076                 77          BEQ     dec_Dn 
-0000005C                            78          
-0000005C  B27C 0008                 79          CMP     #An,D1
-00000060  6700 007A                 80          BEQ     dec_An
-00000064                            81                  
-00000064  B27C 0010                 82          CMP     #INDIRECT,D1
-00000068  6700 007E                 83          BEQ     dec_indirect
-0000006C                            84                  
-0000006C  B27C 0018                 85          CMP     #POST_INC,D1
-00000070  6700 008A                 86          BEQ     dec_post_inc
-00000074                            87                  
-00000074  B27C 0020                 88          CMP     #PRE_DEC,D1
-00000078  6700 009C                 89          BEQ     dec_pre_dec
-0000007C                            90          
-0000007C  4243                      91          CLR     D3
+0000002A  163C 0001                 59          MOVE.B  #1,D3
+0000002E  B07C 003C                 60          CMP     #IMMEDIATE,D0
+00000032  6700 0068                 61          BEQ     dec_immediate
+00000036                            62          
+00000036  B07C 0039                 63          CMP     #ABS_WORD,D0
+0000003A  6700 007C                 64          BEQ     dec_abs_word
+0000003E                            65          
+0000003E  B07C 0038                 66          CMP     #ABS_LONG,D0
+00000042  6700 0080                 67          BEQ     dec_abs_long
+00000046                            68          
+00000046                            69          *If it was none of the above, store the register and mode seperately
+00000046  4243                      70          CLR     D3
+00000048  1200                      71          MOVE.B  D0,D1
+0000004A  0201 0038                 72          ANDI.B  #%00111000,D1           *Get mode value
+0000004E  0200 0007                 73          ANDI.B  #%00000111,D0           *Get register value
+00000052  0600 0030                 74          ADDI.B  #$30,D0
+00000056                            75                
+00000056  B27C 0000                 76          CMP     #Dn,D1
+0000005A  6700 0074                 77          BEQ     dec_Dn 
+0000005E                            78          
+0000005E  B27C 0008                 79          CMP     #An,D1
+00000062  6700 0078                 80          BEQ     dec_An
+00000066                            81                  
+00000066  B27C 0010                 82          CMP     #INDIRECT,D1
+0000006A  6700 007C                 83          BEQ     dec_indirect
+0000006E                            84                  
+0000006E  B27C 0018                 85          CMP     #POST_INC,D1
+00000072  6700 0088                 86          BEQ     dec_post_inc
+00000076                            87                  
+00000076  B27C 0020                 88          CMP     #PRE_DEC,D1
+0000007A  6700 009A                 89          BEQ     dec_pre_dec
+0000007E                            90  
+0000007E                            91  dec_return ** Common return for all types
 0000007E                            92          
-0000007E                            93  dec_return ** Common return for all types
-0000007E                            94          
-0000007E                            95          ** Print display string
-0000007E  103C 000E                 96          MOVE.B  #14,D0
-00000082  4E4F                      97          TRAP    #15
-00000084                            98          
-00000084                            99          ** If there is immediate data to print, print it
-00000084  B67C 0001                100          CMP     #1,D3
-00000088  6700 000C                101          BEQ     imm_skip
-0000008C                           102          
-0000008C  103C 000F                103          MOVE.B  #15,D0
-00000090  143C 0010                104          MOVE.B  #16,D2
-00000094  4E4F                     105          TRAP    #15
-00000096                           106  
-00000096                           107  imm_skip
-00000096  4CDF 7EFF                108          MOVEM.L     (SP)+, D0-D7/A1-A6 *Return register data from stack, except D0
-0000009A  4E75                     109          RTS
-0000009C                           110          
+0000007E                            93          ** Print display string
+0000007E  103C 000E                 94          MOVE.B  #14,D0
+00000082  4E4F                      95          TRAP    #15
+00000084                            96          
+00000084                            97          ** If there is immediate data to print, print it
+00000084  B67C 0001                 98          CMP     #1,D3
+00000088  6600 000C                 99          BNE     imm_skip
+0000008C                           100          
+0000008C  103C 000F                101          MOVE.B  #15,D0
+00000090  143C 0010                102          MOVE.B  #16,D2
+00000094  4E4F                     103          TRAP    #15
+00000096                           104  
+00000096                           105  imm_skip
+00000096  4CDF 7EFF                106          MOVEM.L     (SP)+, D0-D7/A1-A6 *Return register data from stack, except D0
+0000009A  4E75                     107          RTS
+0000009C                           108          
+0000009C                           109  **********************************************************************************
+0000009C                           110          * Individual EA decoders *
 0000009C                           111  **********************************************************************************
-0000009C                           112          * Individual EA decoders *
-0000009C                           113  **********************************************************************************
-0000009C                           114  
-0000009C                           115  dec_immediate   *DECODE IMMEDIATE VALUE*
-0000009C  14FC 0023                116          MOVE.B  #'#',(A2)+  * Move '#' char into string
-000000A0  14FC 0024                117          MOVE.B  #'$',(A2)+  * Move '$' char into string
-000000A4  14FC 0000                118          MOVE.B  #$0,(A2)+   * Null terminate string
-000000A8  B47C 0002                119          CMP     #2,D2       * Check if data is word length
-000000AC  6700 0006                120          BEQ     imm_word    
-000000B0                           121          
-000000B0  2218                     122          MOVE.L  (A0)+,D1    * Length was long
-000000B2  60CA                     123          BRA     dec_return
-000000B4                           124          
-000000B4                           125  imm_word
-000000B4  3218                     126          MOVE.W  (A0)+,D1    * Length was word
-000000B6  60C6                     127          BRA     dec_return
+0000009C                           112  
+0000009C                           113  dec_immediate   *DECODE IMMEDIATE VALUE*
+0000009C  14FC 0023                114          MOVE.B  #'#',(A2)+  * Move '#' char into string
+000000A0  14FC 0024                115          MOVE.B  #'$',(A2)+  * Move '$' char into string
+000000A4  14FC 0000                116          MOVE.B  #$0,(A2)+   * Null terminate string
+000000A8  B47C 0002                117          CMP     #2,D2       * Check if data is word length
+000000AC  6700 0006                118          BEQ     imm_word    
+000000B0                           119          
+000000B0  2218                     120          MOVE.L  (A0)+,D1    * Length was long
+000000B2  60CA                     121          BRA     dec_return
+000000B4                           122          
+000000B4                           123  imm_word
+000000B4  3218                     124          MOVE.W  (A0)+,D1    * Length was word
+000000B6  60C6                     125          BRA     dec_return
+000000B8                           126  
+000000B8                           127  ************************************************************
 000000B8                           128  
-000000B8                           129  ************************************************************
-000000B8                           130  
-000000B8                           131  dec_abs_word    *DECODE ABSOLUTE WORD*
-000000B8  14FC 0024                132          MOVE.B  #'$',(A2)+  * Move '$' char into string
-000000BC  14FC 0000                133          MOVE.B  #$0,(A2)+   * Null terminate string
-000000C0  3218                     134          MOVE.W  (A0)+,D1
-000000C2  60BA                     135          BRA     dec_return
-000000C4                           136          
-000000C4                           137  ************************************************************
-000000C4                           138  
-000000C4                           139  dec_abs_long    *DECODE ABSOLUTE LONG*
-000000C4  14FC 0024                140          MOVE.B  #'$',(A2)+  * Move '$' char into string
-000000C8  14FC 0000                141          MOVE.B  #$0,(A2)+   * Null terminate string
-000000CC  2218                     142          MOVE.L  (A0)+,D1
-000000CE  60AE                     143          BRA     dec_return
-000000D0                           144          
-000000D0                           145  ************************************************************
-000000D0                           146  
-000000D0                           147  dec_Dn          *DECODE DIRECT DATA*
-000000D0  14FC 0044                148          MOVE.B  #'D',(A2)+
-000000D4  14C0                     149          MOVE.B  D0,(A2)+
-000000D6  14FC 0000                150          MOVE.B  #$0,(A2)+
-000000DA  60A2                     151          BRA     dec_return
-000000DC                           152  
-000000DC                           153  ************************************************************
-000000DC                           154          
-000000DC                           155  dec_An          *DECODE DIRECT ADDRESS*
-000000DC  14FC 0041                156          MOVE.B  #'A',(A2)+
-000000E0  14C0                     157          MOVE.B  D0,(A2)+
-000000E2  14FC 0000                158          MOVE.B  #$0,(A2)+
-000000E6  6096                     159          BRA     dec_return
+000000B8                           129  dec_abs_word    *DECODE ABSOLUTE WORD*
+000000B8  14FC 0024                130          MOVE.B  #'$',(A2)+  * Move '$' char into string
+000000BC  14FC 0000                131          MOVE.B  #$0,(A2)+   * Null terminate string
+000000C0  3218                     132          MOVE.W  (A0)+,D1
+000000C2  60BA                     133          BRA     dec_return
+000000C4                           134          
+000000C4                           135  ************************************************************
+000000C4                           136  
+000000C4                           137  dec_abs_long    *DECODE ABSOLUTE LONG*
+000000C4  14FC 0024                138          MOVE.B  #'$',(A2)+  * Move '$' char into string
+000000C8  14FC 0000                139          MOVE.B  #$0,(A2)+   * Null terminate string
+000000CC  2218                     140          MOVE.L  (A0)+,D1
+000000CE  60AE                     141          BRA     dec_return
+000000D0                           142          
+000000D0                           143  ************************************************************
+000000D0                           144  
+000000D0                           145  dec_Dn          *DECODE DIRECT DATA*
+000000D0  14FC 0044                146          MOVE.B  #'D',(A2)+
+000000D4  14C0                     147          MOVE.B  D0,(A2)+
+000000D6  14FC 0000                148          MOVE.B  #$0,(A2)+
+000000DA  60A2                     149          BRA     dec_return
+000000DC                           150  
+000000DC                           151  ************************************************************
+000000DC                           152          
+000000DC                           153  dec_An          *DECODE DIRECT ADDRESS*
+000000DC  14FC 0041                154          MOVE.B  #'A',(A2)+
+000000E0  14C0                     155          MOVE.B  D0,(A2)+
+000000E2  14FC 0000                156          MOVE.B  #$0,(A2)+
+000000E6  6096                     157          BRA     dec_return
+000000E8                           158  
+000000E8                           159  ************************************************************
 000000E8                           160  
-000000E8                           161  ************************************************************
-000000E8                           162  
-000000E8                           163  dec_indirect    *DECODE INDIRECT ACCESS*
-000000E8  14FC 0028                164          MOVE.B  #'(',(A2)+
-000000EC  14FC 0041                165          MOVE.B  #'A',(A2)+
-000000F0  14C0                     166          MOVE.B  D0,(A2)+
-000000F2  14FC 0029                167          MOVE.B  #')',(A2)+
-000000F6  14FC 0000                168          MOVE.B  #$0,(A2)+
-000000FA  6082                     169          BRA     dec_return
-000000FC                           170          
-000000FC                           171  ************************************************************
-000000FC                           172  
-000000FC                           173  dec_post_inc    *DECODE INDIRECT POST INCREMENT*
-000000FC  14FC 0028                174          MOVE.B  #'(',(A2)+
-00000100  14FC 0041                175          MOVE.B  #'A',(A2)+
-00000104  14C0                     176          MOVE.B  D0,(A2)+
-00000106  14FC 0029                177          MOVE.B  #')',(A2)+
-0000010A  14FC 002B                178          MOVE.B  #'+',(A2)+
-0000010E  14FC 0000                179          MOVE.B  #$0,(A2)+
-00000112  6000 FF6A                180          BRA     dec_return
+000000E8                           161  dec_indirect    *DECODE INDIRECT ACCESS*
+000000E8  14FC 0028                162          MOVE.B  #'(',(A2)+
+000000EC  14FC 0041                163          MOVE.B  #'A',(A2)+
+000000F0  14C0                     164          MOVE.B  D0,(A2)+
+000000F2  14FC 0029                165          MOVE.B  #')',(A2)+
+000000F6  14FC 0000                166          MOVE.B  #$0,(A2)+
+000000FA  6082                     167          BRA     dec_return
+000000FC                           168          
+000000FC                           169  ************************************************************
+000000FC                           170  
+000000FC                           171  dec_post_inc    *DECODE INDIRECT POST INCREMENT*
+000000FC  14FC 0028                172          MOVE.B  #'(',(A2)+
+00000100  14FC 0041                173          MOVE.B  #'A',(A2)+
+00000104  14C0                     174          MOVE.B  D0,(A2)+
+00000106  14FC 0029                175          MOVE.B  #')',(A2)+
+0000010A  14FC 002B                176          MOVE.B  #'+',(A2)+
+0000010E  14FC 0000                177          MOVE.B  #$0,(A2)+
+00000112  6000 FF6A                178          BRA     dec_return
+00000116                           179          
+00000116                           180  ************************************************************
 00000116                           181          
-00000116                           182  ************************************************************
-00000116                           183          
-00000116                           184  dec_pre_dec    *DECODE INDIRECT PRE DECREMENT*
-00000116  14FC 002D                185          MOVE.B  #'-',(A2)+
-0000011A  14FC 0028                186          MOVE.B  #'(',(A2)+
-0000011E  14FC 0041                187          MOVE.B  #'A',(A2)+
-00000122  14C0                     188          MOVE.B  D0,(A2)+
-00000124  14FC 0029                189          MOVE.B  #')',(A2)+
-00000128  14FC 0000                190          MOVE.B  #$0,(A2)+
-0000012C  6000 FF50                191          BRA     dec_return
+00000116                           182  dec_pre_dec    *DECODE INDIRECT PRE DECREMENT*
+00000116  14FC 002D                183          MOVE.B  #'-',(A2)+
+0000011A  14FC 0028                184          MOVE.B  #'(',(A2)+
+0000011E  14FC 0041                185          MOVE.B  #'A',(A2)+
+00000122  14C0                     186          MOVE.B  D0,(A2)+
+00000124  14FC 0029                187          MOVE.B  #')',(A2)+
+00000128  14FC 0000                188          MOVE.B  #$0,(A2)+
+0000012C  6000 FF50                189          BRA     dec_return
+00000130                           190  
+00000130                           191  
 00000130                           192  
 00000130                           193  
 00000130                           194  
 00000130                           195  
-00000130                           196  
-Line 197 WARNING: END directive missing, starting address not set
+Line 196 WARNING: END directive missing, starting address not set
 
 No errors detected
 1 warning generated

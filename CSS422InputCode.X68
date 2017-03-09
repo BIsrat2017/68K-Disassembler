@@ -8,10 +8,15 @@ CR      EQU     $0D
 LF      EQU     $0A   
         INCLUDE 'ASCII_HEX_Conversions.x68'
         INCLUDE 'opcodes.x68'
+        
+MESSAGE     DC.B    'Enter the address of compiled code: ',0
+ERROR_MSG   DC.B    'Invalid input, please rerun',0
+SPACER      DC.B    ' ',0
+
 START:  ORG     $1000                
 
-* Put program code here
-*------Code for output-------
+
+*------Code for input-------
         
         LEA     MESSAGE,A1      *Code block for first message
         MOVE.B  #14,D0
@@ -26,11 +31,19 @@ START:  ORG     $1000
         JSR     A2H             *Branch to Connor's conversion code      
         
         MOVEA.L D0,A0
+        
+        CMPI.W  #$FFFF,(A0)
+        BEQ     input_error
+    
 loop_start
         
-        MOVE    D0,D1           *Print out the address we're working on
-        MOVE    #16,D2          
-        MOVE.B  #15,D0          
+        MOVE.L  A0,D1           *Print out the address we're working on
+        MOVE.L  #16,D2          
+        MOVE.L  #15,D0          
+        TRAP    #15
+
+        MOVE.L  #14,D0
+        LEA     SPACER,A1
         TRAP    #15
         
         MOVE.W  (A0)+,D2
@@ -39,23 +52,18 @@ loop_start
         
         JSR     OpDecoder
         
+        MOVE.L  #13,D0
+        TRAP    #15
+        
         BRA     loop_start
+        
+input_error        
+        MOVE.L  #13,D0
+        LEA     ERROR_MSG,A1
+        TRAP    #15
 Done        
-MESSAGE DC.B    'Enter a number: ',0
-  
 
-    SIMHALT             ; halt simulator
-
-* Put variables and constants here
-
-    END    START        ; last line of source
-
-
-
-*~Font name~Courier New~
-*~Font size~10~
-*~Tab type~1~
-*~Tab size~4~
+        END    $1000
 
 
 

@@ -14,8 +14,8 @@
 output      EQU $00010000
 
 IMMEDIATE   EQU %00111100
-ABS_WORD    EQU %00111001
-ABS_LONG    EQU %00111000
+ABS_WORD    EQU %00111000
+ABS_LONG    EQU %00111001
 Dn          EQU %00000000
 An          EQU %00001000
 INDIRECT    EQU %00010000
@@ -49,8 +49,9 @@ EADecoder_left
 
 EADecoder
         MOVEM.L     D0-D7/A1-A6, -(SP) *Store registers on stack, except D0
-left_skip        
-        MOVE.L  D1,D2 ** Store opcode size in bytes into D2
+left_skip   
+        CLR     D2     
+        MOVE.B  D1,D2 ** Store opcode size in bytes into D2
         
         LEA     output,A1
         LEA     output,A2
@@ -187,6 +188,7 @@ dec_pre_dec    *DECODE INDIRECT PRE DECREMENT*
         MOVE.B  #')',(A2)+
         MOVE.B  #$0,(A2)+
         BRA     dec_return
+
 
 
 
