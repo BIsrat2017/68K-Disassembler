@@ -1,6 +1,6 @@
 *-----------------------------------------------------------
-* Title      :
-* Written by :
+* Title      : Main Driver Program
+* Written by : Arsany Azmy, Connor McGwire
 * Date       :
 * Description:
 *-----------------------------------------------------------
@@ -13,7 +13,9 @@ MESSAGE     DC.B    'Enter the address of compiled code: ',0
 ERROR_MSG   DC.B    'Invalid input, please rerun',0
 SPACER      DC.B    ' ',0
 
-START:  ORG     $1000                
+
+        ORG     $1000
+program_start        
 
 
 *------Code for input-------
@@ -64,6 +66,7 @@ input_error
 Done        
 
         END    $1000
+
 
 
 

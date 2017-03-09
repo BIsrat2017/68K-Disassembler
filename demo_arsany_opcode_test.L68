@@ -1,0 +1,56 @@
+00009000 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.15.04
+Created On: 3/9/2017 11:56:03 AM
+
+00000000                             1  *****************************
+00000000                             2  *
+00000000                             3  * demo_arsany_opcode_test.X68
+00000000                             4  *
+00000000                             5  * Created 03/09/2017
+00000000                             6  *
+00000000                             7  * Test program for Arsany's commands
+00000000                             8  *
+00000000                             9  *****************************
+00000000                            10  
+00000000  =00009000                 11  start   EQU     $00009000       * ORG and END address
+00000000                            12  
+00000000                            13  * ORG the program so that it straddles the address boundary $00007FFF to $00008000
+00000000                            14  
+00009000                            15          ORG     start
+00009000                            16          
+00009000  327C 7777                 17          MOVEA.W #$7777,A1
+00009004  247C 89898989             18          MOVEA.L #$89898989,A2
+0000900A  D2C0                      19          ADDA.W  D0,A1
+0000900C  D5C0                      20          ADDA.L  D0,A2
+0000900E  C5C1                      21          MULS.W  D1,D2
+00009010  B401                      22          CMP.B   D1,D2
+00009012  B441                      23          CMP.W   D1,D2
+00009014  B481                      24          CMP.L   D1,D2
+00009016  4200                      25          CLR.B   D0
+00009018  4241                      26          CLR.W   D1
+0000901A  4282                      27          CLR.L   D2
+0000901C                            28  
+0000901C                            29          
+0000901C  C200                      30          AND.B   D0,D1
+0000901E  C440                      31          AND.W   D0,D2
+00009020  C680                      32          AND.L   D0,D3
+00009022  C338 4567                 33          AND.B   D1,$4567
+00009026  C351                      34          AND.W   D1,(A1)
+00009028  C39A                      35          AND.L   D1,(A2)+
+0000902A                            36          
+0000902A  FFFF FFFF                 37          SIMHALT
+0000902E                            38  
+0000902E                            39  next
+0000902E  4E75                      40          RTS      
+00009030                            41          
+00009030                            42          END     start
+
+No errors detected
+No warnings generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+NEXT                902E
+START               9000

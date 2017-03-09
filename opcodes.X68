@@ -7,7 +7,7 @@
                 INCLUDE 'EADecoder.x68'
                 INCLUDE 'connor_opcodes.x68'
                 *INCLUDE 'spencer_opcodes.x68'
-                *INCLUDE 'arsany_opcodes.x68'
+                INCLUDE 'arsany_opcodes.x68'
 
 NOP             EQU $4E71
 MOVE_B          EQU %0001
@@ -114,7 +114,13 @@ pr_MOVE     DC.B    'MOVE',0
 pr_MOVEA    DC.B    'MOVEA',0
 pr_MOVEQ    DC.B    'MOVEQ',0
 pr_MOVEM    DC.B    'MOVEM',0
-
+pr_ADDA     DC.B    'ADDA',0
+pr_MULS     DC.B    'MULS',0
+pr_CLR      DC.B    'CLR',0
+pr_RTS      DC.B    'RTS',0
+pr_CMP      DC.B    'CMP',0
+pr_JSR      DC.B    'JSR',0
+pr_AND      DC.B    'AND',0
 
 ********************************
 ** BEGIN OpDecoder SUBROUTINE **
@@ -784,10 +790,7 @@ CHECK_MOVEA_L_AND_MOVE_L
  
 MATCH_MOVE_L
     MOVE.W      D2,D5       *REMOVE
-MATCH_MOVEA_W
-    MOVE.W      D2,D5       *REMOVE
-MATCH_MOVEA_L
-    MOVE.W      D2,D5       *REMOVE
+
 MATCH_MOVEQ
     MOVE.W      D2,D5       *REMOVE
     
@@ -802,10 +805,6 @@ MATCH_MOVEM_TO_REG_L
     MOVE.W      D2,D5       *REMOVE
 ***********************************
     
-MATCH_ADDA_W
-    MOVE.W      D2,D5       *REMOVE
-MATCH_ADDA_L
-    MOVE.W      D2,D5       *REMOVE
 MATCH_SUB_TO_DN_B
     MOVE.W      D2,D5       *REMOVE
 MATCH_SUB_TO_DN_W
@@ -832,32 +831,10 @@ MATCH_OR_EA_W
     MOVE.W      D2,D5       *REMOVE
 MATCH_OR_EA_L
     MOVE.W      D2,D5       *REMOVE
-MATCH_MULS_W
-    MOVE.W      D2,D5       *REMOVE
-MATCH_AND_DN_B
-    MOVE.W      D2,D5       *REMOVE
-MATCH_AND_DN_W
-    MOVE.W      D2,D5       *REMOVE
-MATCH_AND_DN_L
-    MOVE.W      D2,D5       *REMOVE
-MATCH_AND_EA_B
-    MOVE.W      D2,D5       *REMOVE
-MATCH_AND_EA_W
-    MOVE.W      D2,D5       *REMOVE
-MATCH_AND_EA_L
-    MOVE.W      D2,D5       *REMOVE
-MATCH_RTS
-    MOVE.W      D2,D5       *REMOVE
+
 MATCH_LEA
     MOVE.W      D2,D5       *REMOVE
-MATCH_JSR
-    MOVE.W      D2,D5       *REMOVE
-MATCH_CLR_B
-    MOVE.W      D2,D5       *REMOVE
-MATCH_CLR_W
-    MOVE.W      D2,D5       *REMOVE
-MATCH_CLR_L
-    MOVE.W      D2,D5       *REMOVE
+
 MATCH_MULS_L
     MOVE.W      D2,D5       *REMOVE
 MATCH_LSL
@@ -871,12 +848,6 @@ MATCH_ASL
 MATCH_ROL
     MOVE.W      D2,D5       *REMOVE
 MATCH_ROR
-    MOVE.W      D2,D5       *REMOVE
-MATCH_CMP_B
-    MOVE.W      D2,D5       *REMOVE
-MATCH_CMP_W
-    MOVE.W      D2,D5       *REMOVE
-MATCH_CMP_L
     MOVE.W      D2,D5       *REMOVE
     
 **********BCC OPCODE MATCHES*******
@@ -994,6 +965,7 @@ MATCH_CC_LE_32
 **********************************   
 ERROR
     MOVE.W      D2,D5       *REMOVE
+
 
 
 

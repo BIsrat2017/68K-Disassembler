@@ -1,0 +1,641 @@
+00001000 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.15.04
+Created On: 3/9/2017 11:31:37 AM
+
+00000000                             1  *-----------------------------------------------------------
+00000000                             2  * Title      :  Arsany Azmy
+00000000                             3  * Written by :
+00000000                             4  * Date       :
+00000000                             5  * Description:
+00000000                             6  *-----------------------------------------------------------
+00000000                             7  MATCH_MOVEA_W
+00000000                             8      ** Move command size into D1
+00000000  123C 0002                  9      MOVE.B      #2,D1
+00000004                            10      ** Print command
+00000004  103C 000E                 11      MOVE.B      #14,D0
+Line 12 ERROR: Undefined symbol
+00000008  43F9 004DBB8E             12      LEA         pr_MOVEA,A1
+0000000E  4E4F                      13      TRAP        #15
+00000010                            14      ** Print size
+Line 15 ERROR: Undefined symbol
+00000010  43F9 004DBB8E             15      LEA         pr_WORD,A1
+00000016  4E4F                      16      TRAP        #15
+00000018                            17      ** Print space
+Line 18 ERROR: Undefined symbol
+00000018  43F9 004DBB8E             18      LEA         pr_space,A1
+0000001E  4E4F                      19      TRAP        #15
+00000020                            20      ** Decode right side ea
+00000020  1002                      21      MOVE.B      D2,D0
+00000022  0200 003F                 22      ANDI.B      #%00111111,D0
+Line 23 ERROR: Undefined symbol
+00000026  4EB9 004DBB8E             23      JSR         EADecoder
+0000002C                            24      ** Add comma
+0000002C  103C 000E                 25      MOVE.B      #14,D0
+Line 26 ERROR: Undefined symbol
+00000030  43F9 004DBB8E             26      LEA         pr_comma,A1
+00000036  4E4F                      27      TRAP        #15
+00000038                            28      ** Decode left side ea
+00000038  3002                      29      MOVE.W      D2,D0
+0000003A  0240 0E00                 30      ANDI.W      #%0000111000000000,D0
+0000003E  7809                      31      MOVE.L      #9,D4
+00000040  E8A8                      32      LSR.L       D4,D0
+Line 33 ERROR: Undefined symbol
+00000042  4EB9 004DBB8E             33      JSR         EADecoder_left
+00000048                            34      
+Line 35 ERROR: Undefined symbol
+00000048  6000 BB44                 35      BRA         opdec_return
+0000004C                            36  MATCH_MOVEA_L
+0000004C                            37      ** Move command size into D1
+0000004C  123C 0004                 38      MOVE.B      #4,D1
+00000050                            39      ** Print command
+00000050  103C 000E                 40      MOVE.B      #14,D0
+Line 41 ERROR: Undefined symbol
+00000054  43F9 004DBB8E             41      LEA         pr_MOVEA,A1
+0000005A  4E4F                      42      TRAP        #15
+0000005C                            43      ** Print size
+Line 44 ERROR: Undefined symbol
+0000005C  43F9 004DBB8E             44      LEA         pr_LONG,A1
+00000062  4E4F                      45      TRAP        #15
+00000064                            46      ** Print space
+Line 47 ERROR: Undefined symbol
+00000064  43F9 004DBB8E             47      LEA         pr_space,A1
+0000006A  4E4F                      48      TRAP        #15
+0000006C                            49      ** Decode right side ea
+0000006C  1002                      50      MOVE.B      D2,D0
+0000006E  0200 003F                 51      ANDI.B      #%00111111,D0
+Line 52 ERROR: Undefined symbol
+00000072  4EB9 004DBB8E             52      JSR         EADecoder
+00000078                            53      ** Add comma
+00000078  103C 000E                 54      MOVE.B      #14,D0
+Line 55 ERROR: Undefined symbol
+0000007C  43F9 004DBB8E             55      LEA         pr_comma,A1
+00000082  4E4F                      56      TRAP        #15
+00000084                            57      ** Decode left side ea
+00000084  3002                      58      MOVE.W      D2,D0
+00000086  0240 0E00                 59      ANDI.W      #%0000111000000000,D0
+Line 60 ERROR: Invalid constant shift count
+0000008A  E248                      60      LSR.W       #9,D0
+Line 61 ERROR: Undefined symbol
+0000008C  4EB9 004DBB8E             61      JSR         EADecoder_left
+00000092                            62      
+Line 63 ERROR: Undefined symbol
+00000092  6000 BAFA                 63      BRA         opdec_return
+00000096                            64  MATCH_ADDA_W
+00000096                            65      ** Move command size into D1
+00000096  123C 0002                 66      MOVE.B      #2,D1
+0000009A                            67      ** Print command
+0000009A  103C 000E                 68      MOVE.B      #14,D0
+Line 69 ERROR: Undefined symbol
+0000009E  43F9 004DBB8E             69      LEA         pr_ADDA,A1
+000000A4  4E4F                      70      TRAP        #15
+000000A6                            71      ** Print size
+Line 72 ERROR: Undefined symbol
+000000A6  43F9 004DBB8E             72      LEA         pr_WORD,A1
+000000AC  4E4F                      73      TRAP        #15
+000000AE                            74      ** Print space
+Line 75 ERROR: Undefined symbol
+000000AE  43F9 004DBB8E             75      LEA         pr_space,A1
+000000B4  4E4F                      76      TRAP        #15
+000000B6                            77      ** Decode right side ea
+000000B6  1002                      78      MOVE.B      D2,D0
+000000B8  0200 003F                 79      ANDI.B      #%00111111,D0
+Line 80 ERROR: Undefined symbol
+000000BC  4EB9 004DBB8E             80      JSR         EADecoder
+000000C2                            81      ** Add comma
+000000C2  103C 000E                 82      MOVE.B      #14,D0
+Line 83 ERROR: Undefined symbol
+000000C6  43F9 004DBB8E             83      LEA         pr_comma,A1
+000000CC  4E4F                      84      TRAP        #15
+000000CE                            85      ** Decode left side ea
+000000CE  3002                      86      MOVE.W      D2,D0
+000000D0  0240 0E00                 87      ANDI.W      #%0000111000000000,D0
+Line 88 ERROR: Invalid constant shift count
+000000D4  E248                      88      LSR.W       #9,D0
+Line 89 ERROR: Undefined symbol
+000000D6  4EB9 004DBB8E             89      JSR         EADecoder_left
+000000DC                            90      
+Line 91 ERROR: Undefined symbol
+000000DC  6000 BAB0                 91      BRA         opdec_return
+000000E0                            92  MATCH_ADDA_L
+000000E0                            93      ** Move command size into D1
+000000E0  123C 0004                 94      MOVE.B      #4,D1
+000000E4                            95      ** Print command
+000000E4  103C 000E                 96      MOVE.B      #14,D0
+Line 97 ERROR: Undefined symbol
+000000E8  43F9 004DBB8E             97      LEA         pr_ADDA,A1
+000000EE  4E4F                      98      TRAP        #15
+000000F0                            99      ** Print size
+Line 100 ERROR: Undefined symbol
+000000F0  43F9 004DBB8E            100      LEA         pr_LONG,A1
+000000F6  4E4F                     101      TRAP        #15
+000000F8                           102      ** Print space
+Line 103 ERROR: Undefined symbol
+000000F8  43F9 004DBB8E            103      LEA         pr_space,A1
+000000FE  4E4F                     104      TRAP        #15
+00000100                           105      ** Decode right side ea
+00000100  1002                     106      MOVE.B      D2,D0
+00000102  0200 003F                107      ANDI.B      #%00111111,D0
+Line 108 ERROR: Undefined symbol
+00000106  4EB9 004DBB8E            108      JSR         EADecoder
+0000010C                           109      ** Add comma
+0000010C  103C 000E                110      MOVE.B      #14,D0
+Line 111 ERROR: Undefined symbol
+00000110  43F9 004DBB8E            111      LEA         pr_comma,A1
+00000116  4E4F                     112      TRAP        #15
+00000118                           113      ** Decode left side ea
+00000118  3002                     114      MOVE.W      D2,D0
+0000011A  0240 0E00                115      ANDI.W      #%0000111000000000,D0
+Line 116 ERROR: Invalid constant shift count
+0000011E  E248                     116      LSR.W       #9,D0
+Line 117 ERROR: Undefined symbol
+00000120  4EB9 004DBB8E            117      JSR         EADecoder_left
+00000126                           118      
+Line 119 ERROR: Undefined symbol
+00000126  6000 BA66                119      BRA         opdec_return
+0000012A                           120  MATCH_MULS_W
+0000012A                           121      ** Move command size into D1
+0000012A  123C 0002                122      MOVE.B      #2,D1
+0000012E                           123      ** Print command
+0000012E  103C 000E                124      MOVE.B      #14,D0
+Line 125 ERROR: Undefined symbol
+00000132  43F9 004DBB8E            125      LEA         pr_MULS,A1
+00000138  4E4F                     126      TRAP        #15
+0000013A                           127      ** Print size
+Line 128 ERROR: Undefined symbol
+0000013A  43F9 004DBB8E            128      LEA         pr_WORD,A1
+00000140  4E4F                     129      TRAP        #15
+00000142                           130      ** Print space
+Line 131 ERROR: Undefined symbol
+00000142  43F9 004DBB8E            131      LEA         pr_space,A1
+00000148  4E4F                     132      TRAP        #15
+0000014A                           133      ** Decode right side ea
+0000014A  1002                     134      MOVE.B      D2,D0
+0000014C  0200 003F                135      ANDI.B      #%00111111,D0
+Line 136 ERROR: Undefined symbol
+00000150  4EB9 004DBB8E            136      JSR         EADecoder
+00000156                           137      ** Add comma
+00000156  103C 000E                138      MOVE.B      #14,D0
+Line 139 ERROR: Undefined symbol
+0000015A  43F9 004DBB8E            139      LEA         pr_comma,A1
+00000160  4E4F                     140      TRAP        #15
+00000162                           141      ** Decode left side ea
+00000162  3002                     142      MOVE.W      D2,D0
+00000164  0240 0E00                143      ANDI.W      #%0000111000000000,D0
+Line 144 ERROR: Invalid constant shift count
+00000168  E248                     144      LSR.W       #9,D0
+Line 145 ERROR: Undefined symbol
+0000016A  4EB9 004DBB8E            145      JSR         EADecoder_left    
+00000170                           146      
+Line 147 ERROR: Undefined symbol
+00000170  6000 BA1C                147      BRA         opdec_return
+00000174                           148  MATCH_RTS
+Line 149 ERROR: Undefined symbol
+00000174  43F9 004DBB8E            149      LEA         pr_RTS,A1
+0000017A  103C 000E                150      MOVE.B      #14,D0
+0000017E  4E4F                     151      TRAP        #15
+Line 152 ERROR: Undefined symbol
+00000180  6000 BA0C                152      BRA         opdec_return
+00000184                           153  MATCH_CMP_B
+00000184                           154      ** Move command size into D1
+00000184  123C 0002                155      MOVE.B      #2,D1
+00000188                           156      ** Print command
+00000188  103C 000E                157      MOVE.B      #14,D0
+Line 158 ERROR: Undefined symbol
+0000018C  43F9 004DBB8E            158      LEA         pr_CMP,A1
+00000192  4E4F                     159      TRAP        #15
+00000194                           160      ** Print size
+Line 161 ERROR: Undefined symbol
+00000194  43F9 004DBB8E            161      LEA         pr_BYTE,A1
+0000019A  4E4F                     162      TRAP        #15
+0000019C                           163      ** Print space
+Line 164 ERROR: Undefined symbol
+0000019C  43F9 004DBB8E            164      LEA         pr_space,A1
+000001A2  4E4F                     165      TRAP        #15
+000001A4                           166      ** Decode right side ea
+000001A4  1002                     167      MOVE.B      D2,D0
+000001A6  0200 003F                168      ANDI.B      #%00111111,D0
+Line 169 ERROR: Undefined symbol
+000001AA  4EB9 004DBB8E            169      JSR         EADecoder
+000001B0                           170      ** Add comma
+000001B0  103C 000E                171      MOVE.B      #14,D0
+Line 172 ERROR: Undefined symbol
+000001B4  43F9 004DBB8E            172      LEA         pr_comma,A1
+000001BA  4E4F                     173      TRAP        #15
+000001BC                           174      ** Decode left side ea
+000001BC  3002                     175      MOVE.W      D2,D0
+000001BE  0240 0E00                176      ANDI.W      #%0000111000000000,D0
+Line 177 ERROR: Invalid constant shift count
+000001C2  E248                     177      LSR.W       #9,D0
+Line 178 ERROR: Undefined symbol
+000001C4  4EB9 004DBB8E            178      JSR         EADecoder_left   
+000001CA                           179      
+Line 180 ERROR: Undefined symbol
+000001CA  6000 B9C2                180      BRA         opdec_return
+000001CE                           181  MATCH_CMP_W
+000001CE                           182      ** Move command size into D1
+000001CE  123C 0002                183      MOVE.B      #2,D1
+000001D2                           184      ** Print command
+000001D2  103C 000E                185      MOVE.B      #14,D0
+Line 186 ERROR: Undefined symbol
+000001D6  43F9 004DBB8E            186      LEA         pr_CMP,A1
+000001DC  4E4F                     187      TRAP        #15
+000001DE                           188      ** Print size
+Line 189 ERROR: Undefined symbol
+000001DE  43F9 004DBB8E            189      LEA         pr_WORD,A1
+000001E4  4E4F                     190      TRAP        #15
+000001E6                           191      ** Print space
+Line 192 ERROR: Undefined symbol
+000001E6  43F9 004DBB8E            192      LEA         pr_space,A1
+000001EC  4E4F                     193      TRAP        #15
+000001EE                           194      ** Decode right side ea
+000001EE  1002                     195      MOVE.B      D2,D0
+000001F0  0200 003F                196      ANDI.B      #%00111111,D0
+Line 197 ERROR: Undefined symbol
+000001F4  4EB9 004DBB8E            197      JSR         EADecoder
+000001FA                           198      ** Add comma
+000001FA  103C 000E                199      MOVE.B      #14,D0
+Line 200 ERROR: Undefined symbol
+000001FE  43F9 004DBB8E            200      LEA         pr_comma,A1
+00000204  4E4F                     201      TRAP        #15
+00000206                           202      ** Decode left side ea
+00000206  3002                     203      MOVE.W      D2,D0
+00000208  0240 0E00                204      ANDI.W      #%0000111000000000,D0
+Line 205 ERROR: Invalid constant shift count
+0000020C  E248                     205      LSR.W       #9,D0
+Line 206 ERROR: Undefined symbol
+0000020E  4EB9 004DBB8E            206      JSR         EADecoder_left   
+00000214                           207      
+Line 208 ERROR: Undefined symbol
+00000214  6000 B978                208      BRA         opdec_return
+00000218                           209  MATCH_CMP_L
+00000218                           210      ** Move command size into D1
+00000218  123C 0004                211      MOVE.B      #4,D1
+0000021C                           212      ** Print command
+0000021C  103C 000E                213      MOVE.B      #14,D0
+Line 214 ERROR: Undefined symbol
+00000220  43F9 004DBB8E            214      LEA         pr_CMP,A1
+00000226  4E4F                     215      TRAP        #15
+00000228                           216      ** Print size
+Line 217 ERROR: Undefined symbol
+00000228  43F9 004DBB8E            217      LEA         pr_LONG,A1
+0000022E  4E4F                     218      TRAP        #15
+00000230                           219      ** Print space
+Line 220 ERROR: Undefined symbol
+00000230  43F9 004DBB8E            220      LEA         pr_space,A1
+00000236  4E4F                     221      TRAP        #15
+00000238                           222      ** Decode right side ea
+00000238  1002                     223      MOVE.B      D2,D0
+0000023A  0200 003F                224      ANDI.B      #%00111111,D0
+Line 225 ERROR: Undefined symbol
+0000023E  4EB9 004DBB8E            225      JSR         EADecoder
+00000244                           226      ** Add comma
+00000244  103C 000E                227      MOVE.B      #14,D0
+Line 228 ERROR: Undefined symbol
+00000248  43F9 004DBB8E            228      LEA         pr_comma,A1
+0000024E  4E4F                     229      TRAP        #15
+00000250                           230      ** Decode left side ea
+00000250  3002                     231      MOVE.W      D2,D0
+00000252  0240 0E00                232      ANDI.W      #%0000111000000000,D0
+Line 233 ERROR: Invalid constant shift count
+00000256  E248                     233      LSR.W       #9,D0
+Line 234 ERROR: Undefined symbol
+00000258  4EB9 004DBB8E            234      JSR         EADecoder_left   
+0000025E                           235      
+Line 236 ERROR: Undefined symbol
+0000025E  6000 B92E                236      BRA         opdec_return
+00000262                           237  MATCH_JSR
+00000262                           238      ** Print command
+00000262  103C 000E                239      MOVE.B      #14,D0
+Line 240 ERROR: Undefined symbol
+00000266  43F9 004DBB8E            240      LEA         pr_JSR,A1
+0000026C  4E4F                     241      TRAP        #15
+0000026E                           242      ** Print space
+Line 243 ERROR: Undefined symbol
+0000026E  43F9 004DBB8E            243      LEA         pr_space,A1
+00000274  4E4F                     244      TRAP        #15
+00000276                           245      ** Decode right side ea
+00000276  1002                     246      MOVE.B      D2,D0
+00000278  0200 003F                247      ANDI.B      #%00111111,D0
+Line 248 ERROR: Undefined symbol
+0000027C  4EB9 004DBB8E            248      JSR         EADecoder 
+00000282                           249      
+Line 250 ERROR: Undefined symbol
+00000282  6000 B90A                250      BRA         opdec_return
+00000286                           251  MATCH_CLR_B 
+00000286                           252      ** Move command size into D1
+00000286  123C 0002                253      MOVE.B      #2,D1
+0000028A                           254      ** Print command
+0000028A  103C 000E                255      MOVE.B      #14,D0
+Line 256 ERROR: Undefined symbol
+0000028E  43F9 004DBB8E            256      LEA         pr_CLR,A1
+00000294  4E4F                     257      TRAP        #15
+00000296                           258      ** Print size
+Line 259 ERROR: Undefined symbol
+00000296  43F9 004DBB8E            259      LEA         pr_BYTE,A1
+0000029C  4E4F                     260      TRAP        #15
+0000029E                           261      ** Print space
+Line 262 ERROR: Undefined symbol
+0000029E  43F9 004DBB8E            262      LEA         pr_space,A1
+000002A4  4E4F                     263      TRAP        #15
+000002A6                           264      ** Decode right side ea
+000002A6  1002                     265      MOVE.B      D2,D0
+000002A8  0200 003F                266      ANDI.B      #%00111111,D0
+Line 267 ERROR: Undefined symbol
+000002AC  4EB9 004DBB8E            267      JSR         EADecode 
+000002B2                           268      
+Line 269 ERROR: Undefined symbol
+000002B2  6000 B8DA                269      BRA         opdec_return
+000002B6                           270  MATCH_CLR_W
+000002B6                           271      ** Move command size into D1
+000002B6  123C 0002                272      MOVE.B      #2,D1
+000002BA                           273      ** Print command
+000002BA  103C 000E                274      MOVE.B      #14,D0
+Line 275 ERROR: Undefined symbol
+000002BE  43F9 004DBB8E            275      LEA         pr_CLR,A1
+000002C4  4E4F                     276      TRAP        #15
+000002C6                           277      ** Print size
+Line 278 ERROR: Undefined symbol
+000002C6  43F9 004DBB8E            278      LEA         pr_WORD,A1
+000002CC  4E4F                     279      TRAP        #15
+000002CE                           280      ** Print space
+Line 281 ERROR: Undefined symbol
+000002CE  43F9 004DBB8E            281      LEA         pr_space,A1
+000002D4  4E4F                     282      TRAP        #15
+000002D6                           283      ** Decode right side ea
+000002D6  1002                     284      MOVE.B      D2,D0
+000002D8  0200 003F                285      ANDI.B      #%00111111,D0
+Line 286 ERROR: Undefined symbol
+000002DC  4EB9 004DBB8E            286      JSR         EADecode 
+000002E2                           287      
+Line 288 ERROR: Undefined symbol
+000002E2  6000 B8AA                288      BRA         opdec_return
+000002E6                           289  MATCH_CLR_L
+000002E6                           290      ** Move command size into D1
+000002E6  123C 0004                291      MOVE.B      #4,D1
+000002EA                           292      ** Print command
+000002EA  103C 000E                293      MOVE.B      #14,D0
+Line 294 ERROR: Undefined symbol
+000002EE  43F9 004DBB8E            294      LEA         pr_CLR,A1
+000002F4  4E4F                     295      TRAP        #15
+000002F6                           296      ** Print size
+Line 297 ERROR: Undefined symbol
+000002F6  43F9 004DBB8E            297      LEA         pr_LONG,A1
+000002FC  4E4F                     298      TRAP        #15
+000002FE                           299      ** Print space
+Line 300 ERROR: Undefined symbol
+000002FE  43F9 004DBB8E            300      LEA         pr_space,A1
+00000304  4E4F                     301      TRAP        #15
+00000306                           302      ** Decode right side ea
+00000306  1002                     303      MOVE.B      D2,D0
+00000308  0200 003F                304      ANDI.B      #%00111111,D0
+Line 305 ERROR: Undefined symbol
+0000030C  4EB9 004DBB8E            305      JSR         EADecode 
+00000312                           306      
+Line 307 ERROR: Undefined symbol
+00000312  6000 B87A                307      BRA         opdec_return
+00000316                           308  MATCH_AND_DN_B
+00000316                           309      ** Move command size into D1
+00000316  123C 0002                310      MOVE.B      #2,D1
+0000031A                           311      ** Print command
+0000031A  103C 000E                312      MOVE.B      #14,D0
+Line 313 ERROR: Undefined symbol
+0000031E  43F9 004DBB8E            313      LEA         pr_AND,A1
+00000324  4E4F                     314      TRAP        #15
+00000326                           315      ** Print size
+Line 316 ERROR: Undefined symbol
+00000326  43F9 004DBB8E            316      LEA         pr_BYTE,A1
+0000032C  4E4F                     317      TRAP        #15
+0000032E                           318      ** Print space
+Line 319 ERROR: Undefined symbol
+0000032E  43F9 004DBB8E            319      LEA         pr_space,A1
+00000334  4E4F                     320      TRAP        #15
+00000336                           321      ** Decode right side ea
+00000336  1002                     322      MOVE.B      D2,D0
+00000338  0200 003F                323      ANDI.B      #%00111111,D0
+Line 324 ERROR: Undefined symbol
+0000033C  4EB9 004DBB8E            324      JSR         EADecoder
+00000342                           325      ** Add comma
+00000342  103C 000E                326      MOVE.B      #14,D0
+Line 327 ERROR: Undefined symbol
+00000346  43F9 004DBB8E            327      LEA         pr_comma,A1
+0000034C  4E4F                     328      TRAP        #15
+0000034E                           329      ** Decode left side ea
+0000034E  3002                     330      MOVE.W      D2,D0
+00000350  0240 0E00                331      ANDI.W      #%0000111000000000,D0
+Line 332 ERROR: Invalid constant shift count
+00000354  E248                     332      LSR.W       #9,D0
+Line 333 ERROR: Undefined symbol
+00000356  4EB9 004DBB8E            333      JSR         EADecoder_left   
+0000035C                           334      
+Line 335 ERROR: Undefined symbol
+0000035C  6000 B830                335      BRA         opdec_return
+00000360                           336  MATCH_AND_DN_W
+00000360                           337      ** Move command size into D1
+00000360  123C 0002                338      MOVE.B      #2,D1
+00000364                           339      ** Print command
+00000364  103C 000E                340      MOVE.B      #14,D0
+Line 341 ERROR: Undefined symbol
+00000368  43F9 004DBB8E            341      LEA         pr_AND,A1
+0000036E  4E4F                     342      TRAP        #15
+00000370                           343      ** Print size
+Line 344 ERROR: Undefined symbol
+00000370  43F9 004DBB8E            344      LEA         pr_WORD,A1
+00000376  4E4F                     345      TRAP        #15
+00000378                           346      ** Print space
+Line 347 ERROR: Undefined symbol
+00000378  43F9 004DBB8E            347      LEA         pr_space,A1
+0000037E  4E4F                     348      TRAP        #15
+00000380                           349      ** Decode right side ea
+00000380  1002                     350      MOVE.B      D2,D0
+00000382  0200 003F                351      ANDI.B      #%00111111,D0
+Line 352 ERROR: Undefined symbol
+00000386  4EB9 004DBB8E            352      JSR         EADecoder
+0000038C                           353      ** Add comma
+0000038C  103C 000E                354      MOVE.B      #14,D0
+Line 355 ERROR: Undefined symbol
+00000390  43F9 004DBB8E            355      LEA         pr_comma,A1
+00000396  4E4F                     356      TRAP        #15
+00000398                           357      ** Decode left side ea
+00000398  3002                     358      MOVE.W      D2,D0
+0000039A  0240 0E00                359      ANDI.W      #%0000111000000000,D0
+Line 360 ERROR: Invalid constant shift count
+0000039E  E248                     360      LSR.W       #9,D0
+Line 361 ERROR: Undefined symbol
+000003A0  4EB9 004DBB8E            361      JSR         EADecoder_left   
+000003A6                           362      
+Line 363 ERROR: Undefined symbol
+000003A6  6000 B7E6                363      BRA         opdec_return
+000003AA                           364  MATCH_AND_DN_L
+000003AA                           365      ** Move command size into D1
+000003AA  123C 0004                366      MOVE.B      #4,D1
+000003AE                           367      ** Print command
+000003AE  103C 000E                368      MOVE.B      #14,D0
+Line 369 ERROR: Undefined symbol
+000003B2  43F9 004DBB8E            369      LEA         pr_AND,A1
+000003B8  4E4F                     370      TRAP        #15
+000003BA                           371      ** Print size
+Line 372 ERROR: Undefined symbol
+000003BA  43F9 004DBB8E            372      LEA         pr_LONG,A1
+000003C0  4E4F                     373      TRAP        #15
+000003C2                           374      ** Print space
+Line 375 ERROR: Undefined symbol
+000003C2  43F9 004DBB8E            375      LEA         pr_space,A1
+000003C8  4E4F                     376      TRAP        #15
+000003CA                           377      ** Decode right side ea
+000003CA  1002                     378      MOVE.B      D2,D0
+000003CC  0200 003F                379      ANDI.B      #%00111111,D0
+Line 380 ERROR: Undefined symbol
+000003D0  4EB9 004DBB8E            380      JSR         EADecoder
+000003D6                           381      ** Add comma
+000003D6  103C 000E                382      MOVE.B      #14,D0
+Line 383 ERROR: Undefined symbol
+000003DA  43F9 004DBB8E            383      LEA         pr_comma,A1
+000003E0  4E4F                     384      TRAP        #15
+000003E2                           385      ** Decode left side ea
+000003E2  3002                     386      MOVE.W      D2,D0
+000003E4  0240 0E00                387      ANDI.W      #%0000111000000000,D0
+Line 388 ERROR: Invalid constant shift count
+000003E8  E248                     388      LSR.W       #9,D0
+Line 389 ERROR: Undefined symbol
+000003EA  4EB9 004DBB8E            389      JSR         EADecoder_left   
+000003F0                           390      
+Line 391 ERROR: Undefined symbol
+000003F0  6000 B79C                391      BRA         opdec_return
+000003F4                           392  MATCH_AND_EA_B
+000003F4                           393      ** Move command size into D1
+000003F4  123C 0002                394      MOVE.B      #2,D1
+000003F8                           395      ** Print command
+000003F8  103C 000E                396      MOVE.B      #14,D0
+Line 397 ERROR: Undefined symbol
+000003FC  43F9 004DBB8E            397      LEA         pr_AND,A1
+00000402  4E4F                     398      TRAP        #15
+00000404                           399      ** Print size
+Line 400 ERROR: Undefined symbol
+00000404  43F9 004DBB8E            400      LEA         pr_BYTE,A1
+0000040A  4E4F                     401      TRAP        #15
+0000040C                           402      ** Print space
+Line 403 ERROR: Undefined symbol
+0000040C  43F9 004DBB8E            403      LEA         pr_space,A1
+00000412  4E4F                     404      TRAP        #15
+00000414                           405      ** Decode right side ea
+00000414  1002                     406      MOVE.B      D2,D0
+00000416  0200 003F                407      ANDI.B      #%00111111,D0
+Line 408 ERROR: Undefined symbol
+0000041A  4EB9 004DBB8E            408      JSR         EADecoder_left
+00000420                           409      ** Add comma
+00000420  103C 000E                410      MOVE.B      #14,D0
+Line 411 ERROR: Undefined symbol
+00000424  43F9 004DBB8E            411      LEA         pr_comma,A1
+0000042A  4E4F                     412      TRAP        #15
+0000042C                           413      ** Decode left side ea
+0000042C  3002                     414      MOVE.W      D2,D0
+0000042E  0240 0E00                415      ANDI.W      #%0000111000000000,D0
+Line 416 ERROR: Invalid constant shift count
+00000432  E248                     416      LSR.W       #9,D0
+Line 417 ERROR: Undefined symbol
+00000434  4EB9 004DBB8E            417      JSR         EADecoder 
+0000043A                           418      
+Line 419 ERROR: Undefined symbol
+0000043A  6000 B752                419      BRA         opdec_return
+0000043E                           420  MATCH_AND_EA_W
+0000043E                           421      ** Move command size into D1
+0000043E  123C 0002                422      MOVE.B      #2,D1
+00000442                           423      ** Print command
+00000442  103C 000E                424      MOVE.B      #14,D0
+Line 425 ERROR: Undefined symbol
+00000446  43F9 004DBB8E            425      LEA         pr_AND,A1
+0000044C  4E4F                     426      TRAP        #15
+0000044E                           427      ** Print size
+Line 428 ERROR: Undefined symbol
+0000044E  43F9 004DBB8E            428      LEA         pr_WORD,A1
+00000454  4E4F                     429      TRAP        #15
+00000456                           430      ** Print space
+Line 431 ERROR: Undefined symbol
+00000456  43F9 004DBB8E            431      LEA         pr_space,A1
+0000045C  4E4F                     432      TRAP        #15
+0000045E                           433      ** Decode right side ea
+0000045E  1002                     434      MOVE.B      D2,D0
+00000460  0200 003F                435      ANDI.B      #%00111111,D0
+Line 436 ERROR: Undefined symbol
+00000464  4EB9 004DBB8E            436      JSR         EADecoder_left
+0000046A                           437      ** Add comma
+0000046A  103C 000E                438      MOVE.B      #14,D0
+Line 439 ERROR: Undefined symbol
+0000046E  43F9 004DBB8E            439      LEA         pr_comma,A1
+00000474  4E4F                     440      TRAP        #15
+00000476                           441      ** Decode left side ea
+00000476  3002                     442      MOVE.W      D2,D0
+00000478  0240 0E00                443      ANDI.W      #%0000111000000000,D0
+Line 444 ERROR: Invalid constant shift count
+0000047C  E248                     444      LSR.W       #9,D0
+Line 445 ERROR: Undefined symbol
+0000047E  4EB9 004DBB8E            445      JSR         EADecoder 
+00000484                           446      
+Line 447 ERROR: Undefined symbol
+00000484  6000 B708                447      BRA         opdec_return
+00000488                           448  MATCH_AND_EA_L
+00000488                           449      ** Move command size into D1
+00000488  123C 0004                450      MOVE.B      #4,D1
+0000048C                           451      ** Print command
+0000048C  103C 000E                452      MOVE.B      #14,D0
+Line 453 ERROR: Undefined symbol
+00000490  43F9 004DBB8E            453      LEA         pr_AND,A1
+00000496  4E4F                     454      TRAP        #15
+00000498                           455      ** Print size
+Line 456 ERROR: Undefined symbol
+00000498  43F9 004DBB8E            456      LEA         pr_LONG,A1
+0000049E  4E4F                     457      TRAP        #15
+000004A0                           458      ** Print space
+Line 459 ERROR: Undefined symbol
+000004A0  43F9 004DBB8E            459      LEA         pr_space,A1
+000004A6  4E4F                     460      TRAP        #15
+000004A8                           461      ** Decode right side ea
+000004A8  1002                     462      MOVE.B      D2,D0
+000004AA  0200 003F                463      ANDI.B      #%00111111,D0
+Line 464 ERROR: Undefined symbol
+000004AE  4EB9 004DBB8E            464      JSR         EADecoder_left
+000004B4                           465      ** Add comma
+000004B4  103C 000E                466      MOVE.B      #14,D0
+Line 467 ERROR: Undefined symbol
+000004B8  43F9 004DBB8E            467      LEA         pr_comma,A1
+000004BE  4E4F                     468      TRAP        #15
+000004C0                           469      ** Decode left side ea
+000004C0  3002                     470      MOVE.W      D2,D0
+000004C2  0240 0E00                471      ANDI.W      #%0000111000000000,D0
+Line 472 ERROR: Invalid constant shift count
+000004C6  E248                     472      LSR.W       #9,D0
+Line 473 ERROR: Undefined symbol
+000004C8  4EB9 004DBB8E            473      JSR         EADecoder   
+000004CE                           474      
+Line 475 ERROR: Undefined symbol
+000004CE  6000 B6BE                475      BRA         opdec_return
+000004D2                           476  
+000004D2                           477  
+Line 478 WARNING: END directive missing, starting address not set
+
+132 errors detected
+1 warning generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+MATCH_ADDA_L        E0
+MATCH_ADDA_W        96
+MATCH_AND_DN_B      316
+MATCH_AND_DN_L      3AA
+MATCH_AND_DN_W      360
+MATCH_AND_EA_B      3F4
+MATCH_AND_EA_L      488
+MATCH_AND_EA_W      43E
+MATCH_CLR_B         286
+MATCH_CLR_L         2E6
+MATCH_CLR_W         2B6
+MATCH_CMP_B         184
+MATCH_CMP_L         218
+MATCH_CMP_W         1CE
+MATCH_JSR           262
+MATCH_MOVEA_L       4C
+MATCH_MOVEA_W       0
+MATCH_MULS_W        12A
+MATCH_RTS           174
