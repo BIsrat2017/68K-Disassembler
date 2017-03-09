@@ -1,10 +1,10 @@
 *****************************
 *
-* demo_arsany_opcode_test.X68
+* demo_spencer_opcode_test.X68
 *
 * Created 03/09/2017
 *
-* Test program for Arsany's commands
+* Test program for Spencer's commands
 *
 *****************************
 
@@ -33,17 +33,15 @@ start	EQU	$00009000	* ORG and END address
         AND.W   D1,(A1)
         AND.L   D1,(A2)+
         
-        JSR     next
-next
-        RTS   
-        
         SIMHALT
 
+next
+        RTS      
+        
 	END	start
-
 
 
 *~Font name~Courier New~
 *~Font size~10~
 *~Tab type~1~
-*~Tab size~8~
+*~Tab size~4~

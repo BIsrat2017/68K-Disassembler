@@ -50,7 +50,8 @@ EADecoder_left
 EADecoder
         MOVEM.L     D0-D7/A1-A6, -(SP) *Store registers on stack, except D0
 left_skip   
-        CLR     D2     
+        CLR     D2    
+        CLR     D3 
         MOVE.B  D1,D2 ** Store opcode size in bytes into D2
         
         LEA     output,A1
@@ -188,6 +189,7 @@ dec_pre_dec    *DECODE INDIRECT PRE DECREMENT*
         MOVE.B  #')',(A2)+
         MOVE.B  #$0,(A2)+
         BRA     dec_return
+
 
 
 

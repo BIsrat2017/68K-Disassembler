@@ -1,6 +1,6 @@
 00009000 Starting Address
 Assembler used: EASy68K Editor/Assembler v5.15.04
-Created On: 3/9/2017 11:56:03 AM
+Created On: 3/9/2017 12:30:14 PM
 
 00000000                             1  *****************************
 00000000                             2  *
@@ -29,21 +29,21 @@ Created On: 3/9/2017 11:56:03 AM
 00009016  4200                      25          CLR.B   D0
 00009018  4241                      26          CLR.W   D1
 0000901A  4282                      27          CLR.L   D2
-0000901C                            28  
-0000901C                            29          
-0000901C  C200                      30          AND.B   D0,D1
-0000901E  C440                      31          AND.W   D0,D2
-00009020  C680                      32          AND.L   D0,D3
-00009022  C338 4567                 33          AND.B   D1,$4567
-00009026  C351                      34          AND.W   D1,(A1)
-00009028  C39A                      35          AND.L   D1,(A2)+
-0000902A                            36          
-0000902A  FFFF FFFF                 37          SIMHALT
-0000902E                            38  
-0000902E                            39  next
-0000902E  4E75                      40          RTS      
-00009030                            41          
-00009030                            42          END     start
+0000901C                            28          
+0000901C  C200                      29          AND.B   D0,D1
+0000901E  C440                      30          AND.W   D0,D2
+00009020  C680                      31          AND.L   D0,D3
+00009022  C338 4567                 32          AND.B   D1,$4567
+00009026  C351                      33          AND.W   D1,(A1)
+00009028  C39A                      34          AND.L   D1,(A2)+
+0000902A                            35          
+0000902A  4EB9 00009030             36          JSR     next
+00009030                            37  next
+00009030  4E75                      38          RTS   
+00009032                            39          
+00009032  FFFF FFFF                 40          SIMHALT
+00009036                            41  
+00009036                            42          END     start
 
 No errors detected
 No warnings generated
@@ -52,5 +52,5 @@ No warnings generated
 SYMBOL TABLE INFORMATION
 Symbol-name         Value
 -------------------------
-NEXT                902E
+NEXT                9030
 START               9000
