@@ -1,12 +1,12 @@
-00001000 Starting Address
+00000100 Starting Address
 Assembler used: EASy68K Editor/Assembler v5.15.04
-Created On: 3/2/2017 6:02:51 PM
+Created On: 3/10/2017 3:38:03 AM
 
 00000000                             1  *-----------------------------------------------------------
 00000000                             2  * Title      :  ASCII/HEX Converters
 00000000                             3  * Written by :  Team Dankware - Connor Davis McGwire
 00000000                             4  * Date       :  2/17/2017
-00000000                             5  * Description:  Series of subroutines for converting between 
+00000000                             5  * Description:  Series of subroutines for converting between
 00000000                             6  *               ASCII bytes and hex numbers stored as individual bytes.
 00000000                             7  *-----------------------------------------------------------
 00000000                             8  
@@ -15,60 +15,74 @@ Created On: 3/2/2017 6:02:51 PM
 00000000                            11  ** Number value returned in D0, number bytes left in A0 location
 00000000                            12  
 00000000                            13  ******* ASCII to HEX operations
-00000000                            14  
-00000000                            15  A2H     *Converts and ASCII Byte string into HEX; Size WORD
-00000000  48E7 7FFE                 16          MOVEM.L     D1-D7/A0-A6, -(SP)  
-00000004                            17          
-00000004  3400                      18          MOVE.W  D0,D2
-00000006  3202                      19          MOVE.W  D2,D1                   *Store length of string into D1 for looping
-00000008  2248                      20          MOVEA.L A0,A1                   *Copy starting point of string
-0000000A                            21  
-0000000A  6000 001C                 22          BRA     numSub
-0000000E                            23  numSubRTN
-0000000E  2049                      24          MOVEA.L A1,A0                   *Restore address position
-00000010  3202                      25          MOVE.W  D2,D1                   *Reset loop counter
-00000012                            26          
-00000012  6000 001E                 27          BRA     upSub
-00000016                            28  upSubRTN        
-00000016  2049                      29          MOVEA.L A1,A0                   *Restore address position
-00000018  3202                      30          MOVE.W  D2,D1                   *Reset loop counter
-0000001A  4240                      31          CLR     D0                      *Clear D0
-0000001C                            32  addBytes
-0000001C  D018                      33          ADD.B   (A0)+,D0
-0000001E  57C9 FFFC                 34          DBEQ    D1,addBytes
-00000022                            35  
-00000022  4CDF 7FFE                 36          MOVEM.L     (SP)+, D1-D7/A0-A6
-00000026  4E75                      37          RTS
-00000028                            38          
-00000028                            39  numSub  *Convert ASCII 'number' to true number byte; Should not be called outside of the A2H subroutines
-00000028  0418 0030                 40          SUBI.B  #$30,(A0)+              *Subtract difference between null ASCII and '0' ASCII
-0000002C  5341                      41          SUB.W   #1,D1                   *Decrement loop counter
-0000002E  66F8                      42          BNE     numSub                  *If loop has not ended restart
-00000030  60DC                      43          BRA     numSubRTN
-00000032                            44  
-00000032                            45  upSub   *Loops through string to remove any upper case characters 
-00000032                            46          *that may remain in the string
-00000032  0C10 0009                 47          CMPI.B  #9,(A0)                 *Check if the value is greater than 0-9
-00000036  6F00 0004                 48          BLE     upSEnd                  *If it's not, continue loop
-0000003A  5310                      49          SUBI.B  #1,(A0)                 *Otherwise, subtract difference between ASCII 'number' code and 'A' code
-0000003C                            50  upSEnd
-0000003C  5248                      51          ADDA.W  #1,A0                   *Increment to next position to check for uppercase
-0000003E  5341                      52          SUB.W   #1,D1                   *Decrement loop counter
-00000040  66F0                      53          BNE     upSub                   
-00000042  60D2                      54          BRA     upSubRTN
-Line 55 WARNING: END directive missing, starting address not set
+00000100                            14          ORG     $00000100
+00000100                            15  A2H:     *Converts and ASCII Byte string into HEX; Size WORD
+00000100  48E7 7FFE                 16          MOVEM.L     D1-D7/A0-A6, -(SP)
+00000104                            17  
+00000104  3400                      18          MOVE.W  D0,D2
+00000106  3202                      19          MOVE.W  D2,D1                   *Store length of string into D1 for looping
+00000108  2248                      20          MOVEA.L A0,A1                   *Copy starting point of string
+0000010A                            21  
+0000010A  6000 0026                 22          BRA     numSub
+0000010E                            23  numSubRTN
+0000010E  2049                      24          MOVEA.L A1,A0                   *Restore address position
+00000110  3202                      25          MOVE.W  D2,D1                   *Reset loop counter
+00000112                            26  
+00000112  6000 0028                 27          BRA     upSub
+00000116                            28  upSubRTN
+00000116  2049                      29          MOVEA.L A1,A0                   *Restore address position
+00000118  3202                      30          MOVE.W  D2,D1                   *Reset loop counter
+0000011A  4240                      31          CLR     D0                      *Clear D0
+0000011C                            32  addBytes
+0000011C  D018                      33          ADD.B   (A0)+,D0
+0000011E  5301                      34          SUBI.B  #1,D1
+00000120  6700 000A                 35          BEQ     conv_end
+00000124                            36  addByteLoop
+00000124  E980                      37          ASL.L   #4,D0
+00000126  D018                      38          ADD.B   (A0)+,D0
+00000128  5301                      39          SUBI.B  #1,D1
+0000012A  66F8                      40          BNE     addByteLoop
+0000012C                            41  conv_end
+0000012C  4CDF 7FFE                 42          MOVEM.L     (SP)+, D1-D7/A0-A6
+00000130  4E75                      43          RTS
+00000132                            44  
+00000132                            45  *******************************************
+00000132                            46  
+00000132                            47  numSub  *Convert ASCII 'number' to true number byte; Should not be called outside of the A2H subroutines
+00000132  0418 0030                 48          SUBI.B  #$30,(A0)+              *Subtract difference between null ASCII and '0' ASCII
+00000136  5341                      49          SUB.W   #1,D1                   *Decrement loop counter
+00000138  66F8                      50          BNE     numSub                  *If loop has not ended restart
+0000013A  60D2                      51          BRA     numSubRTN
+0000013C                            52  
+0000013C                            53  ****
+0000013C                            54  
+0000013C                            55  upSub   *Loops through string to remove any upper case characters
+0000013C                            56          *that may remain in the string
+0000013C  0C10 0009                 57          CMPI.B  #9,(A0)                 *Check if the value is greater than 0-9
+00000140  6F00 0004                 58          BLE     upSEnd                  *If it's not, continue loop
+00000144  5310                      59          SUBI.B  #1,(A0)                 *Otherwise, subtract difference between ASCII 'number' code and 'A' code
+00000146                            60  upSEnd
+00000146  5248                      61          ADDA.W  #1,A0                   *Increment to next position to check for uppercase
+00000148  5341                      62          SUB.W   #1,D1                   *Decrement loop counter
+0000014A  66F0                      63          BNE     upSub
+0000014C  60C8                      64          BRA     upSubRTN
+0000014E                            65  
+0000014E                            66  
+0000014E                            67          END     $00000100
 
 No errors detected
-1 warning generated
+No warnings generated
 
 
 SYMBOL TABLE INFORMATION
 Symbol-name         Value
 -------------------------
-A2H                 0
-ADDBYTES            1C
-NUMSUB              28
-NUMSUBRTN           E
-UPSEND              3C
-UPSUB               32
-UPSUBRTN            16
+A2H                 100
+ADDBYTELOOP         124
+ADDBYTES            11C
+CONV_END            12C
+NUMSUB              132
+NUMSUBRTN           10E
+UPSEND              146
+UPSUB               13C
+UPSUBRTN            116

@@ -1,42 +1,20 @@
-SHIFT       EQU %1110
-RO          EQU %11
-AS          EQU %00
-LS          EQU %01
-R           EQU %0
-L           EQU %1
+SHIFT           EQU %1110
+RO              EQU %11
+AS              EQU %00
+LS              EQU %01
+R               EQU %0
+L               EQU %1
 SHIFT_register  EQU %1
 SHIFT_immed     EQU %0
-SHIFT_BYTE  EQU %00
-SHIFT_WORD  EQU %01
-SHIFT_LONG  EQU %11
+SHIFT_BYTE      EQU %00
+SHIFT_WORD      EQU %01
+SHIFT_LONG      EQU %11
 
 pr_reg          DC.B    'D',0
 
-pr_SHIFT_RO   DC.B    'RO',0
-pr_SHIFT_AS   DC.B    'AS',0
-pr_SHIFT_LS   DC.B    'LS',0
-pr_SHIFT_L    DC.B     'L',0
-pr_SHIFT_R    DC.B     'R',0
-
-pr_ERROR    DC.B    'ERROR',0
-
-pr_BCC_CC   DC.B    'BCC',0
-pr_BCC_CS   DC.B    'BCS',0
-pr_BCC_EQ   DC.B    'BEQ',0
-pr_BCC_GE   DC.B    'BGE',0
-pr_BCC_GT   DC.B    'BGT',0
-pr_BCC_HI   DC.B    'BHI',0
-pr_BCC_LE   DC.B    'BLE',0
-pr_BCC_LS   DC.B    'BLS',0
-pr_BCC_LT   DC.B    'BLT',0
-pr_BCC_MI   DC.B    'BMI',0
-pr_BCC_NE   DC.B    'BNE',0
-pr_BCC_PL   DC.B    'BPL',0
-pr_BCC_VC   DC.B    'BVC',0
-pr_BCC_VS   DC.B    'BVS',0
 **********************************************
 *****    SHIFT SUBROUTINES    ****************
-CHECK_SHIFT 
+CHECK_SHIFT
     BSR     Get_Count_Register_Val          * register 3
     BSR     Get_Size                        * register 4
     BSR     Get_Direction                   * register 5
@@ -44,38 +22,38 @@ CHECK_SHIFT
     BSR     Get_Shift_Opcode                * register 7
 
     BSR     PrintShiftData
-    
+
     BSR     getShiftDestReg
-    
+
     MOVE.B  #3,D0
     TRAP    #15
-    
+
     BRA         opdec_return
 
 **********************************************
 getShiftDestReg
 
     MOVEM.W     D2, -(SP)
-    
+
     MOVE.B      #13,D1
     LSL.L       D1,D2
     LSR.L       D1,D2
-    MOVE.B      D2,D1         
-    
+    MOVE.B      D2,D1
+
     MOVEM.W     (SP)+,D2
     RTS
 
-    
+
 *********************************************
 PrintShiftData
-    
+
     CMP.B   #RO,D7
     BEQ     printRotate
     CMP.B   #AS,D7
     BEQ     printArithShift
     CMP.B   #LS,D7
     BEQ     printLogicShift
-    
+
 printRotate
     LEA         pr_SHIFT_RO,A1
     JMP         executeShiftOpcodePrint
@@ -92,7 +70,7 @@ executeShiftOpcodePrint
     BEQ     printShiftRight
     CMP.B   #L,D5
     BEQ     printShiftLeft
-    
+
 printShiftRight
     LEA         pr_SHIFT_R,A1
     JMP         executePrintShiftdirection
@@ -101,7 +79,7 @@ printShiftLeft
     JMP         executePrintShiftdirection
 executePrintShiftdirection
     BSR         PrintString
-    
+
     CMP.B   #SHIFT_BYTE,D4
     BEQ     printShiftByte
     CMP.B   #SHIFT_WORD,D4
@@ -122,7 +100,7 @@ executePrintShiftSize
     BSR         PrintString
     LEA     pr_space,A1
     BSR     PrintString
-    
+
     CMP.B   #SHIFT_register,D6
     BEQ     printShiftReg
     CMP.B   #SHIFT_immed,D6
@@ -135,78 +113,78 @@ printShift
     MOVE.B  D3,D1
     MOVE.B  #3,D0
     TRAP    #15
-    
+
     LEA     pr_comma,A1
     BSR     PrintString
     LEA     pr_reg,A1
     BSR     PrintString
     RTS
-    
-    
+
+
 **********************************************
 Get_Count_Register_Val
 
     MOVEM.W     D2, -(SP)
-    
+
     MOVE.B      #13,D1
     LSL.L       #4,D2
     LSR.L       D1,D2
-    MOVE.B      D2,D3         
-    
+    MOVE.B      D2,D3
+
     MOVEM.W     (SP)+,D2
     RTS
 
-**********************************************  
+**********************************************
 Get_Size
-    
+
     MOVEM.W     D2, -(SP)
-    
+
     MOVE.B      #14,D1
     LSL.L       #8,D2
     LSR.L       D1,D2
-    MOVE.B      D2,D4         
-    
+    MOVE.B      D2,D4
+
     MOVEM.W     (SP)+,D2
     RTS
 *********************************************
 Get_Direction
 
     MOVEM.W     D2, -(SP)
-    
+
     MOVE.B      #15,D1
     LSL.L       #7,D2
     LSR.L       D1,D2
-    MOVE.B      D2,D5         
-    
+    MOVE.B      D2,D5
+
     MOVEM.W     (SP)+,D2
     RTS
 ********************************************
 Get_Is_Register_Or_Immediate
-    
+
     MOVEM.W     D2, -(SP)
-    
+
     MOVE.B      #10,D1
     LSL.L       D1,D2
     MOVE.B      #15,D1
     LSR.L       D1,D2
-    
-    MOVE.B      D2,D6         
-    
+
+    MOVE.B      D2,D6
+
     MOVEM.W     (SP)+,D2
     RTS
 
 *******************************************
 Get_Shift_Opcode
-    
+
     MOVEM.W     D2, -(SP)
-    
+
     MOVE.B      #11,D1
     LSL.L       D1,D2
     MOVE.B      #14,D1
     LSR.L       D1,D2
-    
-    MOVE.B      D2,D7         
-    
+
+    MOVE.B      D2,D7
+
     MOVEM.W     (SP)+,D2
     RTS
 ********************************************
@@ -247,13 +225,13 @@ Get_BCC_Displacement_32bit
 Get_Current_Address
 
     CLR     D7
-    MOVE.L      A0,D7 
+    MOVE.L      A0,D7
     SUBI.L      #2,D7
     RTS
 **********************************************
 Get_BCC_Destination_Address
 
-    SUB.L   D6,D7    
+    SUB.L   D6,D7
     RTS
 **********************************************
 **********************************************
@@ -263,7 +241,7 @@ Get_BCC_Destination_Address
 PrintHex
 
     MOVEM.W     D2, -(SP)
-    
+
     MOVE.B      #15,D0
     MOVE.B      #16,D2 * print base 16
     TRAP        #15
@@ -314,738 +292,738 @@ MATCH_CC_F_32
 *****
 MATCH_CC_HI_8
     ** print opcode **
-    LEA         pr_BCC_HI,A1                
+    LEA         pr_BCC_HI,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeBYTE
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_8bit 
+    BSR         Get_BCC_Displacement_8bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 
 MATCH_CC_HI_16
     ** print opcode **
-    LEA         pr_BCC_HI,A1                
+    LEA         pr_BCC_HI,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeWORD
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_16bit 
+    BSR         Get_BCC_Displacement_16bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 MATCH_CC_HI_32
     ** print opcode **
-    LEA         pr_BCC_HI,A1                
+    LEA         pr_BCC_HI,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeLONG
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_32bit 
+    BSR         Get_BCC_Displacement_32bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 *****
 MATCH_CC_LS_8
     ** print opcode **
-    LEA         pr_BCC_LS,A1                
+    LEA         pr_BCC_LS,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeBYTE
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_8bit 
+    BSR         Get_BCC_Displacement_8bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 MATCH_CC_LS_16
     ** print opcode **
-    LEA         pr_BCC_LS,A1                
+    LEA         pr_BCC_LS,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeWORD
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_16bit 
+    BSR         Get_BCC_Displacement_16bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 
-MATCH_CC_LS_32  
+MATCH_CC_LS_32
     ** print opcode **
-    LEA         pr_BCC_LS,A1                
+    LEA         pr_BCC_LS,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeLONG
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_32bit 
+    BSR         Get_BCC_Displacement_32bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 *****
-MATCH_CC_CC_8    
-    
+MATCH_CC_CC_8
+
     ** print opcode **
-    LEA         pr_BCC_CC,A1                
+    LEA         pr_BCC_CC,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeBYTE
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_8bit 
+    BSR         Get_BCC_Displacement_8bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 
 MATCH_CC_CC_16
     ** print opcode **
-    LEA         pr_BCC_CC,A1                
+    LEA         pr_BCC_CC,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeWORD
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_16bit 
+    BSR         Get_BCC_Displacement_16bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 MATCH_CC_CC_32
     ** print opcode **
-    LEA         pr_BCC_CC,A1                
+    LEA         pr_BCC_CC,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeLONG
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_32bit 
+    BSR         Get_BCC_Displacement_32bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 *****
 MATCH_CC_CS_8
     ** print opcode **
-    LEA         pr_BCC_CS,A1                
+    LEA         pr_BCC_CS,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeBYTE
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_8bit 
+    BSR         Get_BCC_Displacement_8bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 MATCH_CC_CS_16
     ** print opcode **
-    LEA         pr_BCC_CS,A1                
+    LEA         pr_BCC_CS,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeWORD
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_16bit 
+    BSR         Get_BCC_Displacement_16bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 MATCH_CC_CS_32
     ** print opcode **
-    LEA         pr_BCC_CS,A1                
+    LEA         pr_BCC_CS,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeLONG
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_32bit 
+    BSR         Get_BCC_Displacement_32bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 *****
 MATCH_CC_NE_8
     ** print opcode **
-    LEA         pr_BCC_NE,A1                
+    LEA         pr_BCC_NE,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeBYTE
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_8bit 
+    BSR         Get_BCC_Displacement_8bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 MATCH_CC_NE_16
     ** print opcode **
-    LEA         pr_BCC_NE,A1                
+    LEA         pr_BCC_NE,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeWORD
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_16bit 
+    BSR         Get_BCC_Displacement_16bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 MATCH_CC_NE_32
     ** print opcode **
-    LEA         pr_BCC_NE,A1                
+    LEA         pr_BCC_NE,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeLONG
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_32bit 
+    BSR         Get_BCC_Displacement_32bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 *****
 MATCH_CC_EQ_8
     ** print opcode **
-    LEA         pr_BCC_EQ,A1                
+    LEA         pr_BCC_EQ,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeBYTE
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_8bit 
+    BSR         Get_BCC_Displacement_8bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 MATCH_CC_EQ_16
     ** print opcode **
-    LEA         pr_BCC_EQ,A1                
+    LEA         pr_BCC_EQ,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeWORD
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_16bit 
+    BSR         Get_BCC_Displacement_16bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 MATCH_CC_EQ_32
     ** print opcode **
-    LEA         pr_BCC_EQ,A1                
+    LEA         pr_BCC_EQ,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeLONG
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_32bit 
+    BSR         Get_BCC_Displacement_32bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 *****
 MATCH_CC_VC_8
     ** print opcode **
-    LEA         pr_BCC_VC,A1                
+    LEA         pr_BCC_VC,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeBYTE
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_8bit 
+    BSR         Get_BCC_Displacement_8bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 MATCH_CC_VC_16
     ** print opcode **
-    LEA         pr_BCC_VC,A1                
+    LEA         pr_BCC_VC,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeWORD
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_16bit 
+    BSR         Get_BCC_Displacement_16bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 MATCH_CC_VC_32
     ** print opcode **
-    LEA         pr_BCC_VC,A1                
+    LEA         pr_BCC_VC,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeLONG
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_32bit 
+    BSR         Get_BCC_Displacement_32bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 *****
 MATCH_CC_VS_8
     ** print opcode **
-    LEA         pr_BCC_VS,A1                
+    LEA         pr_BCC_VS,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeBYTE
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_8bit 
+    BSR         Get_BCC_Displacement_8bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 MATCH_CC_VS_16
     ** print opcode **
-    LEA         pr_BCC_VS,A1                
+    LEA         pr_BCC_VS,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeWORD
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_16bit 
+    BSR         Get_BCC_Displacement_16bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 MATCH_CC_VS_32
     ** print opcode **
-    LEA         pr_BCC_VS,A1                
+    LEA         pr_BCC_VS,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeLONG
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_32bit 
+    BSR         Get_BCC_Displacement_32bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 *****
 MATCH_CC_PL_8
     ** print opcode **
-    LEA         pr_BCC_PL,A1                
+    LEA         pr_BCC_PL,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeBYTE
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_8bit 
+    BSR         Get_BCC_Displacement_8bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 MATCH_CC_PL_16
     ** print opcode **
-    LEA         pr_BCC_PL,A1                
+    LEA         pr_BCC_PL,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeWORD
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_16bit 
+    BSR         Get_BCC_Displacement_16bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 MATCH_CC_PL_32
     ** print opcode **
-    LEA         pr_BCC_PL,A1                
+    LEA         pr_BCC_PL,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeLONG
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_32bit 
+    BSR         Get_BCC_Displacement_32bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 *****
 MATCH_CC_MI_8
     ** print opcode **
-    LEA         pr_BCC_MI,A1                
+    LEA         pr_BCC_MI,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeBYTE
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_8bit 
+    BSR         Get_BCC_Displacement_8bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 MATCH_CC_MI_16
     ** print opcode **
-    LEA         pr_BCC_MI,A1                
+    LEA         pr_BCC_MI,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeWORD
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_16bit 
+    BSR         Get_BCC_Displacement_16bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 MATCH_CC_MI_32
     ** print opcode **
-    LEA         pr_BCC_MI,A1                
+    LEA         pr_BCC_MI,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeLONG
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_32bit 
+    BSR         Get_BCC_Displacement_32bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 *****
 MATCH_CC_GE_8
     ** print opcode **
-    LEA         pr_BCC_GE,A1                
+    LEA         pr_BCC_GE,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeBYTE
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_8bit 
+    BSR         Get_BCC_Displacement_8bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 MATCH_CC_GE_16
     ** print opcode **
-    LEA         pr_BCC_GE,A1                
+    LEA         pr_BCC_GE,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeWORD
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_16bit 
+    BSR         Get_BCC_Displacement_16bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 MATCH_CC_GE_32
     ** print opcode **
-    LEA         pr_BCC_GE,A1                
+    LEA         pr_BCC_GE,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeLONG
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_32bit 
+    BSR         Get_BCC_Displacement_32bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 *****
 MATCH_CC_LT_8
     ** print opcode **
-    LEA         pr_BCC_LT,A1                
+    LEA         pr_BCC_LT,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeBYTE
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_8bit 
+    BSR         Get_BCC_Displacement_8bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 MATCH_CC_LT_16
     ** print opcode **
-    LEA         pr_BCC_LT,A1                
+    LEA         pr_BCC_LT,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeWORD
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_16bit 
+    BSR         Get_BCC_Displacement_16bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 MATCH_CC_LT_32
     ** print opcode **
-    LEA         pr_BCC_LT,A1                
+    LEA         pr_BCC_LT,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeLONG
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_32bit 
+    BSR         Get_BCC_Displacement_32bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 *****
 MATCH_CC_GT_8
     ** print opcode **
-    LEA         pr_BCC_GT,A1                
+    LEA         pr_BCC_GT,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeBYTE
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_8bit 
+    BSR         Get_BCC_Displacement_8bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 MATCH_CC_GT_16
     ** print opcode **
-    LEA         pr_BCC_GT,A1                
+    LEA         pr_BCC_GT,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeWORD
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_16bit 
+    BSR         Get_BCC_Displacement_16bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 MATCH_CC_GT_32
     ** print opcode **
-    LEA         pr_BCC_GT,A1                
+    LEA         pr_BCC_GT,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeLONG
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_32bit 
+    BSR         Get_BCC_Displacement_32bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 *****
 MATCH_CC_LE_8
     ** print opcode **
-    LEA         pr_BCC_LE,A1                
+    LEA         pr_BCC_LE,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeBYTE
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_8bit 
+    BSR         Get_BCC_Displacement_8bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 MATCH_CC_LE_16
     ** print opcode **
-    LEA         pr_BCC_LE,A1                
+    LEA         pr_BCC_LE,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeWORD
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_16bit 
+    BSR         Get_BCC_Displacement_16bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
 MATCH_CC_LE_32
     ** print opcode **
-    LEA         pr_BCC_LE,A1                
+    LEA         pr_BCC_LE,A1
     BSR         PrintString
-    
+
     BSR         PrintSizeLONG
     LEA         pr_space,A1
     BSR         PrintString
- 
+
     ** print address **
-    BSR         Get_BCC_Displacement_32bit 
+    BSR         Get_BCC_Displacement_32bit
     BSR         Get_Current_Address
     BSR         Get_BCC_Destination_Address
     MOVE.L      D7,D1
     BSR         PrintHex
-    
+
     BRA         opdec_return
-**********************************   
+**********************************
 ERROR
-    LEA         pr_ERROR,A1                
+    LEA         pr_ERROR,A1
     BSR         PrintString
     BRA         opdec_return
 

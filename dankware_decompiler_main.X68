@@ -52,19 +52,19 @@ loop_start
         CMPI.W  #$FFFF,D2
         BEQ     Done
         
-        JSR     OpDecoder
+        BSR     OpDecoder
         
         MOVE.L  #13,D0
         TRAP    #15
         
-        BRA     loop_start
+        JMP     loop_start
         
 input_error        
         MOVE.L  #13,D0
         LEA     ERROR_MSG,A1
         TRAP    #15
 Done        
-
+        SIMHALT
         END    $1000
 
 
