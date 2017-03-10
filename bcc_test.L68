@@ -1,0 +1,74 @@
+00009000 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.15.04
+Created On: 3/9/2017 3:49:29 PM
+
+00000000                             1  *****************************
+00000000                             2  *
+00000000                             3  * demo_test.X68
+00000000                             4  *
+00000000                             5  * Created 03/08/2017
+00000000                             6  *
+00000000                             7  * Test program for CSS 422 Disassembler Project Demo
+00000000                             8  *
+00000000                             9  *****************************
+00000000                            10  
+00000000  =00009000                 11  start           EQU     $00009000       * ORG and END address
+00000000                            12  
+00000000                            13  * ORG the program so that it straddles the address boundary $00007FFF to $00008000
+00000000                            14  
+00009000                            15                  ORG     start
+00009000                            16  
+00009000                            17  NOP
+00009000  6416                      18      BCC.B     label1
+00009002  6418                      19      BCC.B     label2
+00009004  6E12                      20      BGT.B     label1
+00009006  6E14                      21      BGT.B     label2
+00009008  6F0E                      22      BLE.B     label1
+0000900A  6F10                      23      BLE.B     label2
+0000900C  6400 000A                 24      BCC.W     label1
+00009010  6400 000A                 25      BCC.W     label2
+00009014  6400 0020                 26      BCC.W     label3
+00009018                            27  label1
+00009018  6E00 FFFE                 28      BGT.W     label1
+0000901C                            29  label2
+0000901C  6E00 FFFE                 30      BGT.W     label2
+00009020  6E00 0014                 31      BGT.W     label3
+00009024  6F00 FFF2                 32      BLE.W     label1
+00009028  6F00 FFF2                 33      BLE.W     label2
+0000902C  6F00 0008                 34      BLE.W     label3
+00009030  6418                      35      BCC.B     label4
+00009032  6E16                      36      BGT.B     label4
+00009034  6F14                      37      BLE.B     label4
+00009036                            38  label3
+00009036  6400 FFE0                 39      BCC.W     label1
+0000903A  6400 FFE0                 40      BCC.W     label2
+0000903E  6400 FFF6                 41      BCC.W     label3
+00009042  6E00 FFD4                 42      BGT.W     label1
+00009046  6E00 FFD4                 43      BGT.W     label2
+0000904A                            44  label4
+0000904A  6E00 FFEA                 45      BGT.W     label3
+0000904E  6F00 FFC8                 46      BLE.W     label1
+00009052  6F00 FFC8                 47      BLE.W     label2
+00009056  6F00 FFDE                 48      BLE.W     label3
+0000905A                            49  
+0000905A                            50  * Put program code here
+0000905A                            51  
+0000905A  FFFF FFFF                 52      SIMHALT             ; halt simulator
+0000905E                            53  
+0000905E                            54  * Put variables and constants here
+0000905E                            55  
+0000905E                            56      END    START        ; last line of source
+
+No errors detected
+No warnings generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+LABEL1              9018
+LABEL2              901C
+LABEL3              9036
+LABEL4              904A
+NOP                 9000
+START               9000

@@ -219,6 +219,7 @@ MATCH_CMP_L
     ** Print space
     LEA         pr_space,A1
     TRAP        #15
+    CLR         D0
     ** Decode right side ea
     MOVE.B      D2,D0
     ANDI.B      #%00111111,D0
@@ -231,7 +232,7 @@ MATCH_CMP_L
     MOVE.W      D2,D0
     ANDI.W      #%0000111000000000,D0
     LSR.L       #6,D0
-    JSR         EADecoder_left     
+    JSR         EADecoder_left   
     
     BRA         opdec_return
 MATCH_JSR
@@ -474,6 +475,8 @@ MATCH_AND_EA_L
     JSR         EADecoder
     
     BRA         opdec_return
+
+
 
 
 
