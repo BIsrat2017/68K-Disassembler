@@ -263,6 +263,10 @@ CHECK_FOUR_BIT_SIG
     CMP.B       D3,D6
     BEQ         CHECK_BCC
     
+    MOVE.B      #SHIFT,D6
+    CMP.B       D3,D6
+    BEQ         CHECK_SHIFT
+    
     BRA         FOUR_BIT_RETURN
 ***********************************
 CHECK_BCC
@@ -798,8 +802,7 @@ MATCH_MOVEM_TO_REG_W
 MATCH_MOVEM_TO_REG_L
     MOVE.W      D2,D5       *REMOVE
 ***********************************
-    
-
+   
 
 MATCH_DIVU
     MOVE.W      D2,D5       *REMOVE
@@ -821,18 +824,8 @@ MATCH_LEA
 
 MATCH_MULS_L
     MOVE.W      D2,D5       *REMOVE
-MATCH_LSL
-    MOVE.W      D2,D5       *REMOVE
-MATCH_LSR
-    MOVE.W      D2,D5       *REMOVE
-MATCH_ASR
-    MOVE.W      D2,D5       *REMOVE
-MATCH_ASL
-    MOVE.W      D2,D5       *REMOVE
-MATCH_ROL
-    MOVE.W      D2,D5       *REMOVE
-MATCH_ROR
-    MOVE.W      D2,D5       *REMOVE
+
+
 
 
 *~Font name~Courier New~
