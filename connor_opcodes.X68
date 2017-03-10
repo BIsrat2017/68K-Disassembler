@@ -561,7 +561,7 @@ print_movem_dn
     
 to_mem_d0 *************************** D0
     ** Test bit
-    BTST        #8,D4
+    BTST        #7,D4
     BEQ         to_mem_d1
     ** Print register
     MOVE.B      #14,D0
@@ -570,14 +570,14 @@ to_mem_d0 *************************** D0
     
     ** Check if next bit is clear
     ** If true, skip next
-    BTST        #7,D4
+    BTST        #6,D4
     BEQ         to_mem_d2
     ** Else, check cascade
     BRA         cascade_d1
 
 to_mem_d1 *************************** D1
     ** Test bit
-    BTST        #7,D4
+    BTST        #6,D4
     BEQ         to_mem_d2
     ** Print register
     MOVE.B      #14,D0
@@ -586,14 +586,14 @@ to_mem_d1 *************************** D1
     
     ** Check if next bit is clear
     ** If true, skip next
-    BTST        #6,D4
+    BTST        #5,D4
     BEQ         to_mem_d3
     ** Else, check cascade
     BRA         cascade_d2
 
 to_mem_d2 *************************** D2
     ** Test bit
-    BTST        #6,D4
+    BTST        #5,D4
     BEQ         to_mem_d3
     ** Print register
     MOVE.B      #14,D0
@@ -602,14 +602,14 @@ to_mem_d2 *************************** D2
     
     ** Check if next bit is clear
     ** If true, skip next
-    BTST        #5,D4
+    BTST        #4,D4
     BEQ         to_mem_d4
     ** Else, check cascade
     BRA         cascade_d3
 
 to_mem_d3 *************************** D3
     ** Test bit
-    BTST        #5,D4
+    BTST        #4,D4
     BEQ         to_mem_d4
     ** Print register
     MOVE.B      #14,D0
@@ -618,14 +618,14 @@ to_mem_d3 *************************** D3
     
     ** Check if next bit is clear
     ** If true, skip next
-    BTST        #4,D4
+    BTST        #3,D4
     BEQ         to_mem_d5
     ** Else, check cascade
     BRA         cascade_d4
 
 to_mem_d4 *************************** D4
     ** Test bit
-    BTST        #4,D4
+    BTST        #3,D4
     BEQ         to_mem_d5
     ** Print register
     MOVE.B      #14,D0
@@ -634,14 +634,14 @@ to_mem_d4 *************************** D4
     
     ** Check if next bit is clear
     ** If true, skip next
-    BTST        #3,D4
+    BTST        #2,D4
     BEQ         to_mem_d6
     ** Else, check cascade
     BRA         cascade_d5
 
 to_mem_d5 *************************** D5
     ** Test bit
-    BTST        #3,D4
+    BTST        #2,D4
     BEQ         to_mem_d6
     ** Print register
     MOVE.B      #14,D0
@@ -650,14 +650,14 @@ to_mem_d5 *************************** D5
     
     ** Check if next bit is clear
     ** If true, skip next
-    BTST        #2,D4
+    BTST        #1,D4
     BEQ         to_mem_d7
     ** Else, check cascade
     BRA         cascade_d6
 
 to_mem_d6 *************************** D6
     ** Test bit
-    BTST        #2,D4
+    BTST        #1,D4
     BEQ         to_mem_d7
     ** Print register
     MOVE.B      #14,D0
@@ -666,14 +666,14 @@ to_mem_d6 *************************** D6
     
     ** Check if next bit is clear
     ** If true, skip next
-    BTST        #1,D4
+    BTST        #0,D4
     BEQ         print_movem_dn_end
     ** Else, check cascade
     BRA         cascade_d7
     
 to_mem_d7 *************************** D7
     ** Test bit
-    BTST        #1,D4
+    BTST        #0,D4
     BEQ         print_movem_dn_end
     ** Print register
     MOVE.B      #14,D0
@@ -687,7 +687,7 @@ print_movem_dn_end
 
 cascade_d1 *************************** -D1
     ** If the next bit is set, check next
-    BTST        #6,D4
+    BTST        #5,D4
     BNE         cascade_d2
     ** Else, finish the list
     LEA         pr_hyphen,A1
@@ -699,7 +699,7 @@ cascade_d1 *************************** -D1
     
 cascade_d2 *************************** -D2
     ** If the next bit is set, check next
-    BTST        #5,D4
+    BTST        #4,D4
     BNE         cascade_d3
     ** Else, finish the list
     LEA         pr_hyphen,A1
@@ -711,7 +711,7 @@ cascade_d2 *************************** -D2
     
 cascade_d3 *************************** -D3
     ** If the next bit is set, check next
-    BTST        #4,D4
+    BTST        #3,D4
     BNE         cascade_d4
     ** Else, finish the list
     LEA         pr_hyphen,A1
@@ -723,7 +723,7 @@ cascade_d3 *************************** -D3
     
 cascade_d4 *************************** -D4
     ** If the next bit is set, check next
-    BTST        #3,D4
+    BTST        #2,D4
     BNE         cascade_d5
     ** Else, finish the list
     LEA         pr_hyphen,A1
@@ -735,7 +735,7 @@ cascade_d4 *************************** -D4
     
 cascade_d5 *************************** -D5
     ** If the next bit is set, check next
-    BTST        #2,D4
+    BTST        #1,D4
     BNE         cascade_d6
     ** Else, finish the list
     LEA         pr_hyphen,A1
@@ -747,7 +747,7 @@ cascade_d5 *************************** -D5
     
 cascade_d6 *************************** -D6
     ** If the next bit is set, check next
-    BTST        #2,D4
+    BTST        #0,D4
     BNE         cascade_d7
     ** Else, finish the list
     LEA         pr_hyphen,A1

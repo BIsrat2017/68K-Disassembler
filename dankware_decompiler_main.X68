@@ -89,6 +89,7 @@ pr_a7       DC.B    'A7',0
 
 ** Messages
 MESSAGE     DC.B    'Enter the address of compiled code: ',0
+MESSAGE2    DC.B    CR,LF,'Please hit enter',0
 ERROR_MSG   DC.B    'Invalid input, please rerun',0
 DONE_MSG    DC.B    'End of program found!',0
 
@@ -134,6 +135,10 @@ loop_start
 
         MOVE.L  #13,D0
         TRAP    #15
+        
+        ADD     #1,D5       *Increment d5 by 1
+        CMP     #31,D5      *Check if theres 31 lines of output
+        BEQ     clr_scrn    *If theres 20 lines, clear the screen and prompt
 
         BRA     loop_start
 
@@ -141,6 +146,20 @@ input_error
         MOVE.L  #13,D0
         LEA     ERROR_MSG,A1
         TRAP    #15
+        BRA     Done
+clr_scrn
+        LEA     MESSAGE2,A1     *Print out initial message
+        MOVE.B  #14,D0
+        TRAP    #15
+        
+        MOVE.B  #2,D0           *Get user input
+        TRAP    #15
+        MOVE.B  #0,D5
+        BRA     loop_start
+        
+        MOVE.B  #9,D0           *halt the simulator
+        TRAP    #15
+        
 Done
         MOVE.L  #14,D0
         LEA     DONE_MSG,A1
