@@ -11,10 +11,6 @@ MOVE_W          EQU %0011
 MOVE_L          EQU %0010
 MOVEA_WL        EQU %001
 MOVEQ_          EQU %0111
-MOVEM_TO_MEM_W  EQU %0100100010
-MOVEM_TO_MEM_L  EQU %0100100011
-MOVEM_TO_REG_W  EQU %0100110010
-MOVEM_TO_REG_L  EQU %0100110011
 
 ADDI_B          EQU %0000011000
 ADDI_W          EQU %0000011001
@@ -56,7 +52,7 @@ EA_B            EQU %100
 EA_W            EQU %101
 EA_L            EQU %110
 
-MULS_LEA_CLR_JSR_RTS    EQU %0100
+MULS_LEA_CLR_JSR_RTS_MOVEM    EQU %0100
 RTS             EQU $4E75
 LEA             EQU %111
 JSR             EQU %0100111010
@@ -64,6 +60,11 @@ CLR_B           EQU %0100001000
 CLR_W           EQU %0100001001
 CLR_L           EQU %0100001010
 MULS_L          EQU %0100110000
+
+MOVEM_TO_MEM_W  EQU %0100100010
+MOVEM_TO_MEM_L  EQU %0100100011
+MOVEM_TO_REG_W  EQU %0100110010
+MOVEM_TO_REG_L  EQU %0100110011
 
 LSL             EQU %1110001111
 LSR             EQU %1110001011
@@ -114,8 +115,6 @@ OpDecoder
 NOP_RETURN
     BRA         CHECK_FOUR_BIT_SIG
 FOUR_BIT_RETURN
-    BRA         CHECK_MOVEM
-MOVEM_RETURN
     BRA         CHECK_ADDI
 ADDI_RETURN
     BRA         CHECK_SHIFT_AND_ROTATE
@@ -229,7 +228,7 @@ CHECK_FOUR_BIT_SIG
     CMP.B       D3,D6
     BEQ         CHECK_MULS_W_AND
 
-    MOVE.B      #MULS_LEA_CLR_JSR_RTS,D6
+    MOVE.B      #MULS_LEA_CLR_JSR_RTS_MOVEM,D6
     CMP.B       D3,D6
     BEQ         CHECK_MULS_LEA_CLR_JSR_RTS
 
@@ -538,8 +537,8 @@ CHECK_MULS_LEA_CLR_JSR_RTS
     MOVE.W      #MULS_L,D6  * Shouldn't need to check for the rest of the opcode..?
     CMP.W       D3,D6
     BEQ         MATCH_MULS_L
-
-    BRA         ERROR
+    
+    BRA         CHECK_MOVEM
 
 ***********************************
 CHECK_MULS_W_AND
@@ -632,7 +631,7 @@ CHECK_MOVEM
     CMP.W       D3,D6
     BEQ         MATCH_MOVEM_TO_REG_L
 
-    BRA         MOVEM_RETURN
+    BRA         ERROR
 ****************************************
 CHECK_ADD_ADDA
 
@@ -771,14 +770,7 @@ CHECK_MOVEA_L_AND_MOVE_L
 ** D2 is holding the op command bits        **
 
 ***********************************
-MATCH_MOVEM_TO_MEM_W
-    MOVE.W      D2,D5       *REMOVE
-MATCH_MOVEM_TO_MEM_L
-    MOVE.W      D2,D5       *REMOVE
-MATCH_MOVEM_TO_REG_W
-    MOVE.W      D2,D5       *REMOVE
-MATCH_MOVEM_TO_REG_L
-    MOVE.W      D2,D5       *REMOVE
+
 ***********************************
 
 MATCH_OR_DN_B
@@ -805,6 +797,7 @@ MATCH_MULS_L
                 INCLUDE 'connor_opcodes.x68'
                 INCLUDE 'spencer_opcodes.x68'
                 INCLUDE 'arsany_opcodes.x68'
+
 
 
 

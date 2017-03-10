@@ -20,6 +20,8 @@ pr_WORD     DC.B    '.W',0
 pr_LONG     DC.B    '.L',0
 pr_hash     DC.B    '#',0
 pr_hextag   DC.B    '#$',0
+pr_hyphen   DC.B    '-',0
+pr_slash    DC.B    '/',0
 
 
 ** Command strings constants
@@ -66,6 +68,26 @@ pr_BCC_PL   DC.B    'BPL',0
 pr_BCC_VC   DC.B    'BVC',0
 pr_BCC_VS   DC.B    'BVS',0
 
+** Register constants
+pr_d0       DC.B    'D0',0
+pr_d1       DC.B    'D1',0
+pr_d2       DC.B    'D2',0
+pr_d3       DC.B    'D3',0
+pr_d4       DC.B    'D4',0
+pr_d5       DC.B    'D5',0
+pr_d6       DC.B    'D6',0
+pr_d7       DC.B    'D7',0
+
+pr_a0       DC.B    'A0',0
+pr_a1       DC.B    'A1',0
+pr_a2       DC.B    'A2',0
+pr_a3       DC.B    'A3',0
+pr_a4       DC.B    'A4',0
+pr_a5       DC.B    'A5',0
+pr_a6       DC.B    'A6',0
+pr_a7       DC.B    'A7',0
+
+** Messages
 MESSAGE     DC.B    'Enter the address of compiled code: ',0
 ERROR_MSG   DC.B    'Invalid input, please rerun',0
 DONE_MSG    DC.B    'End of program found!',0
@@ -129,6 +151,7 @@ Done
 		INCLUDE	'opcodes.x68'
 
         END     start
+
 
 *~Font name~Courier New~
 *~Font size~10~
