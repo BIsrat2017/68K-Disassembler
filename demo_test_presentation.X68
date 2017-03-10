@@ -16,7 +16,7 @@ start		EQU	$00009000	* ORG and END address
 
 NOP
     RTS
-    *NOP
+    NOP
     RTS
     *LEA     (A0),A0
     *LEA     (A5),A0
@@ -129,7 +129,7 @@ NOP
     MOVEA.L    A0,A0
     MOVEA.L    (A0),A0
     MOVEA.L    (A0)+,A0
-    MOVEA.L    -(A0),A0  
+    MOVEA.L    -(A0),A0
     ADD.B     D1,D2
     ADD.B     D1,(A1)
     ADD.B     D1,(A1)+
@@ -183,7 +183,7 @@ NOP
     SUB.L     A1,D1
     SUB.L     (A1),D1
     SUB.L     (A1)+,D1
-    SUB.L     -(A1),D1    
+    SUB.L     -(A1),D1
     MULS.W    D0,D1
     MULS.W    (A0),D1
     MULS.W    -(A0),D1
@@ -245,7 +245,7 @@ NOP
 *    LSR.W     (A1)
 *    LSR.W     (A1)+
 *    LSR.W     -(A1)
-*    LSR.L     D1,D2    
+*    LSR.L     D1,D2
 *    ASR.B     D1,D2
 *    ASR.W     D1,D2
 *    ASR.W     (A1)
@@ -269,7 +269,7 @@ NOP
 *    ROR.W     (A1)
 *    ROR.W     (A1)+
 *    ROR.W     -(A1)
-*    ROR.L     D1,D2    
+*    ROR.L     D1,D2
     CMP.B    D0,D1
     CMP.B    (A0),D1
     CMP.B    -(A0),D1
@@ -310,9 +310,9 @@ NOP
 label1
     NOP
     RTS
-    LEA       $12,A0
-    LEA       $1234,A0
-    LEA       $12345678,A0
+*    LEA       $12,A0
+*    LEA       $1234,A0
+*    LEA       $12345678,A0
     CLR.B     $12
     CLR.B     $1234
     CLR.B     $12345678
@@ -449,27 +449,27 @@ label3
     ADDA.L    $1234,A2
     ADDA.L    $12345678,A2
     ADDA.L    #$12345678,A2
-*    SUB.B     D1,$12
-*    SUB.B     D1,$1234
-*    SUB.B     D1,$12345678
-*    SUB.B     $12,D1
-*    SUB.B     $1234,D1
-*    SUB.B     $12345678,D1
-*    SUB.B     #$12,D1
-*    SUB.W     D1,$12
-*    SUB.W     D1,$1234
-*    SUB.W     D1,$12345678
-*    SUB.W     $12,D1
-*    SUB.W     $1234,D1
-*    SUB.W     $12345678,D1
-*    SUB.W     #$1234,D1
-*    SUB.L     D1,$12
-*    SUB.L     D1,$1234
-*    SUB.L     D1,$12345678
-*    SUB.L     $12,D1
-*    SUB.L     $1234,D1
-*    SUB.L     $12345678,D1
-*    SUB.L     #$12345678,D1
+    SUB.B     D1,$12
+    SUB.B     D1,$1234
+    SUB.B     D1,$12345678
+    SUB.B     $12,D1
+    SUB.B     $1234,D1
+    SUB.B     $12345678,D1
+    SUB.B     #$12,D1
+    SUB.W     D1,$12
+    SUB.W     D1,$1234
+    SUB.W     D1,$12345678
+    SUB.W     $12,D1
+    SUB.W     $1234,D1
+    SUB.W     $12345678,D1
+    SUB.W     #$1234,D1
+    SUB.L     D1,$12
+    SUB.L     D1,$1234
+    SUB.L     D1,$12345678
+    SUB.L     $12,D1
+    SUB.L     $1234,D1
+    SUB.L     $12345678,D1
+    SUB.L     #$12345678,D1
 *    MULS.W    $12,D1
 *    MULS.W    $1234,D1
 *    MULS.W    $12345678,D1
@@ -555,6 +555,7 @@ label4    CMP.B     $12,D1
 * Put variables and constants here
 
     END    START        ; last line of source
+
 
 
 
