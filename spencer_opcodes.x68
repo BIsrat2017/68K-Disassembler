@@ -1,3 +1,23 @@
+SHIFT       EQU %1110
+RO          EQU %11
+AS          EQU %00
+LS          EQU %01
+R           EQU %0
+L           EQU %1
+SHIFT_register  EQU %1
+SHIFT_immed     EQU %0
+SHIFT_BYTE  EQU %00
+SHIFT_WORD  EQU %01
+SHIFT_LONG  EQU %11
+
+pr_reg          DC.B    'D',0
+
+pr_SHIFT_RO   DC.B    'RO',0
+pr_SHIFT_AS   DC.B    'AS',0
+pr_SHIFT_LS   DC.B    'LS',0
+pr_SHIFT_L    DC.B     'L',0
+pr_SHIFT_R    DC.B     'R',0
+
 pr_ERROR    DC.B    'ERROR',0
 
 pr_BCC_CC   DC.B    'BCC',0
@@ -14,8 +34,197 @@ pr_BCC_NE   DC.B    'BNE',0
 pr_BCC_PL   DC.B    'BPL',0
 pr_BCC_VC   DC.B    'BVC',0
 pr_BCC_VS   DC.B    'BVS',0
+**********************************************
+*****    SHIFT SUBROUTINES    ****************
+CHECK_SHIFT 
+    BSR     Get_Count_Register_Val          * register 3
+    BSR     Get_Size                        * register 4
+    BSR     Get_Direction                   * register 5
+    BSR     Get_Is_Register_Or_Immediate    * register 6
+    BSR     Get_Shift_Opcode                * register 7
+
+    BSR     PrintShiftData
+    
+    BSR     getShiftDestReg
+    
+    MOVE.B  #3,D0
+    TRAP    #15
+    
+    BRA         opdec_return
+
+**********************************************
+getShiftDestReg
+
+    MOVEM.W     D2, -(SP)
+    
+    MOVE.B      #13,D1
+    LSL.L       D1,D2
+    LSR.L       D1,D2
+    MOVE.B      D2,D1         
+    
+    MOVEM.W     (SP)+,D2
+    RTS
+
+    
+*********************************************
+PrintShiftData
+    
+    CMP.B   #RO,D7
+    BEQ     printRotate
+    CMP.B   #AS,D7
+    BEQ     printArithShift
+    CMP.B   #LS,D7
+    BEQ     printLogicShift
+    
+printRotate
+    LEA         pr_SHIFT_RO,A1
+    JMP         executeShiftOpcodePrint
+printArithShift
+    LEA         pr_SHIFT_AS,A1
+    JMP         executeShiftOpcodePrint
+printLogicShift
+    LEA         pr_SHIFT_LS,A1
+    JMP         executeShiftOpcodePrint
+executeShiftOpcodePrint
+    BSR         PrintString
+
+    CMP.B   #R,D5
+    BEQ     printShiftRight
+    CMP.B   #L,D5
+    BEQ     printShiftLeft
+    
+printShiftRight
+    LEA         pr_SHIFT_R,A1
+    JMP         executePrintShiftdirection
+printShiftLeft
+    LEA         pr_SHIFT_L,A1
+    JMP         executePrintShiftdirection
+executePrintShiftdirection
+    BSR         PrintString
+    
+    CMP.B   #SHIFT_BYTE,D4
+    BEQ     printShiftByte
+    CMP.B   #SHIFT_WORD,D4
+    BEQ     printShiftWord
+    CMP.B   #SHIFT_LONG,D4
+    BEQ     printShiftLong
+
+printShiftByte
+    LEA     pr_BYTE,A1
+    JMP     executePrintShiftSize
+printShiftWord
+    LEA     pr_WORD,A1
+    JMP     executePrintShiftSize
+printShiftLong
+    LEA     pr_LONG,A1
+    JMP     executePrintShiftSize
+executePrintShiftSize
+    BSR         PrintString
+    LEA     pr_space,A1
+    BSR     PrintString
+    
+    CMP.B   #SHIFT_register,D6
+    BEQ     printShiftReg
+    CMP.B   #SHIFT_immed,D6
+    BEQ     printShift
+
+printShiftReg
+    LEA     pr_reg,A1
+    BSR     PrintString
+printShift
+    MOVE.B  D3,D1
+    MOVE.B  #3,D0
+    TRAP    #15
+    
+    LEA     pr_comma,A1
+    BSR     PrintString
+    LEA     pr_reg,A1
+    BSR     PrintString
+    RTS
+    
+    
+**********************************************
+Get_Count_Register_Val
+
+    MOVEM.W     D2, -(SP)
+    
+    MOVE.B      #13,D1
+    LSL.L       #4,D2
+    LSR.L       D1,D2
+    MOVE.B      D2,D3         
+    
+    MOVEM.W     (SP)+,D2
+    RTS
 
 **********************************************  
+Get_Size
+    
+    MOVEM.W     D2, -(SP)
+    
+    MOVE.B      #14,D1
+    LSL.L       #8,D2
+    LSR.L       D1,D2
+    MOVE.B      D2,D4         
+    
+    MOVEM.W     (SP)+,D2
+    RTS
+*********************************************
+Get_Direction
+
+    MOVEM.W     D2, -(SP)
+    
+    MOVE.B      #15,D1
+    LSL.L       #7,D2
+    LSR.L       D1,D2
+    MOVE.B      D2,D5         
+    
+    MOVEM.W     (SP)+,D2
+    RTS
+********************************************
+Get_Is_Register_Or_Immediate
+    
+    MOVEM.W     D2, -(SP)
+    
+    MOVE.B      #10,D1
+    LSL.L       D1,D2
+    MOVE.B      #15,D1
+    LSR.L       D1,D2
+    
+    MOVE.B      D2,D6         
+    
+    MOVEM.W     (SP)+,D2
+    RTS
+
+*******************************************
+Get_Shift_Opcode
+    
+    MOVEM.W     D2, -(SP)
+    
+    MOVE.B      #11,D1
+    LSL.L       D1,D2
+    MOVE.B      #14,D1
+    LSR.L       D1,D2
+    
+    MOVE.B      D2,D7         
+    
+    MOVEM.W     (SP)+,D2
+    RTS
+********************************************
+
+
+MATCH_LSL
+    MOVE.W      D2,D5       *REMOVE
+MATCH_LSR
+    MOVE.W      D2,D5       *REMOVE
+MATCH_ASR
+    MOVE.W      D2,D5       *REMOVE
+MATCH_ASL
+    MOVE.W      D2,D5       *REMOVE
+MATCH_ROL
+    MOVE.W      D2,D5       *REMOVE
+MATCH_ROR
+    MOVE.W      D2,D5       *REMOVE
+
 ***** BCC Displacement Subroutines************
 Get_BCC_Displacement_8bit
 
@@ -48,7 +257,6 @@ Get_BCC_Destination_Address
     RTS
 **********************************************
 **********************************************
-
 
 ********* Utility Subroutines ********************
 **********************************************
@@ -840,6 +1048,7 @@ ERROR
     LEA         pr_ERROR,A1                
     BSR         PrintString
     BRA         opdec_return
+
 
 
 
