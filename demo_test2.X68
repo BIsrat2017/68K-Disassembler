@@ -21,7 +21,9 @@ start		EQU	$00007000	* ORG and END address
 
 
 * This is a group of ADD instructions
-add_start	
+add_start	LSL.B	D0,D0
+		LSR.W	#4,D0
+		LSL.W	(A2)+
                 *JSR	(A3)		* Address register indirect
 		*BCC	clear		
 		*BGT	compares		
@@ -109,6 +111,7 @@ multiply	MULS	D0,D3		*Optional instruction
 	
 
 		END	start
+
 
 
 
