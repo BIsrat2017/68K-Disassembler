@@ -1,0 +1,70 @@
+00009000 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.15.04
+Created On: 3/10/2017 12:31:07 PM
+
+00000000                             1  *****************************
+00000000                             2  *
+00000000                             3  * demo_spencer_opcode_test.X68
+00000000                             4  *
+00000000                             5  * Created 03/09/2017
+00000000                             6  *
+00000000                             7  * Test program for Spencer's commands
+00000000                             8  *
+00000000                             9  *****************************
+00000000                            10  
+00000000  =00009000                 11  start   EQU $00009000   * ORG and END address
+00000000                            12  
+00000000                            13  * ORG the program so that it straddles the address boundary $00007FFF to $00008000
+00000000                            14  
+00009000                            15          ORG     start
+00009000                            16          
+00009000  6416                      17          BCC.B   label1
+00009002  6418                      18          BCC.B   label2
+00009004  6E12                      19          BGT.B   label1
+00009006  6E14                      20          BGT.B   label2
+00009008  6F0E                      21          BLE.B   label1
+0000900A  6F10                      22          BLE.B   label2
+0000900C  6400 000A                 23          BCC.W   label1
+00009010  6400 000A                 24          BCC.W   label2
+00009014  6400 0020                 25          BCC.W   label3
+00009018                            26  label1
+00009018  6E00 FFFE                 27          BGT.W   label1
+0000901C                            28  label2
+0000901C  6E00 FFFE                 29          BGT.W   label2
+00009020  6E00 0014                 30          BGT.W   label3
+00009024  6F00 FFF2                 31          BLE.W   label1
+00009028  6F00 FFF2                 32          BLE.W   label2
+0000902C  6F00 0008                 33          BLE.W   label3
+00009030  6418                      34          BCC.B   label4
+00009032  6E16                      35          BGT.B   label4
+00009034  6F14                      36          BLE.B   label4
+00009036                            37  label3
+00009036  6400 FFE0                 38          BCC.W   label1
+0000903A  6400 FFE0                 39          BCC.W   label2
+0000903E  6400 FFF6                 40          BCC.W   label3
+00009042  6E00 FFD4                 41          BGT.W   label1
+00009046  6E00 FFD4                 42          BGT.W   label2
+0000904A                            43  label4
+0000904A  6E00 FFEA                 44          BGT.W   label3
+0000904E  6F00 FFC8                 45          BLE.W   label1
+00009052  6F00 FFC8                 46          BLE.W   label2
+00009056  6F00 FFDE                 47          BLE.W   label3
+0000905A                            48  
+0000905A                            49          
+0000905A  FFFF FFFF                 50          SIMHALT
+0000905E                            51      
+0000905E                            52          
+0000905E                            53          END start
+
+No errors detected
+No warnings generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+LABEL1              9018
+LABEL2              901C
+LABEL3              9036
+LABEL4              904A
+START               9000

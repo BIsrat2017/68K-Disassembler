@@ -14,36 +14,44 @@ start	EQU	$00009000	* ORG and END address
 
         ORG	start
         
-        MOVEA.W #$7777,A1
-        MOVEA.L #$89898989,A2
-        ADDA.W  D0,A1
-        ADDA.L  D0,A2
-        MULS.W  D1,D2
-        CMP.B   D1,D2
-        CMP.W   D1,D2
-        CMP.L   D1,D2
+        MOVEA.W D0,A0
+        MOVEA.L #$67678989,A1
+        
+        ADDA.W  #$45,A0
+        ADDA.L  D0,A1
+ayylmao
+        MULS.W  (A0),D3
+        
+        RTS
+        
+        CMP.B   (A0)+,D1
+        CMP.W   #$4545,D2
+        CMP.L   #$87878787,D3
+        
+        JSR     ayylmao
+        
         CLR.B   D0
         CLR.W   D1
-        CLR.L   D2
+        CLR.L   D3
         
-        AND.B   D0,D1
-        AND.W   D0,D2
-        AND.L   D0,D3
-        AND.B   D1,$4567
-        AND.W   D1,(A1)
-        AND.L   D1,(A2)+
+        AND.B   $00005676,D0
+        AND.W   (A0),D0
+        AND.L   #$78787878,D0
         
-        JSR     next
-next
-        RTS   
+        AND.B   D0,$00004545
+        AND.W   D0,(A0)
+        AND.L   D0,(A1)+
         
         SIMHALT
+    
+        
+	    END	start
 
-	END	start
+
 
 
 
 *~Font name~Courier New~
 *~Font size~10~
 *~Tab type~1~
-*~Tab size~8~
+*~Tab size~4~

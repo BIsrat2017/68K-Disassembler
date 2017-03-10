@@ -781,9 +781,6 @@ MATCH_MOVEM_TO_REG_L
     MOVE.W      D2,D5       *REMOVE
 ***********************************
 
-
-MATCH_DIVU
-    MOVE.W      D2,D5       *REMOVE
 MATCH_OR_DN_B
     MOVE.W      D2,D5       *REMOVE
 MATCH_OR_DN_W
@@ -808,6 +805,7 @@ MATCH_MULS_L
                 INCLUDE 'connor_opcodes.x68'
                 INCLUDE 'spencer_opcodes.x68'
                 INCLUDE 'arsany_opcodes.x68'
+
 
 
 

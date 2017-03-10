@@ -14,24 +14,8 @@ MATCH_MOVEA_W
     ** Print size
     LEA         pr_WORD,A1
     TRAP        #15
-    ** Print space
-    LEA         pr_space,A1
-    TRAP        #15
-    ** Decode right side ea
-    MOVE.B      D2,D0
-    ANDI.B      #%00111111,D0
-    JSR         EADecoder
-    ** Add comma
-    MOVE.B      #14,D0
-    LEA         pr_comma,A1
-    TRAP        #15
-    ** Decode left side ea
-    MOVE.W      D2,D0
-    ANDI.W      #%0000111111000000,D0
-    LSR.L       #6,D0
-    JSR         EADecoder_left
     
-    BRA         opdec_return
+    BRA         print_movea
 MATCH_MOVEA_L
     ** Move command size into D1
     MOVE.B      #4,D1
@@ -42,6 +26,7 @@ MATCH_MOVEA_L
     ** Print size
     LEA         pr_LONG,A1
     TRAP        #15
+print_movea
     ** Print space
     LEA         pr_space,A1
     TRAP        #15
@@ -60,6 +45,8 @@ MATCH_MOVEA_L
     JSR         EADecoder_left
     
     BRA         opdec_return
+    
+    
 MATCH_ADDA_W
     ** Move command size into D1
     MOVE.B      #2,D1
@@ -70,24 +57,8 @@ MATCH_ADDA_W
     ** Print size
     LEA         pr_WORD,A1
     TRAP        #15
-    ** Print space
-    LEA         pr_space,A1
-    TRAP        #15
-    ** Decode right side ea
-    MOVE.B      D2,D0
-    ANDI.B      #%00111111,D0
-    JSR         EADecoder
-    ** Add comma
-    MOVE.B      #14,D0
-    LEA         pr_comma,A1
-    TRAP        #15
-    ** Decode left side ea
-    MOVE.W      D2,D0
-    ANDI.W      #%0000111111000000,D0
-    LSR.L       #6,D0
-    JSR         EADecoder_left
     
-    BRA         opdec_return
+    BRA         print_adda
 MATCH_ADDA_L
     ** Move command size into D1
     MOVE.B      #4,D1
@@ -98,8 +69,9 @@ MATCH_ADDA_L
     ** Print size
     LEA         pr_LONG,A1
     TRAP        #15
+print_adda
     ** Print space
-    LEA         pr_space,A1
+    LEA         pr_space2,A1
     TRAP        #15
     ** Decode right side ea
     MOVE.B      D2,D0
@@ -111,11 +83,14 @@ MATCH_ADDA_L
     TRAP        #15
     ** Decode left side ea
     MOVE.W      D2,D0
-    ANDI.W      #%0000111111000000,D0
+    ANDI.W      #%0000111000000000,D0
+    ORI.W       #%0000000001000000,D0
     LSR.L       #6,D0
     JSR         EADecoder_left
     
     BRA         opdec_return
+    
+    
 MATCH_MULS_W
     ** Move command size into D1
     MOVE.B      #2,D1
@@ -127,7 +102,7 @@ MATCH_MULS_W
     LEA         pr_WORD,A1
     TRAP        #15
     ** Print space
-    LEA         pr_space,A1
+    LEA         pr_space2,A1
     TRAP        #15
     ** Decode right side ea
     MOVE.B      D2,D0
@@ -139,16 +114,21 @@ MATCH_MULS_W
     TRAP        #15
     ** Decode left side ea
     MOVE.W      D2,D0
-    ANDI.W      #%0000111111000000,D0
+    ANDI.W      #%0000111000000000,D0
     LSR.L       #6,D0
     JSR         EADecoder_left    
     
     BRA         opdec_return
+    
+    
 MATCH_RTS
     LEA         pr_RTS,A1
     MOVE.B      #14,D0
     TRAP        #15
+
     BRA         opdec_return
+    
+    
 MATCH_CMP_B
     ** Move command size into D1
     MOVE.B      #2,D1
@@ -159,24 +139,8 @@ MATCH_CMP_B
     ** Print size
     LEA         pr_BYTE,A1
     TRAP        #15
-    ** Print space
-    LEA         pr_space,A1
-    TRAP        #15
-    ** Decode right side ea
-    MOVE.B      D2,D0
-    ANDI.B      #%00111111,D0
-    JSR         EADecoder
-    ** Add comma
-    MOVE.B      #14,D0
-    LEA         pr_comma,A1
-    TRAP        #15
-    ** Decode left side ea
-    MOVE.W      D2,D0
-    ANDI.W      #%0000111000000000,D0
-    LSR.L       #6,D0
-    JSR         EADecoder_left   
     
-    BRA         opdec_return
+    BRA         print_cmp
 MATCH_CMP_W
     ** Move command size into D1
     MOVE.B      #2,D1
@@ -187,25 +151,8 @@ MATCH_CMP_W
     ** Print size
     LEA         pr_WORD,A1
     TRAP        #15
-    ** Print space
-    LEA         pr_space,A1
-    TRAP        #15
-    CLR         D0
-    ** Decode right side ea
-    MOVE.B      D2,D0
-    ANDI.B      #%00111111,D0
-    JSR         EADecoder
-    ** Add comma
-    MOVE.B      #14,D0
-    LEA         pr_comma,A1
-    TRAP        #15
-    ** Decode left side ea
-    MOVE.W      D2,D0
-    ANDI.W      #%0000111000000000,D0
-    LSR.L       #6,D0
-    JSR         EADecoder_left   
     
-    BRA         opdec_return
+    BRA         print_cmp
 MATCH_CMP_L
     ** Move command size into D1
     MOVE.B      #4,D1
@@ -216,8 +163,9 @@ MATCH_CMP_L
     ** Print size
     LEA         pr_LONG,A1
     TRAP        #15
+print_cmp
     ** Print space
-    LEA         pr_space,A1
+    LEA         pr_space3,A1
     TRAP        #15
     CLR         D0
     ** Decode right side ea
@@ -235,13 +183,15 @@ MATCH_CMP_L
     JSR         EADecoder_left   
     
     BRA         opdec_return
+    
+    
 MATCH_JSR
     ** Print command
     MOVE.B      #14,D0
     LEA         pr_JSR,A1
     TRAP        #15
     ** Print space
-    LEA         pr_space,A1
+    LEA         pr_space5,A1
     TRAP        #15
     ** Decode right side ea
     MOVE.B      D2,D0
@@ -249,6 +199,8 @@ MATCH_JSR
     JSR         EADecoder 
     
     BRA         opdec_return
+    
+    
 MATCH_CLR_B 
     ** Move command size into D1
     MOVE.B      #2,D1
@@ -259,15 +211,8 @@ MATCH_CLR_B
     ** Print size
     LEA         pr_BYTE,A1
     TRAP        #15
-    ** Print space
-    LEA         pr_space,A1
-    TRAP        #15
-    ** Decode right side ea
-    MOVE.B      D2,D0
-    ANDI.B      #%00111111,D0
-    JSR         EADecoder
     
-    BRA         opdec_return
+    BRA         print_clr
 MATCH_CLR_W
     ** Move command size into D1
     MOVE.B      #2,D1
@@ -278,15 +223,8 @@ MATCH_CLR_W
     ** Print size
     LEA         pr_WORD,A1
     TRAP        #15
-    ** Print space
-    LEA         pr_space,A1
-    TRAP        #15
-    ** Decode right side ea
-    MOVE.B      D2,D0
-    ANDI.B      #%00111111,D0
-    JSR         EADecoder 
     
-    BRA         opdec_return
+    BRA         print_clr
 MATCH_CLR_L
     ** Move command size into D1
     MOVE.B      #4,D1
@@ -297,8 +235,9 @@ MATCH_CLR_L
     ** Print size
     LEA         pr_LONG,A1
     TRAP        #15
+print_clr
     ** Print space
-    LEA         pr_space,A1
+    LEA         pr_space3,A1
     TRAP        #15
     ** Decode right side ea
     MOVE.B      D2,D0
@@ -306,6 +245,8 @@ MATCH_CLR_L
     JSR         EADecoder 
     
     BRA         opdec_return
+    
+    
 MATCH_AND_DN_B
     ** Move command size into D1
     MOVE.B      #2,D1
@@ -316,24 +257,8 @@ MATCH_AND_DN_B
     ** Print size
     LEA         pr_BYTE,A1
     TRAP        #15
-    ** Print space
-    LEA         pr_space,A1
-    TRAP        #15
-    ** Decode right side ea
-    MOVE.B      D2,D0
-    ANDI.B      #%00111111,D0
-    JSR         EADecoder
-    ** Add comma
-    MOVE.B      #14,D0
-    LEA         pr_comma,A1
-    TRAP        #15
-    ** Decode left side ea
-    MOVE.W      D2,D0
-    ANDI.W      #%0000111000000000,D0
-    LSR.L       #6,D0
-    JSR         EADecoder_left   
     
-    BRA         opdec_return
+    BRA         print_and_dn
 MATCH_AND_DN_W
     ** Move command size into D1
     MOVE.B      #2,D1
@@ -344,24 +269,8 @@ MATCH_AND_DN_W
     ** Print size
     LEA         pr_WORD,A1
     TRAP        #15
-    ** Print space
-    LEA         pr_space,A1
-    TRAP        #15
-    ** Decode right side ea
-    MOVE.B      D2,D0
-    ANDI.B      #%00111111,D0
-    JSR         EADecoder
-    ** Add comma
-    MOVE.B      #14,D0
-    LEA         pr_comma,A1
-    TRAP        #15
-    ** Decode left side ea
-    MOVE.W      D2,D0
-    ANDI.W      #%0000111000000000,D0
-    LSR.L       #6,D0
-    JSR         EADecoder_left  
     
-    BRA         opdec_return
+    BRA         print_and_dn
 MATCH_AND_DN_L
     ** Move command size into D1
     MOVE.B      #4,D1
@@ -372,8 +281,9 @@ MATCH_AND_DN_L
     ** Print size
     LEA         pr_LONG,A1
     TRAP        #15
+print_and_dn
     ** Print space
-    LEA         pr_space,A1
+    LEA         pr_space3,A1
     TRAP        #15
     ** Decode right side ea
     MOVE.B      D2,D0
@@ -390,6 +300,7 @@ MATCH_AND_DN_L
     JSR         EADecoder_left  
     
     BRA         opdec_return
+    
     
 MATCH_AND_EA_B
     ** Move command size into D1
@@ -401,24 +312,8 @@ MATCH_AND_EA_B
     ** Print size
     LEA         pr_BYTE,A1
     TRAP        #15
-    ** Print space
-    LEA         pr_space,A1
-    TRAP        #15
-    ** Decode left side ea
-    MOVE.W      D2,D0
-    ANDI.W      #%0000111000000000,D0
-    LSR.L       #6,D0
-    JSR         EADecoder_left
-    ** Add comma
-    MOVE.B      #14,D0
-    LEA         pr_comma,A1
-    TRAP        #15
-    ** Decode right side ea
-    MOVE.B      D2,D0
-    ANDI.B      #%00111111,D0
-    JSR         EADecoder
     
-    BRA         opdec_return
+    BRA         print_and_ea
 MATCH_AND_EA_W
     ** Move command size into D1
     MOVE.B      #2,D1
@@ -429,24 +324,8 @@ MATCH_AND_EA_W
     ** Print size
     LEA         pr_WORD,A1
     TRAP        #15
-    ** Print space
-    LEA         pr_space,A1
-    TRAP        #15
-    ** Decode left side ea
-    MOVE.W      D2,D0
-    ANDI.W      #%0000111000000000,D0
-    LSR.L       #6,D0
-    JSR         EADecoder_left
-    ** Add comma
-    MOVE.B      #14,D0
-    LEA         pr_comma,A1
-    TRAP        #15
-    ** Decode right side ea
-    MOVE.B      D2,D0
-    ANDI.B      #%00111111,D0
-    JSR         EADecoder
     
-    BRA         opdec_return
+    BRA         print_and_ea
 MATCH_AND_EA_L
     ** Move command size into D1
     MOVE.B      #4,D1
@@ -457,8 +336,9 @@ MATCH_AND_EA_L
     ** Print size
     LEA         pr_LONG,A1
     TRAP        #15
+print_and_ea
     ** Print space
-    LEA         pr_space,A1
+    LEA         pr_space3,A1
     TRAP        #15
     ** Decode left side ea
     MOVE.W      D2,D0
@@ -475,6 +355,7 @@ MATCH_AND_EA_L
     JSR         EADecoder
     
     BRA         opdec_return
+
 
 
 

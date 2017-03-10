@@ -10,11 +10,17 @@ LF      EQU     $0A
 
 *** Common strings for printing
 pr_space    DC.B    ' ',0
+pr_space2   DC.B    '  ',0
+pr_space3   DC.B    '   ',0
+pr_space4   DC.B    '    ',0
+pr_space5   DC.B    '     ',0
 pr_comma    DC.B    ',',0
 pr_BYTE     DC.B    '.B',0
 pr_WORD     DC.B    '.W',0
 pr_LONG     DC.B    '.L',0
 pr_hash     DC.B    '#',0
+pr_hextag   DC.B    '#$',0
+
 
 ** Command strings constants
 pr_NOP      DC.B    'NOP',0
@@ -62,10 +68,9 @@ pr_BCC_VS   DC.B    'BVS',0
 
 MESSAGE     DC.B    'Enter the address of compiled code: ',0
 ERROR_MSG   DC.B    'Invalid input, please rerun',0
-SPACER      DC.B    ' ',0
+DONE_MSG    DC.B    'End of program found!',0
 
-
-        ORG     $1000
+start   ORG     $1000
 
 program_start
 
@@ -96,7 +101,7 @@ loop_start
         TRAP    #15
 
         MOVE.L  #14,D0
-        LEA     SPACER,A1
+        LEA     pr_space4,A1
         TRAP    #15
 
         MOVE.W  (A0)+,D2
@@ -115,11 +120,15 @@ input_error
         LEA     ERROR_MSG,A1
         TRAP    #15
 Done
+        MOVE.L  #14,D0
+        LEA     DONE_MSG,A1
+        TRAP    #15
         SIMHALT
 
         INCLUDE 'ASCII_HEX_Conversions.x68'
 		INCLUDE	'opcodes.x68'
 
+        END     start
 
 *~Font name~Courier New~
 *~Font size~10~

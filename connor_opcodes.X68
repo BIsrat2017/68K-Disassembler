@@ -91,6 +91,9 @@ MATCH_MOVEQ
     ** Print space
     LEA         pr_space,A1
     TRAP        #15
+    ** Print hex tag
+    LEA         pr_hextag,A1
+    TRAP        #15
     ** Print data
     MOVE.B      D2,D1
     MOVE.B      #15,D0
@@ -98,6 +101,10 @@ MATCH_MOVEQ
     MOVE.L      #16,D2
     TRAP        #15
     MOVE.L      D3,D2
+    ** Add comma
+    MOVE.B      #14,D0
+    LEA         pr_comma,A1
+    TRAP        #15
     ** Decode register
     MOVE.W      D2,D0
     ANDI.W      #%0000111000000000,D0
@@ -444,7 +451,7 @@ print_addq
 **          DIVU COMMANDS          **
 *************************************
 
-MATCH_DIVU_W
+MATCH_DIVU
     ** Move command size into D1
     MOVE.B      #2,D1
     ** Print command
@@ -467,11 +474,12 @@ MATCH_DIVU_W
     TRAP        #15
     ** Decode left side ea
     MOVE.W      D2,D0
-    ANDI.W      #%0000111111000000,D0
+    ANDI.W      #%0000111000000000,D0
     LSR.L       #6,D0
     JSR         EADecoder_left
 
     BRA         opdec_return
+
 
 
 *~Font name~Courier New~

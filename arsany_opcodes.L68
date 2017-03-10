@@ -1,0 +1,474 @@
+00001000 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.15.04
+Created On: 3/10/2017 12:07:37 PM
+
+00000000                             1  *-----------------------------------------------------------
+00000000                             2  * Title      :  Arsany Azmy
+00000000                             3  * Written by :
+00000000                             4  * Date       :
+00000000                             5  * Description:
+00000000                             6  *-----------------------------------------------------------
+00000000                             7  MATCH_MOVEA_W
+00000000                             8      ** Move command size into D1
+00000000  123C 0002                  9      MOVE.B      #2,D1
+00000004                            10      ** Print command
+00000004  103C 000E                 11      MOVE.B      #14,D0
+Line 12 ERROR: Undefined symbol
+00000008  43F9 004DBB8E             12      LEA         pr_MOVEA,A1
+0000000E  4E4F                      13      TRAP        #15
+00000010                            14      ** Print size
+Line 15 ERROR: Undefined symbol
+00000010  43F9 004DBB8E             15      LEA         pr_WORD,A1
+00000016  4E4F                      16      TRAP        #15
+00000018                            17      
+00000018  6000 001A                 18      BRA         print_movea
+0000001C                            19  MATCH_MOVEA_L
+0000001C                            20      ** Move command size into D1
+0000001C  123C 0004                 21      MOVE.B      #4,D1
+00000020                            22      ** Print command
+00000020  103C 000E                 23      MOVE.B      #14,D0
+Line 24 ERROR: Undefined symbol
+00000024  43F9 004DBB8E             24      LEA         pr_MOVEA,A1
+0000002A  4E4F                      25      TRAP        #15
+0000002C                            26      ** Print size
+Line 27 ERROR: Undefined symbol
+0000002C  43F9 004DBB8E             27      LEA         pr_LONG,A1
+00000032  4E4F                      28      TRAP        #15
+00000034                            29  print_movea
+00000034                            30      ** Print space
+Line 31 ERROR: Undefined symbol
+00000034  43F9 004DBB8E             31      LEA         pr_space,A1
+0000003A  4E4F                      32      TRAP        #15
+0000003C                            33      ** Decode right side ea
+0000003C  1002                      34      MOVE.B      D2,D0
+0000003E  0200 003F                 35      ANDI.B      #%00111111,D0
+Line 36 ERROR: Undefined symbol
+00000042  4EB9 004DBB8E             36      JSR         EADecoder
+00000048                            37      ** Add comma
+00000048  103C 000E                 38      MOVE.B      #14,D0
+Line 39 ERROR: Undefined symbol
+0000004C  43F9 004DBB8E             39      LEA         pr_comma,A1
+00000052  4E4F                      40      TRAP        #15
+00000054                            41      ** Decode left side ea
+00000054  3002                      42      MOVE.W      D2,D0
+00000056  0240 0FC0                 43      ANDI.W      #%0000111111000000,D0
+0000005A  EC88                      44      LSR.L       #6,D0
+Line 45 ERROR: Undefined symbol
+0000005C  4EB9 004DBB8E             45      JSR         EADecoder_left
+00000062                            46      
+Line 47 ERROR: Undefined symbol
+00000062  6000 BB2A                 47      BRA         opdec_return
+00000066                            48      
+00000066                            49      
+00000066                            50  MATCH_ADDA_W
+00000066                            51      ** Move command size into D1
+00000066  123C 0002                 52      MOVE.B      #2,D1
+0000006A                            53      ** Print command
+0000006A  103C 000E                 54      MOVE.B      #14,D0
+Line 55 ERROR: Undefined symbol
+0000006E  43F9 004DBB8E             55      LEA         pr_ADDA,A1
+00000074  4E4F                      56      TRAP        #15
+00000076                            57      ** Print size
+Line 58 ERROR: Undefined symbol
+00000076  43F9 004DBB8E             58      LEA         pr_WORD,A1
+0000007C  4E4F                      59      TRAP        #15
+0000007E                            60      
+0000007E  6000 001A                 61      BRA         print_adda
+00000082                            62  MATCH_ADDA_L
+00000082                            63      ** Move command size into D1
+00000082  123C 0004                 64      MOVE.B      #4,D1
+00000086                            65      ** Print command
+00000086  103C 000E                 66      MOVE.B      #14,D0
+Line 67 ERROR: Undefined symbol
+0000008A  43F9 004DBB8E             67      LEA         pr_ADDA,A1
+00000090  4E4F                      68      TRAP        #15
+00000092                            69      ** Print size
+Line 70 ERROR: Undefined symbol
+00000092  43F9 004DBB8E             70      LEA         pr_LONG,A1
+00000098  4E4F                      71      TRAP        #15
+0000009A                            72  print_adda
+0000009A                            73      ** Print space
+Line 74 ERROR: Undefined symbol
+0000009A  43F9 004DBB8E             74      LEA         pr_space,A1
+000000A0  4E4F                      75      TRAP        #15
+000000A2                            76      ** Decode right side ea
+000000A2  1002                      77      MOVE.B      D2,D0
+000000A4  0200 003F                 78      ANDI.B      #%00111111,D0
+Line 79 ERROR: Undefined symbol
+000000A8  4EB9 004DBB8E             79      JSR         EADecoder
+000000AE                            80      ** Add comma
+000000AE  103C 000E                 81      MOVE.B      #14,D0
+Line 82 ERROR: Undefined symbol
+000000B2  43F9 004DBB8E             82      LEA         pr_comma,A1
+000000B8  4E4F                      83      TRAP        #15
+000000BA                            84      ** Decode left side ea
+000000BA  3002                      85      MOVE.W      D2,D0
+000000BC  0240 0E00                 86      ANDI.W      #%0000111000000000,D0
+000000C0  EC88                      87      LSR.L       #6,D0
+Line 88 ERROR: Undefined symbol
+000000C2  4EB9 004DBB8E             88      JSR         EADecoder_left
+000000C8                            89      
+Line 90 ERROR: Undefined symbol
+000000C8  6000 BAC4                 90      BRA         opdec_return
+000000CC                            91      
+000000CC                            92      
+000000CC                            93  MATCH_MULS_W
+000000CC                            94      ** Move command size into D1
+000000CC  123C 0002                 95      MOVE.B      #2,D1
+000000D0                            96      ** Print command
+000000D0  103C 000E                 97      MOVE.B      #14,D0
+Line 98 ERROR: Undefined symbol
+000000D4  43F9 004DBB8E             98      LEA         pr_MULS,A1
+000000DA  4E4F                      99      TRAP        #15
+000000DC                           100      ** Print size
+Line 101 ERROR: Undefined symbol
+000000DC  43F9 004DBB8E            101      LEA         pr_WORD,A1
+000000E2  4E4F                     102      TRAP        #15
+000000E4                           103      ** Print space
+Line 104 ERROR: Undefined symbol
+000000E4  43F9 004DBB8E            104      LEA         pr_space,A1
+000000EA  4E4F                     105      TRAP        #15
+000000EC                           106      ** Decode right side ea
+000000EC  1002                     107      MOVE.B      D2,D0
+000000EE  0200 003F                108      ANDI.B      #%00111111,D0
+Line 109 ERROR: Undefined symbol
+000000F2  4EB9 004DBB8E            109      JSR         EADecoder
+000000F8                           110      ** Add comma
+000000F8  103C 000E                111      MOVE.B      #14,D0
+Line 112 ERROR: Undefined symbol
+000000FC  43F9 004DBB8E            112      LEA         pr_comma,A1
+00000102  4E4F                     113      TRAP        #15
+00000104                           114      ** Decode left side ea
+00000104  3002                     115      MOVE.W      D2,D0
+00000106  0240 0FC0                116      ANDI.W      #%0000111111000000,D0
+0000010A  EC88                     117      LSR.L       #6,D0
+Line 118 ERROR: Undefined symbol
+0000010C  4EB9 004DBB8E            118      JSR         EADecoder_left    
+00000112                           119      
+Line 120 ERROR: Undefined symbol
+00000112  6000 BA7A                120      BRA         opdec_return
+00000116                           121      
+00000116                           122      
+00000116                           123  MATCH_RTS
+Line 124 ERROR: Undefined symbol
+00000116  43F9 004DBB8E            124      LEA         pr_RTS,A1
+0000011C  103C 000E                125      MOVE.B      #14,D0
+00000120  4E4F                     126      TRAP        #15
+Line 127 ERROR: Undefined symbol
+00000122  6000 BA6A                127      BRA         opdec_return
+00000126                           128      
+00000126                           129      
+00000126                           130  MATCH_CMP_B
+00000126                           131      ** Move command size into D1
+00000126  123C 0002                132      MOVE.B      #2,D1
+0000012A                           133      ** Print command
+0000012A  103C 000E                134      MOVE.B      #14,D0
+Line 135 ERROR: Undefined symbol
+0000012E  43F9 004DBB8E            135      LEA         pr_CMP,A1
+00000134  4E4F                     136      TRAP        #15
+00000136                           137      ** Print size
+Line 138 ERROR: Undefined symbol
+00000136  43F9 004DBB8E            138      LEA         pr_BYTE,A1
+0000013C  4E4F                     139      TRAP        #15
+0000013E                           140      
+0000013E  6000 0036                141      BRA         print_cmp
+00000142                           142  MATCH_CMP_W
+00000142                           143      ** Move command size into D1
+00000142  123C 0002                144      MOVE.B      #2,D1
+00000146                           145      ** Print command
+00000146  103C 000E                146      MOVE.B      #14,D0
+Line 147 ERROR: Undefined symbol
+0000014A  43F9 004DBB8E            147      LEA         pr_CMP,A1
+00000150  4E4F                     148      TRAP        #15
+00000152                           149      ** Print size
+Line 150 ERROR: Undefined symbol
+00000152  43F9 004DBB8E            150      LEA         pr_WORD,A1
+00000158  4E4F                     151      TRAP        #15
+0000015A                           152      
+0000015A  6000 001A                153      BRA         print_cmp
+0000015E                           154  MATCH_CMP_L
+0000015E                           155      ** Move command size into D1
+0000015E  123C 0004                156      MOVE.B      #4,D1
+00000162                           157      ** Print command
+00000162  103C 000E                158      MOVE.B      #14,D0
+Line 159 ERROR: Undefined symbol
+00000166  43F9 004DBB8E            159      LEA         pr_CMP,A1
+0000016C  4E4F                     160      TRAP        #15
+0000016E                           161      ** Print size
+Line 162 ERROR: Undefined symbol
+0000016E  43F9 004DBB8E            162      LEA         pr_LONG,A1
+00000174  4E4F                     163      TRAP        #15
+00000176                           164  print_cmp
+00000176                           165      ** Print space
+Line 166 ERROR: Undefined symbol
+00000176  43F9 004DBB8E            166      LEA         pr_space,A1
+0000017C  4E4F                     167      TRAP        #15
+0000017E  4240                     168      CLR         D0
+00000180                           169      ** Decode right side ea
+00000180  1002                     170      MOVE.B      D2,D0
+00000182  0200 003F                171      ANDI.B      #%00111111,D0
+Line 172 ERROR: Undefined symbol
+00000186  4EB9 004DBB8E            172      JSR         EADecoder
+0000018C                           173      ** Add comma
+0000018C  103C 000E                174      MOVE.B      #14,D0
+Line 175 ERROR: Undefined symbol
+00000190  43F9 004DBB8E            175      LEA         pr_comma,A1
+00000196  4E4F                     176      TRAP        #15
+00000198                           177      ** Decode left side ea
+00000198  3002                     178      MOVE.W      D2,D0
+0000019A  0240 0E00                179      ANDI.W      #%0000111000000000,D0
+0000019E  EC88                     180      LSR.L       #6,D0
+Line 181 ERROR: Undefined symbol
+000001A0  4EB9 004DBB8E            181      JSR         EADecoder_left   
+000001A6                           182      
+Line 183 ERROR: Undefined symbol
+000001A6  6000 B9E6                183      BRA         opdec_return
+000001AA                           184      
+000001AA                           185      
+000001AA                           186  MATCH_JSR
+000001AA                           187      ** Print command
+000001AA  103C 000E                188      MOVE.B      #14,D0
+Line 189 ERROR: Undefined symbol
+000001AE  43F9 004DBB8E            189      LEA         pr_JSR,A1
+000001B4  4E4F                     190      TRAP        #15
+000001B6                           191      ** Print space
+Line 192 ERROR: Undefined symbol
+000001B6  43F9 004DBB8E            192      LEA         pr_space,A1
+000001BC  4E4F                     193      TRAP        #15
+000001BE                           194      ** Decode right side ea
+000001BE  1002                     195      MOVE.B      D2,D0
+000001C0  0200 003F                196      ANDI.B      #%00111111,D0
+Line 197 ERROR: Undefined symbol
+000001C4  4EB9 004DBB8E            197      JSR         EADecoder 
+000001CA                           198      
+Line 199 ERROR: Undefined symbol
+000001CA  6000 B9C2                199      BRA         opdec_return
+000001CE                           200      
+000001CE                           201      
+000001CE                           202  MATCH_CLR_B 
+000001CE                           203      ** Move command size into D1
+000001CE  123C 0002                204      MOVE.B      #2,D1
+000001D2                           205      ** Print command
+000001D2  103C 000E                206      MOVE.B      #14,D0
+Line 207 ERROR: Undefined symbol
+000001D6  43F9 004DBB8E            207      LEA         pr_CLR,A1
+000001DC  4E4F                     208      TRAP        #15
+000001DE                           209      ** Print size
+Line 210 ERROR: Undefined symbol
+000001DE  43F9 004DBB8E            210      LEA         pr_BYTE,A1
+000001E4  4E4F                     211      TRAP        #15
+000001E6                           212      
+000001E6  6000 0036                213      BRA         print_clr
+000001EA                           214  MATCH_CLR_W
+000001EA                           215      ** Move command size into D1
+000001EA  123C 0002                216      MOVE.B      #2,D1
+000001EE                           217      ** Print command
+000001EE  103C 000E                218      MOVE.B      #14,D0
+Line 219 ERROR: Undefined symbol
+000001F2  43F9 004DBB8E            219      LEA         pr_CLR,A1
+000001F8  4E4F                     220      TRAP        #15
+000001FA                           221      ** Print size
+Line 222 ERROR: Undefined symbol
+000001FA  43F9 004DBB8E            222      LEA         pr_WORD,A1
+00000200  4E4F                     223      TRAP        #15
+00000202                           224      
+00000202  6000 001A                225      BRA         print_clr
+00000206                           226  MATCH_CLR_L
+00000206                           227      ** Move command size into D1
+00000206  123C 0004                228      MOVE.B      #4,D1
+0000020A                           229      ** Print command
+0000020A  103C 000E                230      MOVE.B      #14,D0
+Line 231 ERROR: Undefined symbol
+0000020E  43F9 004DBB8E            231      LEA         pr_CLR,A1
+00000214  4E4F                     232      TRAP        #15
+00000216                           233      ** Print size
+Line 234 ERROR: Undefined symbol
+00000216  43F9 004DBB8E            234      LEA         pr_LONG,A1
+0000021C  4E4F                     235      TRAP        #15
+0000021E                           236  print_clr
+0000021E                           237      ** Print space
+Line 238 ERROR: Undefined symbol
+0000021E  43F9 004DBB8E            238      LEA         pr_space,A1
+00000224  4E4F                     239      TRAP        #15
+00000226                           240      ** Decode right side ea
+00000226  1002                     241      MOVE.B      D2,D0
+00000228  0200 003F                242      ANDI.B      #%00111111,D0
+Line 243 ERROR: Undefined symbol
+0000022C  4EB9 004DBB8E            243      JSR         EADecoder 
+00000232                           244      
+Line 245 ERROR: Undefined symbol
+00000232  6000 B95A                245      BRA         opdec_return
+00000236                           246      
+00000236                           247      
+00000236                           248  MATCH_AND_DN_B
+00000236                           249      ** Move command size into D1
+00000236  123C 0002                250      MOVE.B      #2,D1
+0000023A                           251      ** Print command
+0000023A  103C 000E                252      MOVE.B      #14,D0
+Line 253 ERROR: Undefined symbol
+0000023E  43F9 004DBB8E            253      LEA         pr_AND,A1
+00000244  4E4F                     254      TRAP        #15
+00000246                           255      ** Print size
+Line 256 ERROR: Undefined symbol
+00000246  43F9 004DBB8E            256      LEA         pr_BYTE,A1
+0000024C  4E4F                     257      TRAP        #15
+0000024E                           258      
+0000024E  6000 0036                259      BRA         print_and_dn
+00000252                           260  MATCH_AND_DN_W
+00000252                           261      ** Move command size into D1
+00000252  123C 0002                262      MOVE.B      #2,D1
+00000256                           263      ** Print command
+00000256  103C 000E                264      MOVE.B      #14,D0
+Line 265 ERROR: Undefined symbol
+0000025A  43F9 004DBB8E            265      LEA         pr_AND,A1
+00000260  4E4F                     266      TRAP        #15
+00000262                           267      ** Print size
+Line 268 ERROR: Undefined symbol
+00000262  43F9 004DBB8E            268      LEA         pr_WORD,A1
+00000268  4E4F                     269      TRAP        #15
+0000026A                           270      
+0000026A  6000 001A                271      BRA         print_and_dn
+0000026E                           272  MATCH_AND_DN_L
+0000026E                           273      ** Move command size into D1
+0000026E  123C 0004                274      MOVE.B      #4,D1
+00000272                           275      ** Print command
+00000272  103C 000E                276      MOVE.B      #14,D0
+Line 277 ERROR: Undefined symbol
+00000276  43F9 004DBB8E            277      LEA         pr_AND,A1
+0000027C  4E4F                     278      TRAP        #15
+0000027E                           279      ** Print size
+Line 280 ERROR: Undefined symbol
+0000027E  43F9 004DBB8E            280      LEA         pr_LONG,A1
+00000284  4E4F                     281      TRAP        #15
+00000286                           282  print_and_dn
+00000286                           283      ** Print space
+Line 284 ERROR: Undefined symbol
+00000286  43F9 004DBB8E            284      LEA         pr_space,A1
+0000028C  4E4F                     285      TRAP        #15
+0000028E                           286      ** Decode right side ea
+0000028E  1002                     287      MOVE.B      D2,D0
+00000290  0200 003F                288      ANDI.B      #%00111111,D0
+Line 289 ERROR: Undefined symbol
+00000294  4EB9 004DBB8E            289      JSR         EADecoder
+0000029A                           290      ** Add comma
+0000029A  103C 000E                291      MOVE.B      #14,D0
+Line 292 ERROR: Undefined symbol
+0000029E  43F9 004DBB8E            292      LEA         pr_comma,A1
+000002A4  4E4F                     293      TRAP        #15
+000002A6                           294      ** Decode left side ea
+000002A6  3002                     295      MOVE.W      D2,D0
+000002A8  0240 0E00                296      ANDI.W      #%0000111000000000,D0
+000002AC  EC88                     297      LSR.L       #6,D0
+Line 298 ERROR: Undefined symbol
+000002AE  4EB9 004DBB8E            298      JSR         EADecoder_left  
+000002B4                           299      
+Line 300 ERROR: Undefined symbol
+000002B4  6000 B8D8                300      BRA         opdec_return
+000002B8                           301      
+000002B8                           302      
+000002B8                           303  MATCH_AND_EA_B
+000002B8                           304      ** Move command size into D1
+000002B8  123C 0002                305      MOVE.B      #2,D1
+000002BC                           306      ** Print command
+000002BC  103C 000E                307      MOVE.B      #14,D0
+Line 308 ERROR: Undefined symbol
+000002C0  43F9 004DBB8E            308      LEA         pr_AND,A1
+000002C6  4E4F                     309      TRAP        #15
+000002C8                           310      ** Print size
+Line 311 ERROR: Undefined symbol
+000002C8  43F9 004DBB8E            311      LEA         pr_BYTE,A1
+000002CE  4E4F                     312      TRAP        #15
+000002D0                           313      
+000002D0  6000 0036                314      BRA         print_and_ea
+000002D4                           315  MATCH_AND_EA_W
+000002D4                           316      ** Move command size into D1
+000002D4  123C 0002                317      MOVE.B      #2,D1
+000002D8                           318      ** Print command
+000002D8  103C 000E                319      MOVE.B      #14,D0
+Line 320 ERROR: Undefined symbol
+000002DC  43F9 004DBB8E            320      LEA         pr_AND,A1
+000002E2  4E4F                     321      TRAP        #15
+000002E4                           322      ** Print size
+Line 323 ERROR: Undefined symbol
+000002E4  43F9 004DBB8E            323      LEA         pr_WORD,A1
+000002EA  4E4F                     324      TRAP        #15
+000002EC                           325      
+000002EC  6000 001A                326      BRA         print_and_ea
+000002F0                           327  MATCH_AND_EA_L
+000002F0                           328      ** Move command size into D1
+000002F0  123C 0004                329      MOVE.B      #4,D1
+000002F4                           330      ** Print command
+000002F4  103C 000E                331      MOVE.B      #14,D0
+Line 332 ERROR: Undefined symbol
+000002F8  43F9 004DBB8E            332      LEA         pr_AND,A1
+000002FE  4E4F                     333      TRAP        #15
+00000300                           334      ** Print size
+Line 335 ERROR: Undefined symbol
+00000300  43F9 004DBB8E            335      LEA         pr_LONG,A1
+00000306  4E4F                     336      TRAP        #15
+00000308                           337  print_and_ea
+00000308                           338      ** Print space
+Line 339 ERROR: Undefined symbol
+00000308  43F9 004DBB8E            339      LEA         pr_space,A1
+0000030E  4E4F                     340      TRAP        #15
+00000310                           341      ** Decode left side ea
+00000310  3002                     342      MOVE.W      D2,D0
+00000312  0240 0E00                343      ANDI.W      #%0000111000000000,D0
+00000316  EC88                     344      LSR.L       #6,D0
+Line 345 ERROR: Undefined symbol
+00000318  4EB9 004DBB8E            345      JSR         EADecoder_left
+0000031E                           346      ** Add comma
+0000031E  103C 000E                347      MOVE.B      #14,D0
+Line 348 ERROR: Undefined symbol
+00000322  43F9 004DBB8E            348      LEA         pr_comma,A1
+00000328  4E4F                     349      TRAP        #15
+0000032A                           350      ** Decode right side ea
+0000032A  1002                     351      MOVE.B      D2,D0
+0000032C  0200 003F                352      ANDI.B      #%00111111,D0
+Line 353 ERROR: Undefined symbol
+00000330  4EB9 004DBB8E            353      JSR         EADecoder
+00000336                           354      
+Line 355 ERROR: Undefined symbol
+00000336  6000 B856                355      BRA         opdec_return
+0000033A                           356  
+0000033A                           357  
+0000033A                           358  
+0000033A                           359  
+0000033A                           360  
+0000033A                           361  
+0000033A                           362  
+0000033A                           363  
+Line 364 WARNING: END directive missing, starting address not set
+
+73 errors detected
+1 warning generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+MATCH_ADDA_L        82
+MATCH_ADDA_W        66
+MATCH_AND_DN_B      236
+MATCH_AND_DN_L      26E
+MATCH_AND_DN_W      252
+MATCH_AND_EA_B      2B8
+MATCH_AND_EA_L      2F0
+MATCH_AND_EA_W      2D4
+MATCH_CLR_B         1CE
+MATCH_CLR_L         206
+MATCH_CLR_W         1EA
+MATCH_CMP_B         126
+MATCH_CMP_L         15E
+MATCH_CMP_W         142
+MATCH_JSR           1AA
+MATCH_MOVEA_L       1C
+MATCH_MOVEA_W       0
+MATCH_MULS_W        CC
+MATCH_RTS           116
+PRINT_ADDA          9A
+PRINT_AND_DN        286
+PRINT_AND_EA        308
+PRINT_CLR           21E
+PRINT_CMP           176
+PRINT_MOVEA         34

@@ -1,6 +1,6 @@
 00009000 Starting Address
 Assembler used: EASy68K Editor/Assembler v5.15.04
-Created On: 3/9/2017 4:14:51 PM
+Created On: 3/10/2017 12:09:34 PM
 
 00000000                             1  *****************************
 00000000                             2  *
@@ -12,38 +12,44 @@ Created On: 3/9/2017 4:14:51 PM
 00000000                             8  *
 00000000                             9  *****************************
 00000000                            10  
-00000000  =00009000                 11  start   EQU     $00009000       * ORG and END address
+00000000  =00009000                 11  start   EQU $00009000   * ORG and END address
 00000000                            12  
 00000000                            13  * ORG the program so that it straddles the address boundary $00007FFF to $00008000
 00000000                            14  
-00009000                            15          ORG     start
+00009000                            15          ORG start
 00009000                            16          
-00009000  327C 7777                 17          MOVEA.W #$7777,A1
-00009004  247C 89898989             18          MOVEA.L #$89898989,A2
-0000900A  D2C0                      19          ADDA.W  D0,A1
-0000900C  D5C0                      20          ADDA.L  D0,A2
-0000900E  C5C1                      21          MULS.W  D1,D2
-00009010  B401                      22          CMP.B   D1,D2
-00009012  B441                      23          CMP.W   D1,D2
-00009014  B481                      24          CMP.L   D1,D2
-00009016  4200                      25          CLR.B   D0
-00009018  4241                      26          CLR.W   D1
-0000901A  4282                      27          CLR.L   D2
-0000901C                            28          
-0000901C  C200                      29          AND.B   D0,D1
-0000901E  C440                      30          AND.W   D0,D2
-00009020  C680                      31          AND.L   D0,D3
-00009022  C338 4567                 32          AND.B   D1,$4567
-00009026  C351                      33          AND.W   D1,(A1)
-00009028  C39A                      34          AND.L   D1,(A2)+
-0000902A                            35          
-0000902A  4EB9 00009030             36          JSR     next
-00009030                            37  next
-00009030  4E75                      38          RTS   
-00009032                            39          
-00009032  FFFF FFFF                 40          SIMHALT
-00009036                            41  
-00009036                            42          END     start
+00009000  3040                      17          MOVEA.W D0,A0
+00009002  227C 67678989             18          MOVEA.L #$67678989,A1
+00009008                            19          
+00009008  D0FC 0045                 20          ADDA.W  #$45,A0
+0000900C  D3C0                      21          ADDA.L  D0,A1
+0000900E                            22  ayylmao
+0000900E  C7D0                      23          MULS.W  (A0),D3
+00009010                            24          
+00009010  4E75                      25          RTS
+00009012                            26          
+00009012  B218                      27          CMP.B   (A0)+,D1
+00009014  B47C 4545                 28          CMP.W   #$4545,D2
+00009018  B6BC 87878787             29          CMP.L   #$87878787,D3
+0000901E                            30          
+0000901E  4EB9 0000900E             31          JSR     ayylmao
+00009024                            32          
+00009024  4200                      33          CLR.B   D0
+00009026  4241                      34          CLR.W   D1
+00009028  4283                      35          CLR.L   D3
+0000902A                            36          
+0000902A  C038 5676                 37          AND.B   $00005676,D0
+0000902E  C050                      38          AND.W   (A0),D0
+00009030  C0BC 78787878             39          AND.L   #$78787878,D0
+00009036                            40          
+00009036  C138 4545                 41          AND.B   D0,$00004545
+0000903A  C150                      42          AND.W   D0,(A0)
+0000903C  C199                      43          AND.L   D0,(A1)+
+0000903E                            44          
+0000903E  FFFF FFFF                 45          SIMHALT
+00009042                            46      
+00009042                            47          
+00009042                            48          END start
 
 No errors detected
 No warnings generated
@@ -52,5 +58,5 @@ No warnings generated
 SYMBOL TABLE INFORMATION
 Symbol-name         Value
 -------------------------
-NEXT                9030
+AYYLMAO             900E
 START               9000
