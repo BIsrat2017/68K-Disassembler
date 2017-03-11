@@ -36,6 +36,8 @@ pr_RTS      DC.B    'RTS',0
 pr_CMP      DC.B    'CMP',0
 pr_JSR      DC.B    'JSR',0
 pr_AND      DC.B    'AND',0
+pr_OR       DC.B    'OR',0
+pr_LEA      DC.B    'LEA',0
 pr_MOVEQ    DC.B    'MOVEQ',0
 pr_ADD      DC.B    'ADD',0
 pr_ADDI     DC.B    'ADDI',0

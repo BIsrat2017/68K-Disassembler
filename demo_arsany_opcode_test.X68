@@ -42,10 +42,20 @@ ayylmao
         AND.W   D0,(A0)
         AND.L   D0,(A1)+
         
+        OR.B    $00005676,D0
+        OR.W    (A0),D0
+        OR.L    #$78787878,D0
+        
+        OR.B    D0,$00004545
+        OR.W    D0,(A0)
+        OR.L    D0,(A1)+
+        
+        LEA     start,A0
         SIMHALT
     
         
 	    END	start
+
 
 
 

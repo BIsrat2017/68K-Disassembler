@@ -1,6 +1,6 @@
 00009000 Starting Address
 Assembler used: EASy68K Editor/Assembler v5.15.04
-Created On: 3/10/2017 12:09:34 PM
+Created On: 3/10/2017 5:30:07 PM
 
 00000000                             1  *****************************
 00000000                             2  *
@@ -46,10 +46,19 @@ Created On: 3/10/2017 12:09:34 PM
 0000903A  C150                      42          AND.W   D0,(A0)
 0000903C  C199                      43          AND.L   D0,(A1)+
 0000903E                            44          
-0000903E  FFFF FFFF                 45          SIMHALT
-00009042                            46      
-00009042                            47          
-00009042                            48          END start
+0000903E  8038 5676                 45          OR.B    $00005676,D0
+00009042  8050                      46          OR.W    (A0),D0
+00009044  80BC 78787878             47          OR.L    #$78787878,D0
+0000904A                            48          
+0000904A  8138 4545                 49          OR.B    D0,$00004545
+0000904E  8150                      50          OR.W    D0,(A0)
+00009050  8199                      51          OR.L    D0,(A1)+
+00009052                            52          
+00009052  41F9 00009000             53          LEA     start,A0
+00009058  FFFF FFFF                 54          SIMHALT
+0000905C                            55      
+0000905C                            56          
+0000905C                            57          END start
 
 No errors detected
 No warnings generated

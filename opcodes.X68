@@ -773,21 +773,6 @@ CHECK_MOVEA_L_AND_MOVE_L
 
 ***********************************
 
-MATCH_OR_DN_B
-    MOVE.W      D2,D5       *REMOVE
-MATCH_OR_DN_W
-    MOVE.W      D2,D5       *REMOVE
-MATCH_OR_DN_L
-    MOVE.W      D2,D5       *REMOVE
-MATCH_OR_EA_B
-    MOVE.W      D2,D5       *REMOVE
-MATCH_OR_EA_W
-    MOVE.W      D2,D5       *REMOVE
-MATCH_OR_EA_L
-    MOVE.W      D2,D5       *REMOVE
-
-MATCH_LEA
-    MOVE.W      D2,D5       *REMOVE
 
 MATCH_MULS_L
     MOVE.W      D2,D5       *REMOVE
