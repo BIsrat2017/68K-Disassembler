@@ -6,9 +6,9 @@ R           EQU %0
 L           EQU %1
 SHIFT_register  EQU %1
 SHIFT_immed     EQU %0
-SHIFT_BYTE  EQU %00
-SHIFT_WORD  EQU %01
-SHIFT_LONG  EQU %11
+SHIFT_BYTE  EQU 0
+SHIFT_WORD  EQU 1
+SHIFT_LONG  EQU 2
 
 **********************************************
 *****    SHIFT SUBROUTINES    ****************
@@ -34,8 +34,8 @@ getShiftDestReg
     MOVEM.W     D2, -(SP)
 
     MOVE.B      #13,D1
-    LSL.L       D1,D2
-    LSR.L       D1,D2
+    LSL.W       D1,D2
+    LSR.W       D1,D2
     MOVE.B      D2,D1
 
     MOVEM.W     (SP)+,D2
@@ -70,13 +70,13 @@ executeShiftOpcodePrint
     BEQ     printShiftLeft
 
 printShiftRight
-    LEA         pr_SHIFT_R,A1
-    JMP         executePrintShiftdirection
+    LEA     pr_SHIFT_R,A1
+    JMP     executePrintShiftdirection
 printShiftLeft
-    LEA         pr_SHIFT_L,A1
-    JMP         executePrintShiftdirection
+    LEA     pr_SHIFT_L,A1
+    JMP     executePrintShiftdirection
 executePrintShiftdirection
-    BSR         PrintString
+    BSR     PrintString
 
     CMP.B   #SHIFT_BYTE,D4
     BEQ     printShiftByte
@@ -95,7 +95,7 @@ printShiftLong
     LEA     pr_LONG,A1
     JMP     executePrintShiftSize
 executePrintShiftSize
-    BSR         PrintString
+    BSR     PrintString
     LEA     pr_space,A1
     BSR     PrintString
 
@@ -124,9 +124,10 @@ Get_Count_Register_Val
 
     MOVEM.W     D2, -(SP)
 
+    CLR         D3
     MOVE.B      #13,D1
-    LSL.L       #4,D2
-    LSR.L       D1,D2
+    LSL.W       #4,D2
+    LSR.W       D1,D2
     MOVE.B      D2,D3
 
     MOVEM.W     (SP)+,D2
@@ -137,9 +138,10 @@ Get_Size
 
     MOVEM.W     D2, -(SP)
 
+    CLR         D4
     MOVE.B      #14,D1
-    LSL.L       #8,D2
-    LSR.L       D1,D2
+    LSL.W       #8,D2
+    LSR.W       D1,D2
     MOVE.B      D2,D4
 
     MOVEM.W     (SP)+,D2
@@ -149,9 +151,10 @@ Get_Direction
 
     MOVEM.W     D2, -(SP)
 
+    CLR         D5
     MOVE.B      #15,D1
-    LSL.L       #7,D2
-    LSR.L       D1,D2
+    LSL.W       #7,D2
+    LSR.W       D1,D2
     MOVE.B      D2,D5
 
     MOVEM.W     (SP)+,D2
@@ -161,10 +164,11 @@ Get_Is_Register_Or_Immediate
 
     MOVEM.W     D2, -(SP)
 
+    CLR         D6
     MOVE.B      #10,D1
-    LSL.L       D1,D2
+    LSL.W       D1,D2
     MOVE.B      #15,D1
-    LSR.L       D1,D2
+    LSR.W       D1,D2
 
     MOVE.B      D2,D6
 
@@ -175,11 +179,12 @@ Get_Is_Register_Or_Immediate
 Get_Shift_Opcode
 
     MOVEM.W     D2, -(SP)
-
+    
+    CLR         D7
     MOVE.B      #11,D1
-    LSL.L       D1,D2
+    LSL.W       D1,D2
     MOVE.B      #14,D1
-    LSR.L       D1,D2
+    LSR.W       D1,D2
 
     MOVE.B      D2,D7
 
@@ -1024,6 +1029,7 @@ ERROR
     LEA         pr_ERROR,A1
     BSR         PrintString
     BRA         opdec_return
+
 
 
 

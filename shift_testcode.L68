@@ -1,0 +1,54 @@
+00007000 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.15.04
+Created On: 3/10/2017 6:44:28 PM
+
+00000000                             1  *****************************
+00000000                             2  *
+00000000                             3  * demo_test.X68
+00000000                             4  *
+00000000                             5  * Created 06/02/2016
+00000000                             6  *
+00000000                             7  * Test program for CSS 422 Disassembler Project Demo
+00000000                             8  *
+00000000                             9  *****************************
+00000000                            10  
+00000000  =00007000                 11  start           EQU     $00007000       * ORG and END address
+00000000                            12  
+00000000                            13  * ORG the program so that it straddles the address boundary $00007FFF to $00008000
+00000000                            14  
+00007000                            15                  ORG     start
+00007000                            16  
+00007000                            17  * This is a group of ADD instructions
+00007000                            18  add_start       
+00007000  E53B                      19                  ROL.B   D2,D3
+00007002  E77C                      20                  ROL.W   D3,D4
+00007004  E9BD                      21                  ROL.L   D4,D5
+00007006  E43B                      22                  ROR.B   D2,D3
+00007008  E67C                      23                  ROR.W   D3,D4
+0000700A  E8BD                      24                  ROR.L   D4,D5
+0000700C  E323                      25                  ASL.B   D1,D3
+0000700E  E564                      26                  ASL.W   D2,D4
+00007010  E7A5                      27                  ASL.L   D3,D5
+00007012  E223                      28                  ASR.B   D1,D3
+00007014  E464                      29                  ASR.W   D2,D4
+00007016  E6A5                      30                  ASR.L   D3,D5
+00007018  EB0B                      31                  LSL.B   #5,D3
+0000701A  E94C                      32                  LSL.W   #4,D4
+0000701C  E78D                      33                  LSL.L   #3,D5
+0000701E  EA0B                      34                  LSR.B   #5,D3
+00007020  E84C                      35                  LSR.W   #4,D4
+00007022  E68D                      36                  LSR.L   #3,D5
+00007024                            37                 
+00007024                            38                  
+00007024                            39  
+00007024                            40                  END     start
+
+No errors detected
+No warnings generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+ADD_START           7000
+START               7000
