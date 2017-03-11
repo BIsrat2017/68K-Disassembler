@@ -42,6 +42,7 @@ pr_ADDI     DC.B    'ADDI',0
 pr_ADDQ     DC.B    'ADDQ',0
 pr_SUB      DC.B    'SUB',0
 pr_DIVU     DC.B    'DIVU',0
+pr_LEA      DC.B    'LEA',0
 
 pr_reg      DC.B    'D',0
 
@@ -170,6 +171,7 @@ Done
 		INCLUDE	'opcodes.x68'
 
         END     start
+
 
 
 *~Font name~Courier New~
