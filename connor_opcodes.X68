@@ -537,11 +537,11 @@ print_movem_mask_to_mem
     MOVEM       D0-D7/A1-A6,-(SP)
 
     CLR         D3          ** Temp register
-    MOVE.W      (A0),D4     ** Holds direct registers
-    MOVE.W      (A0)+,D5    ** Holds address registers
-    ANDI.W      #%0000000011111111,D4
-    ANDI.W      #%1111111100000000,D5
-    LSR.W       #8,D5
+    MOVE.W      (A0),D5     ** Holds direct registers
+    MOVE.W      (A0)+,D4    ** Holds address registers
+    ANDI.W      #%0000000011111111,D5
+    ANDI.W      #%1111111100000000,D4
+    LSR.W       #8,D4
     
     BSR         print_movem_dn
     
@@ -563,6 +563,8 @@ to_mem_d0 *************************** D0
     ** Test bit
     BTST        #7,D4
     BEQ         to_mem_d1
+    ** Set D3
+    MOVE.B      #1,D3
     ** Print register
     MOVE.B      #14,D0
     LEA         pr_d0,A1
@@ -579,6 +581,8 @@ to_mem_d1 *************************** D1
     ** Test bit
     BTST        #6,D4
     BEQ         to_mem_d2
+    ** Set D3
+    MOVE.B      #1,D3
     ** Print register
     MOVE.B      #14,D0
     LEA         pr_d1,A1
@@ -595,6 +599,10 @@ to_mem_d2 *************************** D2
     ** Test bit
     BTST        #5,D4
     BEQ         to_mem_d3
+    ** Print slash if D3 set
+    BSR         slash_check
+    ** Set D3
+    MOVE.B      #1,D3
     ** Print register
     MOVE.B      #14,D0
     LEA         pr_d2,A1
@@ -611,6 +619,10 @@ to_mem_d3 *************************** D3
     ** Test bit
     BTST        #4,D4
     BEQ         to_mem_d4
+    ** Print slash if D3 set
+    BSR         slash_check
+    ** Set D3
+    MOVE.B      #1,D3
     ** Print register
     MOVE.B      #14,D0
     LEA         pr_d3,A1
@@ -627,6 +639,10 @@ to_mem_d4 *************************** D4
     ** Test bit
     BTST        #3,D4
     BEQ         to_mem_d5
+    ** Print slash if D3 set
+    BSR         slash_check
+    ** Set D3
+    MOVE.B      #1,D3
     ** Print register
     MOVE.B      #14,D0
     LEA         pr_d4,A1
@@ -643,6 +659,10 @@ to_mem_d5 *************************** D5
     ** Test bit
     BTST        #2,D4
     BEQ         to_mem_d6
+    ** Print slash if D3 set
+    BSR         slash_check
+    ** Set D3
+    MOVE.B      #1,D3
     ** Print register
     MOVE.B      #14,D0
     LEA         pr_d5,A1
@@ -659,6 +679,10 @@ to_mem_d6 *************************** D6
     ** Test bit
     BTST        #1,D4
     BEQ         to_mem_d7
+    ** Print slash if D3 set
+    BSR         slash_check
+    ** Set D3
+    MOVE.B      #1,D3
     ** Print register
     MOVE.B      #14,D0
     LEA         pr_d6,A1
@@ -675,12 +699,15 @@ to_mem_d7 *************************** D7
     ** Test bit
     BTST        #0,D4
     BEQ         print_movem_dn_end
+    ** Print slash if D3 set
+    BSR         slash_check
     ** Print register
     MOVE.B      #14,D0
     LEA         pr_d6,A1
     TRAP        #15
     
 print_movem_dn_end
+    CLR         D3
     RTS
     
 ****
@@ -780,7 +807,18 @@ to_mem_a5
 to_mem_a6
 to_mem_a7
     
+************************************** Slash check
+slash_check
+    CMPI.B      #1,D3
+    BNE         no_slash
+    ** Clear D3 and print slash
+    CLR         D3
+    MOVE.B      #14,D0
+    LEA         pr_slash,A1
+    TRAP        #15
     
+no_slash
+    RTS
 
 
 
