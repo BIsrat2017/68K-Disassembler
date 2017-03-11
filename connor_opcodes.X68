@@ -530,8 +530,45 @@ print_movem_to_mem
 ********
 
 MATCH_MOVEM_TO_REG_W
-    BRA         opdec_return
+    ** Move command size into D1
+    MOVE.B      #2,D1
+    ** Print command
+    MOVE.B      #14,D0
+    LEA         pr_MOVEM,A1
+    TRAP        #15
+    ** Print size
+    LEA         pr_WORD,A1
+    TRAP        #15
+
+    BRA         print_movem_to_reg
 MATCH_MOVEM_TO_REG_L
+    ** Move command size into D1
+    MOVE.B      #4,D1
+    ** Print command
+    MOVE.B      #14,D0
+    LEA         pr_MOVEM,A1
+    TRAP        #15
+    ** Print size
+    LEA         pr_LONG,A1
+    TRAP        #15
+print_movem_to_reg
+    ** Print space
+    LEA         pr_space,A1
+    TRAP        #15
+
+    ** Decode right side ea
+    MOVE.B      D2,D0
+    ANDI.B      #%00111111,D0
+    JSR         EADecoder
+
+    ** Add comma
+    MOVE.B      #14,D0
+    LEA         pr_comma,A1
+    TRAP        #15
+
+    ** Print registers
+    BSR         print_movem_mask_to_reg
+
     BRA         opdec_return
 
 
@@ -562,8 +599,34 @@ print_movem_mask_to_mem
     MOVEM       (SP)+,D0-D7/A1-A6
     RTS
 
-print_movem_mask_to_REG
+****
+
+print_movem_mask_to_reg
+    MOVEM       D0-D7/A1-A6,-(SP)
+
+    CLR         D3          ** Temp register
+    MOVE.W      (A0),D4     ** Holds direct registers
+    MOVE.W      (A0)+,D5    ** Holds address registers
+    ANDI.W      #%0000000011111111,D4
+    ANDI.W      #%1111111100000000,D5
+    LSR.W       #8,D5
+
+    BSR         bit_reversal
+    BSR         print_movem_dn
+
+    ** Print ADDRESS REG slash
+    MOVE.B      #14,D0
+    LEA         pr_slash,A1
+    TRAP        #15
+
+    MOVE.B      D5,D4
+    BSR         bit_reversal
+    BSR         print_movem_an
+
+    MOVEM       (SP)+,D0-D7/A1-A6
     RTS
+
+
 
 ************************************************* REGISTER PRINTERS
 
@@ -1042,6 +1105,7 @@ cascade_a7 *************************** -A7
     BRA         print_movem_an_end
 
 
+
 *************************************
 **          MOVEM TO REG PRINTS    **
 *************************************
@@ -1064,6 +1128,61 @@ slash_check
     TRAP        #15
 
 no_slash
+    RTS
+
+************************************************
+*******************************************
+************************************** Bit reversal
+** Reverses D4
+bit_reversal
+    MOVEM       D0-D3/D5-D7,-(SP)
+    ** Reverse D4
+    CLR         D2
+    CLR         D3
+
+    MOVE.B      D4,D3
+    ANDI.B      #%10000000,D3
+    LSR.B       #7,D3
+    OR.B        D3,D2
+
+    MOVE.B      D4,D3
+    ANDI.B      #%01000000,D3
+    LSR.B       #5,D3
+    OR.B        D3,D2
+
+    MOVE.B      D4,D3
+    ANDI.B      #%00100000,D3
+    LSR.B       #3,D3
+    OR.B        D3,D2
+
+    MOVE.B      D4,D3
+    ANDI.B      #%00010000,D3
+    LSR.B       #1,D3
+    OR.B        D3,D2
+
+    MOVE.B      D4,D3
+    ANDI.B      #%00001000,D3
+    LSL.B       #1,D3
+    OR.B        D3,D2
+
+    MOVE.B      D4,D3
+    ANDI.B      #%00000100,D3
+    LSL.B       #3,D3
+    OR.B        D3,D2
+
+    MOVE.B      D4,D3
+    ANDI.B      #%00000010,D3
+    LSL.B       #5,D3
+    OR.B        D3,D2
+
+    MOVE.B      D4,D3
+    ANDI.B      #%00000001,D3
+    LSL.B       #7,D3
+    OR.B        D3,D2
+
+    MOVE.B      D2,D4
+
+    MOVEM       (SP)+,D0-D3/D5-D7
     RTS
 
 
