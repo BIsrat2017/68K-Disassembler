@@ -482,7 +482,7 @@ MATCH_DIVU
 
 
 *************************************
-**          MOVEM COMMANDS         **
+**          MOVEM PRINTS           **
 *************************************
 
 MATCH_MOVEM_TO_MEM_W
@@ -511,54 +511,66 @@ print_movem_to_mem
     ** Print space
     LEA         pr_space,A1
     TRAP        #15
-    
+
+    ** Print registers
     BSR         print_movem_mask_to_mem
+
     ** Add comma
     MOVE.B      #14,D0
     LEA         pr_comma,A1
     TRAP        #15
+
     ** Decode right side ea
     MOVE.B      D2,D0
     ANDI.B      #%00111111,D0
     JSR         EADecoder
 
     BRA         opdec_return
-        
+
 ********
-    
+
 MATCH_MOVEM_TO_REG_W
-    MOVE.W      D2,D5       *REMOVE
-    
+    BRA         opdec_return
 MATCH_MOVEM_TO_REG_L
-    MOVE.W      D2,D5       *REMOVE
-    
-    
+    BRA         opdec_return
+
+
+*************************************
+**          MOVEM HELPER FUNCTIONS **
+*************************************
+
 print_movem_mask_to_mem
     MOVEM       D0-D7/A1-A6,-(SP)
 
     CLR         D3          ** Temp register
-    MOVE.W      (A0),D5     ** Holds direct registers
-    MOVE.W      (A0)+,D4    ** Holds address registers
+    MOVE.W      (A0),D5     ** Holds address registers
+    MOVE.W      (A0)+,D4    ** Holds direct registers
     ANDI.W      #%0000000011111111,D5
     ANDI.W      #%1111111100000000,D4
     LSR.W       #8,D4
-    
+
     BSR         print_movem_dn
-    
+
     ** Print ADDRESS REG slash
     MOVE.B      #14,D0
     LEA         pr_slash,A1
     TRAP        #15
-    
-    *BSR         print_movem_an
-    
+
+    MOVE.B      D5,D4
+    BSR         print_movem_an
+
     MOVEM       (SP)+,D0-D7/A1-A6
     RTS
-    
-    
+
+print_movem_mask_to_REG
+    RTS
+
+************************************************* REGISTER PRINTERS
+
 ** D4 should contain direct registers
+
+********************************************* Dn
 print_movem_dn
-    
 to_mem_d0 *************************** D0
     ** Test bit
     BTST        #7,D4
@@ -569,7 +581,7 @@ to_mem_d0 *************************** D0
     MOVE.B      #14,D0
     LEA         pr_d0,A1
     TRAP        #15
-    
+
     ** Check if next bit is clear
     ** If true, skip next
     BTST        #6,D4
@@ -587,7 +599,7 @@ to_mem_d1 *************************** D1
     MOVE.B      #14,D0
     LEA         pr_d1,A1
     TRAP        #15
-    
+
     ** Check if next bit is clear
     ** If true, skip next
     BTST        #5,D4
@@ -607,7 +619,7 @@ to_mem_d2 *************************** D2
     MOVE.B      #14,D0
     LEA         pr_d2,A1
     TRAP        #15
-    
+
     ** Check if next bit is clear
     ** If true, skip next
     BTST        #4,D4
@@ -627,7 +639,7 @@ to_mem_d3 *************************** D3
     MOVE.B      #14,D0
     LEA         pr_d3,A1
     TRAP        #15
-    
+
     ** Check if next bit is clear
     ** If true, skip next
     BTST        #3,D4
@@ -647,7 +659,7 @@ to_mem_d4 *************************** D4
     MOVE.B      #14,D0
     LEA         pr_d4,A1
     TRAP        #15
-    
+
     ** Check if next bit is clear
     ** If true, skip next
     BTST        #2,D4
@@ -667,7 +679,7 @@ to_mem_d5 *************************** D5
     MOVE.B      #14,D0
     LEA         pr_d5,A1
     TRAP        #15
-    
+
     ** Check if next bit is clear
     ** If true, skip next
     BTST        #1,D4
@@ -687,14 +699,14 @@ to_mem_d6 *************************** D6
     MOVE.B      #14,D0
     LEA         pr_d6,A1
     TRAP        #15
-    
+
     ** Check if next bit is clear
     ** If true, skip next
     BTST        #0,D4
     BEQ         print_movem_dn_end
     ** Else, check cascade
     BRA         cascade_d7
-    
+
 to_mem_d7 *************************** D7
     ** Test bit
     BTST        #0,D4
@@ -705,11 +717,11 @@ to_mem_d7 *************************** D7
     MOVE.B      #14,D0
     LEA         pr_d6,A1
     TRAP        #15
-    
+
 print_movem_dn_end
     CLR         D3
     RTS
-    
+
 ****
 
 cascade_d1 *************************** -D1
@@ -721,9 +733,9 @@ cascade_d1 *************************** -D1
     TRAP        #15
     LEA         pr_D1,A1
     TRAP        #15
-    
+
     BRA         to_mem_d3
-    
+
 cascade_d2 *************************** -D2
     ** If the next bit is set, check next
     BTST        #4,D4
@@ -733,9 +745,9 @@ cascade_d2 *************************** -D2
     TRAP        #15
     LEA         pr_D2,A1
     TRAP        #15
-    
+
     BRA         to_mem_d4
-    
+
 cascade_d3 *************************** -D3
     ** If the next bit is set, check next
     BTST        #3,D4
@@ -745,9 +757,9 @@ cascade_d3 *************************** -D3
     TRAP        #15
     LEA         pr_D3,A1
     TRAP        #15
-    
+
     BRA         to_mem_d5
-    
+
 cascade_d4 *************************** -D4
     ** If the next bit is set, check next
     BTST        #2,D4
@@ -757,9 +769,9 @@ cascade_d4 *************************** -D4
     TRAP        #15
     LEA         pr_D4,A1
     TRAP        #15
-    
+
     BRA         to_mem_d6
-    
+
 cascade_d5 *************************** -D5
     ** If the next bit is set, check next
     BTST        #1,D4
@@ -769,9 +781,9 @@ cascade_d5 *************************** -D5
     TRAP        #15
     LEA         pr_D5,A1
     TRAP        #15
-    
+
     BRA         to_mem_d7
-    
+
 cascade_d6 *************************** -D6
     ** If the next bit is set, check next
     BTST        #0,D4
@@ -781,32 +793,266 @@ cascade_d6 *************************** -D6
     TRAP        #15
     LEA         pr_D6,A1
     TRAP        #15
-    
+
     BRA         print_movem_dn_end
-    
+
 cascade_d7 *************************** -D7
     ** Else, finish the list
     LEA         pr_hyphen,A1
     TRAP        #15
     LEA         pr_D7,A1
     TRAP        #15
-    
+
     BRA         print_movem_dn_end
 
-**************************************
-
-** D5 should contain address registers
+********************************************* An
 print_movem_an
+to_mem_a0 *************************** A0
+    ** Test bit
+    BTST        #7,D4
+    BEQ         to_mem_a1
+    ** Set D3
+    MOVE.B      #1,D3
+    ** Print register
+    MOVE.B      #14,D0
+    LEA         pr_a0,A1
+    TRAP        #15
 
-to_mem_a0
-to_mem_a1
-to_mem_a2
-to_mem_a3
-to_mem_a4
-to_mem_a5
-to_mem_a6
-to_mem_a7
-    
+    ** Check if next bit is clear
+    ** If true, skip next
+    BTST        #6,D4
+    BEQ         to_mem_a2
+    ** Else, check cascade
+    BRA         cascade_a1
+
+to_mem_a1 *************************** A1
+    ** Test bit
+    BTST        #6,D4
+    BEQ         to_mem_a2
+    ** Set D3
+    MOVE.B      #1,D3
+    ** Print register
+    MOVE.B      #14,D0
+    LEA         pr_a1,A1
+    TRAP        #15
+
+    ** Check if next bit is clear
+    ** If true, skip next
+    BTST        #5,D4
+    BEQ         to_mem_a3
+    ** Else, check cascade
+    BRA         cascade_a2
+
+to_mem_a2 *************************** A2
+    ** Test bit
+    BTST        #5,D4
+    BEQ         to_mem_a3
+    ** Print slash if D3 set
+    BSR         slash_check
+    ** Set D3
+    MOVE.B      #1,D3
+    ** Print register
+    MOVE.B      #14,D0
+    LEA         pr_a2,A1
+    TRAP        #15
+
+    ** Check if next bit is clear
+    ** If true, skip next
+    BTST        #4,D4
+    BEQ         to_mem_a4
+    ** Else, check cascade
+    BRA         cascade_a3
+
+to_mem_a3 *************************** A3
+    ** Test bit
+    BTST        #4,D4
+    BEQ         to_mem_a4
+    ** Print slash if D3 set
+    BSR         slash_check
+    ** Set D3
+    MOVE.B      #1,D3
+    ** Print register
+    MOVE.B      #14,D0
+    LEA         pr_a3,A1
+    TRAP        #15
+
+    ** Check if next bit is clear
+    ** If true, skip next
+    BTST        #3,D4
+    BEQ         to_mem_a5
+    ** Else, check cascade
+    BRA         cascade_a4
+
+to_mem_a4 *************************** A4
+    ** Test bit
+    BTST        #3,D4
+    BEQ         to_mem_a5
+    ** Print slash if D3 set
+    BSR         slash_check
+    ** Set D3
+    MOVE.B      #1,D3
+    ** Print register
+    MOVE.B      #14,D0
+    LEA         pr_a4,A1
+    TRAP        #15
+
+    ** Check if next bit is clear
+    ** If true, skip next
+    BTST        #2,D4
+    BEQ         to_mem_a6
+    ** Else, check cascade
+    BRA         cascade_a5
+
+to_mem_a5 *************************** A5
+    ** Test bit
+    BTST        #2,D4
+    BEQ         to_mem_a6
+    ** Print slash if D3 set
+    BSR         slash_check
+    ** Set D3
+    MOVE.B      #1,D3
+    ** Print register
+    MOVE.B      #14,D0
+    LEA         pr_a5,A1
+    TRAP        #15
+
+    ** Check if next bit is clear
+    ** If true, skip next
+    BTST        #1,D4
+    BEQ         to_mem_a7
+    ** Else, check cascade
+    BRA         cascade_a6
+
+to_mem_a6 *************************** A6
+    ** Test bit
+    BTST        #1,D4
+    BEQ         to_mem_a7
+    ** Print slash if D3 set
+    BSR         slash_check
+    ** Set D3
+    MOVE.B      #1,D3
+    ** Print register
+    MOVE.B      #14,D0
+    LEA         pr_a6,A1
+    TRAP        #15
+
+    ** Check if next bit is clear
+    ** If true, skip next
+    BTST        #0,D4
+    BEQ         print_movem_an_end
+    ** Else, check cascade
+    BRA         cascade_a7
+
+to_mem_a7 *************************** A7
+    ** Test bit
+    BTST        #0,D4
+    BEQ         print_movem_an_end
+    ** Print slash if D3 set
+    BSR         slash_check
+    ** Print register
+    MOVE.B      #14,D0
+    LEA         pr_a6,A1
+    TRAP        #15
+
+print_movem_an_end
+    CLR         D3
+    RTS
+
+****
+
+cascade_a1 *************************** -A1
+    ** If the next bit is set, check next
+    BTST        #5,D4
+    BNE         cascade_a2
+    ** Else, finish the list
+    LEA         pr_hyphen,A1
+    TRAP        #15
+    LEA         pr_a1,A1
+    TRAP        #15
+
+    BRA         to_mem_a3
+
+cascade_a2 *************************** -A2
+    ** If the next bit is set, check next
+    BTST        #4,D4
+    BNE         cascade_a3
+    ** Else, finish the list
+    LEA         pr_hyphen,A1
+    TRAP        #15
+    LEA         pr_a2,A1
+    TRAP        #15
+
+    BRA         to_mem_a4
+
+cascade_a3 *************************** -A3
+    ** If the next bit is set, check next
+    BTST        #3,D4
+    BNE         cascade_a4
+    ** Else, finish the list
+    LEA         pr_hyphen,A1
+    TRAP        #15
+    LEA         pr_a3,A1
+    TRAP        #15
+
+    BRA         to_mem_a5
+
+cascade_a4 *************************** -A4
+    ** If the next bit is set, check next
+    BTST        #2,D4
+    BNE         cascade_a5
+    ** Else, finish the list
+    LEA         pr_hyphen,A1
+    TRAP        #15
+    LEA         pr_a4,A1
+    TRAP        #15
+
+    BRA         to_mem_a6
+
+cascade_a5 *************************** -A5
+    ** If the next bit is set, check next
+    BTST        #1,D4
+    BNE         cascade_a6
+    ** Else, finish the list
+    LEA         pr_hyphen,A1
+    TRAP        #15
+    LEA         pr_a5,A1
+    TRAP        #15
+
+    BRA         to_mem_a7
+
+cascade_a6 *************************** -A6
+    ** If the next bit is set, check next
+    BTST        #0,D4
+    BNE         cascade_a7
+    ** Else, finish the list
+    LEA         pr_hyphen,A1
+    TRAP        #15
+    LEA         pr_a6,A1
+    TRAP        #15
+
+    BRA         print_movem_an_end
+
+cascade_a7 *************************** -A7
+    ** Else, finish the list
+    LEA         pr_hyphen,A1
+    TRAP        #15
+    LEA         pr_a7,A1
+    TRAP        #15
+
+    BRA         print_movem_an_end
+
+
+*************************************
+**          MOVEM TO REG PRINTS    **
+*************************************
+
+
+
+
+
+
+************************************************
+*******************************************
 ************************************** Slash check
 slash_check
     CMPI.B      #1,D3
@@ -816,13 +1062,9 @@ slash_check
     MOVE.B      #14,D0
     LEA         pr_slash,A1
     TRAP        #15
-    
+
 no_slash
     RTS
-
-
-
-
 
 
 *~Font name~Courier New~
